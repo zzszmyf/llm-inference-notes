@@ -1,6 +1,10 @@
-# LLM 量化精读笔记（LLM Quantization Study Notes）
+# LLM 推理优化精读笔记（LLM Inference Optimization Study Notes）
 
-> 一套 MIT lecture note 级别的 **LLM 推理量化**中文精读笔记：从信息论与数值编码的地基，到均匀量化理论、数值格式、粒度与离群值、主流 PTQ/QAT 方法（GPTQ / AWQ / SmoothQuant / KIVI / QLoRA / BitNet 等）、质量评估与生产部署，共 11 章 + 总览。
+> 一套 MIT lecture note 级别的 **LLM 推理优化**中文精读笔记，两条主线：
+>
+> - **量化（有损换速度）**：信息论与数值编码 → 均匀量化理论 → 数值格式与硬件 → 粒度/校准/离群值 → PTQ/QAT（GPTQ / AWQ / SmoothQuant / KIVI / QLoRA / BitNet 等）→ 质量评估 → 生产部署，共 11 章 + 总览。
+> - **推测解码（无损换步数）**：接受率数学 → 原始推测解码 → Medusa 多头解码 → EAGLE 特征空间草稿 → n-gram/检索式无模型路线 → 系统集成与生产验收，共 6 章 + 总览。
+>
 > 全部公式使用 **Markdown + LaTeX**（行内 `$...$`、独立 `$$...$$`），可直接在支持 MathJax/KaTeX 的 Markdown 阅读器中渲染。
 
 ## 在线浏览
@@ -35,6 +39,18 @@
 | [11 系统协同与部署](./docs/LLM量化精读笔记-11-系统协同与部署.md) | QServe W4A8KV4、FP8 Attention、引擎选型与部署决策树 | ✅ |
 
 另附：[量化学习速览笔记](./docs/LLM推理优化-Quantization量化学习笔记.md)（概览版，适合快速复习）。
+
+## 推测解码精读笔记（00-06）
+
+| 章节 | 内容 | 状态 |
+|---|---|---|
+| [00 总览与学习地图](./docs/LLM推测解码精读笔记-00-总览与学习地图.md) | 章节结构、符号约定、与量化系列的关系 | ✅ |
+| [01 问题形式化与接受率数学](./docs/LLM推测解码精读笔记-01-问题形式化与接受率数学.md) | 自回归为什么慢、接受率 α、E[N] 推导、墙钟收益模型 | ✅ |
+| [02 原始推测解码（草稿模型与拒绝采样）](./docs/LLM推测解码精读笔记-02-原始推测解码-草稿模型与拒绝采样.md) | 完整算法、无损性定理、最优 K、草稿规模权衡 | ✅ |
+| [03 Medusa（多头解码）](./docs/LLM推测解码精读笔记-03-Medusa-多头解码.md) | 多头并行预测、树注意力、典型验收、Medusa-1/2 | ✅ |
+| [04 EAGLE（特征空间草稿）](./docs/LLM推测解码精读笔记-04-EAGLE-特征空间草稿.md) | 特征级自回归、shifted-token、EAGLE-2 动态树 | ✅ |
+| [05 n-gram/检索式与无模型路线](./docs/LLM推测解码精读笔记-05-n-gram检索式与无模型路线.md) | Prompt Lookup、Lookahead Decoding、REST | ✅ |
+| [06 系统集成与生产验收](./docs/LLM推测解码精读笔记-06-系统集成与生产验收.md) | 量化 × 推测组合模型、TTFT/TPS、验收协议、决策树 | ✅ |
 
 ## 阅读顺序
 
