@@ -1,0 +1,2215 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理优化精读笔记：量化 + 推测解码（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%AA%8C%E6%94%B6/">
+      
+      
+        <link rel="prev" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>06 系统集成与生产验收 - LLM 推理优化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-06" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-header__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 推理优化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              06 系统集成与生产验收
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-nav__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 推理优化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推测解码精读笔记
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    推测解码精读笔记
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E6%8E%A5%E5%8F%97%E7%8E%87%E6%95%B0%E5%AD%A6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 问题形式化与接受率数学
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 原始推测解码（草稿模型与拒绝采样）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-Medusa-%E5%A4%9A%E5%A4%B4%E8%A7%A3%E7%A0%81/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Medusa（多头解码）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 EAGLE（特征空间草稿）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 n-gram/检索式与无模型路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 系统集成与生产验收
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 系统集成与生产验收
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 全系列回顾：两条主线的乘法结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 组合墙钟模型：量化 × 推测
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 组合墙钟模型：量化 × 推测">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 基础公式回顾
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 引入量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 树的组合
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ttft-tps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 端到端延迟模型：TTFT 与 TPS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 系统组件集成
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 系统组件集成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 调度与批处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 KV cache 管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 与量化方案的兼容矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 吞吐 vs 延迟权衡
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 验收协议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 验收协议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 无损性验证（推测专属）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 质量评测（量化 + 近似验收共用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 性能验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 组合验收矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 数值算例：组合收益
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 决策树：什么时候上什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 实现细节与坑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 本章小结与系列收尾
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 本章小结与系列收尾">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#0006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        系列收尾：00–06 一句话记忆
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：组合模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：四场景表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（设计）：验收清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4ttft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：TTFT 为什么不吃推测收益
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（设计）：四类业务的选型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：组合收益敏感性分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 全系列回顾：两条主线的乘法结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 组合墙钟模型：量化 × 推测
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 组合墙钟模型：量化 × 推测">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 基础公式回顾
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 引入量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 树的组合
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ttft-tps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 端到端延迟模型：TTFT 与 TPS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 系统组件集成
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 系统组件集成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 调度与批处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 KV cache 管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 与量化方案的兼容矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 吞吐 vs 延迟权衡
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 验收协议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 验收协议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 无损性验证（推测专属）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 质量评测（量化 + 近似验收共用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 性能验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 组合验收矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 数值算例：组合收益
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 决策树：什么时候上什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 实现细节与坑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 本章小结与系列收尾
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 本章小结与系列收尾">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#0006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        系列收尾：00–06 一句话记忆
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：组合模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：四场景表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（设计）：验收清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4ttft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：TTFT 为什么不吃推测收益
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（设计）：四类业务的选型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：组合收益敏感性分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-06">LLM 推测解码精读笔记 · 06 系统集成与生产验收<a class="headerlink" href="#llm-06" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：vLLM / TensorRT-LLM 的推测解码工程实践；量化系列第 10 章（质量评估方法论）与第 11 章（系统协同与部署）。本系列完结章。
+前置：01–05 章全部内容。学完本章你应该能：① 用"每步成本 × 步数"的双因子模型解释量化与推测的叠加收益，并指出"只量化目标、不量化草稿"会稀释推测收益；② 分解 TTFT 与 TPS，说清各自吃哪类优化；③ 设计一份生产验收协议（无损性验证、质量评测、性能指标、组合矩阵）；④ 根据业务场景（低延迟/高吞吐/显存受限/重复性任务）给出技术选型；⑤ 列出集成时最常见的 8 个坑。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li>本章目标</li>
+<li>全系列回顾：两条主线的乘法结构</li>
+<li>组合墙钟模型：量化 × 推测</li>
+<li>端到端延迟模型：TTFT 与 TPS</li>
+<li>系统组件集成</li>
+<li>吞吐 vs 延迟权衡</li>
+<li>验收协议</li>
+<li>数值算例：组合收益</li>
+<li>决策树：什么时候上什么</li>
+<li>实现细节与坑</li>
+<li>本章小结与系列收尾</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
+</ol>
+<hr />
+<h2 id="2">2. 全系列回顾：两条主线的乘法结构<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>整个系列围绕一个双因子模型展开：</p>
+<div class="arithmatex">\[
+\text{总墙钟} = \underbrace{\text{每步成本}}_{\text{量化主战场}} \times \underbrace{\text{步数}}_{\text{推测主战场}}
+\]</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>量化（有损换速度）：位宽减半 → 权重搬移减半 → 每步约快 2x（W4A16 等）
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>推测（无损换步数）：一次验证产出 E[N] 个 token → 步数除以 ~2-3.5x
+</code></pre></div>
+<p>两路正交，理想情况下<strong>乘积叠加</strong>；但存在交互项（草稿也被量化吗？验证树更贵吗？KV 量化腾出的显存能换更大 batch 吗？），本章把这些交互算清楚。</p>
+<h2 id="3">3. 组合墙钟模型：量化 × 推测<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 基础公式回顾<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>01/02 章的链式推测：</p>
+<div class="arithmatex">\[
+E[N] = \frac{1-\alpha^{K+1}}{1-\alpha}, \qquad
+\text{speedup}_{\text{spec}} = \frac{E[N]\cdot c}{c+K}, \quad c = \frac{T_p}{T_q}
+\]</div>
+<p>每轮墙钟 <span class="arithmatex">\(T_p + K\cdot T_q\)</span>，产出 <span class="arithmatex">\(E[N]\)</span> 个 token。</p>
+<h3 id="32">3.2 引入量化<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<p>设目标模型量化后每步快 <span class="arithmatex">\(q_t\)</span> 倍、草稿快 <span class="arithmatex">\(q_d\)</span> 倍：</p>
+<div class="arithmatex">\[
+T_p \to \frac{T_p}{q_t}, \qquad T_q \to \frac{T_q}{q_d}
+\]</div>
+<p>组合加速比（相对未量化、未推测的基线）：</p>
+<div class="arithmatex">\[
+\text{speedup}_{\text{total}} = \frac{E[N]\cdot T_p/q_t}{T_p/q_t + K\cdot T_q/q_d}
+\]</div>
+<p><strong>情形分析</strong>（<span class="arithmatex">\(T_p=10\)</span>ms、<span class="arithmatex">\(T_q=1\)</span>ms、<span class="arithmatex">\(K=4\)</span>、<span class="arithmatex">\(\alpha=0.8\)</span>、<span class="arithmatex">\(E[N]=3.36\)</span>）：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">每轮时间</th>
+<th style="text-align: right;">每 token 时间</th>
+<th style="text-align: right;">总加速</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基线（无优化）</td>
+<td style="text-align: right;">10ms/token</td>
+<td style="text-align: right;">10.0ms</td>
+<td style="text-align: right;">1.00x</td>
+<td>—</td>
+</tr>
+<tr>
+<td>只推测</td>
+<td style="text-align: right;">14ms / 3.36</td>
+<td style="text-align: right;">4.17ms</td>
+<td style="text-align: right;">2.40x</td>
+<td>02 章结果</td>
+</tr>
+<tr>
+<td>量化都做（<span class="arithmatex">\(q_t=q_d=2\)</span>）</td>
+<td style="text-align: right;">7ms / 3.36</td>
+<td style="text-align: right;">2.08ms</td>
+<td style="text-align: right;"><strong>4.80x</strong></td>
+<td>≈ 乘积 2.40 × 2</td>
+</tr>
+<tr>
+<td>只量化目标（<span class="arithmatex">\(q_t=2, q_d=1\)</span>）</td>
+<td style="text-align: right;">9ms / 3.36</td>
+<td style="text-align: right;">2.68ms</td>
+<td style="text-align: right;">3.73x</td>
+<td>草稿开销占比上升</td>
+</tr>
+<tr>
+<td>只量化草稿（<span class="arithmatex">\(q_t=1, q_d=2\)</span>）</td>
+<td style="text-align: right;">12ms / 3.36</td>
+<td style="text-align: right;">3.57ms</td>
+<td style="text-align: right;">2.80x</td>
+<td>推测比值改善但绝对收益小</td>
+</tr>
+</tbody>
+</table>
+<p>三个结论：</p>
+<ol>
+<li><strong>都量化时乘积近似成立</strong>（4.80x ≈ 2.40 × 2）：两条优化主线确实正交；</li>
+<li><strong>只量化目标会稀释推测收益</strong>（3.73x &lt; 4.80x）：草稿相对变慢，<span class="arithmatex">\(c\)</span> 下降，草稿开销占比上升——<strong>量化草稿和量化目标一样重要</strong>；</li>
+<li><strong>量化是"放大器"</strong>：同样的推测方案，配合量化后绝对收益更大，所以生产环境优先"量化 + 推测"一起上。</li>
+</ol>
+<h3 id="33">3.3 树的组合<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<p>树/特征级方案（03/04 章）把 <span class="arithmatex">\(T_q\)</span> 换成"树/草稿头的前向成本"，<span class="arithmatex">\(E[N]\)</span> 换成树的期望接受长度：</p>
+<div class="arithmatex">\[
+\text{speedup} = \frac{E[N]\cdot T_p/q_t}{T_p/q_t + T_{\text{draft}}/q_d}
+\]</div>
+<p>定性结论不变：<span class="arithmatex">\(T_{\text{draft}}\)</span> 越小（Medusa 头 ≈ 0、EAGLE 轻量 decoder），组合收益越接近"纯 <span class="arithmatex">\(E[N]\)</span> × 量化"。</p>
+<hr />
+<h2 id="4-ttft-tps">4. 端到端延迟模型：TTFT 与 TPS<a class="headerlink" href="#4-ttft-tps" title="Permanent link">&para;</a></h2>
+<p>把一次请求拆成两段：</p>
+<div class="arithmatex">\[
+\text{TTFT} \approx T_{\text{prefill}}(L, B), \qquad
+\text{TPS} = \frac{1}{\text{decode 每 token 时间}}
+\]</div>
+<p>两种优化对两段的作用完全不同：</p>
+<table>
+<thead>
+<tr>
+<th>优化</th>
+<th>TTFT（prefill）</th>
+<th>TPS（decode）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>量化（FP8/W4A16）</td>
+<td>✓ 显著（compute-bound，FLOPS 翻倍）</td>
+<td>✓ 显著（bandwidth-bound，搬移减半）</td>
+</tr>
+<tr>
+<td>推测解码</td>
+<td>✗ 无（还没有 token 可猜）</td>
+<td>✓ 显著（步数减少）</td>
+</tr>
+<tr>
+<td>KV 量化</td>
+<td>✗ 几乎无</td>
+<td>✓ 间接（省显存 → 更大 batch/更长序列）</td>
+</tr>
+<tr>
+<td>分块预填充</td>
+<td>✓（减少队头阻塞）</td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>经验法则：
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>TTFT 靠"量化 + 分块预填充"；TPS 靠"推测 + 量化"。
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>只上推测、不上量化：TTFT 一点没动，用户体验第一口还是慢。
+</code></pre></div>
+<hr />
+<h2 id="5">5. 系统组件集成<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 调度与批处理<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>推测解码的每轮分两阶段：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>草稿阶段：每个请求独立跑草稿（batch 内各请求长度不同）
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>验证阶段：把所有请求的草稿树拼成一个"验证 batch"，一次前向批量验证
+</code></pre></div>
+<p>生产引擎（vLLM 等）的要点：</p>
+<ul>
+<li>验证前向用<strong>树注意力</strong>，多个请求的树按各自掩码拼进同一张注意力矩阵；</li>
+<li>草稿阶段可以与其他请求的验证阶段<strong>重叠</strong>（流水线化），隐藏草稿延迟；</li>
+<li>batch 越大，验证前向越接近带宽饱和，推测收益会部分被"本来就要搬权重"抵消（第 6 节）。</li>
+</ul>
+<h3 id="52-kv-cache">5.2 KV cache 管理<a class="headerlink" href="#52-kv-cache" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>目标 KV：验证前向算整棵树 → 只保留接受路径，其余丢弃
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>草稿 KV：草稿模型自己的 KV（独立维护；EAGLE 用特征缓存）
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>量化 KV：KV8/KV4（量化系列 08 章）→ 省显存，配合推测可支撑更长序列
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>前缀缓存：多个请求共享前缀时复用 KV（与推测正交，可叠加）
+</code></pre></div>
+<p>一个容易踩的坑：<strong>接受路径的 hidden state / 特征必须保存</strong>（04 章），否则下一轮草稿要重跑目标前向，推测收益直接蒸发。</p>
+<h3 id="53">5.3 与量化方案的兼容矩阵<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>量化位宽</th>
+<th>与推测组合的注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W8A8 / FP8</td>
+<td>无损推测照常；验证树 FLOPs 增大的部分也享受 FP8 加速</td>
+</tr>
+<tr>
+<td>W4A16</td>
+<td>decode 带宽减半，收益最大；注意草稿也要量化（§3.2）</td>
+</tr>
+<tr>
+<td>W4A8KV4</td>
+<td>KV 省显存换长上下文/大 batch；KV 误差与典型验收误差叠加，需验收（第 7 节）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-vs">6. 吞吐 vs 延迟权衡<a class="headerlink" href="#6-vs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>batch=1（本地/交互）：
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  decode 带宽远未饱和，推测的"一步多产出"几乎全额变现
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  → Medusa/EAGLE 论文的 2.2-3.6x 都在这类设置下测出
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>高 batch（在线服务）：
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  验证前向一次处理大量请求，权重搬移成本被摊薄
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  推测的步数收益仍在，但验证树增加的 FLOPs 可能撞上算力上限
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  → 收益存在但通常低于 batch=1 的论文数字
+</code></pre></div>
+<p>吞吐优化的三条杠杆，按性价比排序：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1. 连续批处理 + 前缀缓存（零风险、收益大）
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>2. 量化（每步成本直接减半）
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>3. 推测解码（步数减少；batch 越大边际收益越小）
+</code></pre></div>
+<hr />
+<h2 id="7">7. 验收协议<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<p>推测解码是无损优化，量化是有损优化——<strong>验收必须分别设计，再组合验证</strong>。</p>
+<h3 id="71">7.1 无损性验证（推测专属）<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>解码模式</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>贪心</td>
+<td>与 vanilla 贪心输出<strong>逐 token 完全一致</strong>（同 seed、同实现）；不一致即 bug 或近似验收</td>
+</tr>
+<tr>
+<td>采样</td>
+<td>固定 seed 下，推测开/关的经验分布不可区分：比较 n-gram 分布、统计量或做分布检验</td>
+</tr>
+</tbody>
+</table>
+<p>注意：Medusa 典型验收、PLD 跳过验证等实现<strong>不是</strong>严格无损——验收文档里要明确标注"近似模式"，别把近似当无损宣传。</p>
+<h3 id="72">7.2 质量评测（量化 + 近似验收共用）<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<p>沿用量化系列 10 章方法论：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>perplexity：最快，但只反映"分布像不像"
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>任务 benchmark：MMLU / HumanEval / GSM8K / MT-Bench，分数差在噪声内
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>定制评测：接你的业务数据，测端到端效果
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>阈值：与基线差的置信区间包含 0，才允许上线
+</code></pre></div>
+<h3 id="73">7.3 性能验收<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
+<p>不要只报一个加速比。完整指标集：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>怎么测</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\alpha\)</span></td>
+<td>草稿质量（草稿侧）</td>
+<td>链式草稿的接受率</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\tau\)</span> / <span class="arithmatex">\(E[N]\)</span></td>
+<td>每轮真实产出（验证侧）</td>
+<td>直接统计每轮 token 数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(c\)</span></td>
+<td>目标/草稿速度比</td>
+<td>分别测 <span class="arithmatex">\(T_p\)</span>、<span class="arithmatex">\(T_q\)</span>（<strong>量化后再测</strong>）</td>
+</tr>
+<tr>
+<td>speedup</td>
+<td>墙钟加速</td>
+<td>同硬件、同引擎、同负载</td>
+</tr>
+<tr>
+<td>TTFT / TPS / P99</td>
+<td>用户体感</td>
+<td>端到端压测</td>
+</tr>
+</tbody>
+</table>
+<p>负载矩阵：短/长 prompt × 对话/代码/摘要 × batch 1/N。P99 尤其重要——推测的随机接受会让尾部延迟抖动。</p>
+<h3 id="74">7.4 组合验收矩阵<a class="headerlink" href="#74" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>            BF16           W4A16
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>vanilla    (基线)         质量+性能
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>EAGLE      无损+性能      质量+性能   ← 上线候选
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>Medusa     近似+性能       近似+性能   ← 需重点评估质量
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>PLD        无损+性能       无损+性能   ← 零成本插件
+</code></pre></div>
+<p>每个格子单独测质量与性能；两个有损近似（量化误差 × 典型验收误差）<strong>可能复合</strong>，不能只测单因子。</p>
+<hr />
+<h2 id="8">8. 数值算例：组合收益<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<p>场景：LLaMA2-Chat 70B，BF16 基线 <span class="arithmatex">\(T_p = 100\)</span>ms/token，EAGLE 草稿 <span class="arithmatex">\(T_q = 8\)</span>ms/token（<span class="arithmatex">\(c = 12.5\)</span>），实测 <span class="arithmatex">\(\alpha\)</span> 剖面下 <span class="arithmatex">\(E[N] = 3.4\)</span>，<span class="arithmatex">\(K = 5\)</span>。</p>
+<p><strong>只推测</strong>：</p>
+<div class="arithmatex">\[
+\text{speedup} = \frac{3.4 \times 12.5}{12.5 + 5} = 2.43\text{x}
+\]</div>
+<p><strong>推测 + W4A16（<span class="arithmatex">\(q_t = 2\)</span>，草稿也量化 <span class="arithmatex">\(q_d = 2\)</span>）</strong>：</p>
+<div class="arithmatex">\[
+\text{speedup} = \frac{3.4 \times 100/2}{100/2 + 5 \times 8/2} = \frac{170}{70} = 2.43\text{x} \ (\text{组件内}) \quad
+\Rightarrow \text{总加速} = 2.43 \times 2 = 4.86\text{x}
+\]</div>
+<p>每 token 从 100ms 降到约 20.6ms。若<strong>只量化目标</strong>（<span class="arithmatex">\(q_d = 1\)</span>）：</p>
+<div class="arithmatex">\[
+\text{speedup} = \frac{3.4 \times 50}{50 + 40} = 1.89\text{x} \ \Rightarrow \text{总加速} = 1.89 \times 2 = 3.78\text{x}
+\]</div>
+<p>草稿不量化损失约 22% 的端到端收益——这就是"量化要连草稿一起做"的量化证据。</p>
+<hr />
+<h2 id="9">9. 决策树：什么时候上什么<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>质量零容忍（医疗/金融/法务）：
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  → 只上严格无损推测（EAGLE 拒绝采样 / PLD）+ 可选 KV 量化
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  → 权重量化必须过 7.2 节全套质量关
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>单用户低延迟（本地/交互，batch≈1）：
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  → EAGLE/Medusa + 树 + W4A16（草稿一起量化）→ 收益最大
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>高吞吐在线服务：
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  → 前缀缓存 + 连续批处理 + 分块预填充（先上零风险项）
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  → 量化 → 推测（batch 大时按实测收益决定是否保留）
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>任务重复性强（摘要/代码/翻译）：
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>  → 免费叠加 PLD 作为附加通道
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>显存受限（长上下文/大 batch）：
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>  → KV 量化优先；推测次之（省显存不是推测的强项）
+</code></pre></div>
+<hr />
+<h2 id="10">10. 实现细节与坑<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>用错基线</strong>：拿 HuggingFace eager 当基线测出的加速比虚高；必须与生产引擎同配置对比。</li>
+<li><strong>只报 <span class="arithmatex">\(\alpha\)</span> 不报 <span class="arithmatex">\(\tau/E[N]\)</span></strong>：<span class="arithmatex">\(\alpha\)</span> 高但草稿慢，照样不加速；每轮产出才是验证侧真相。</li>
+<li><strong>草稿不量化</strong>：草稿开销占比上升，端到端收益掉 20%+（第 8 节）。</li>
+<li><strong>两个近似叠加不验收</strong>：量化误差 × 典型验收误差可能复合放大；组合矩阵必须逐个测。</li>
+<li><strong>只测一种负载</strong>：prompt 长度、任务类型、batch 数都影响收益；按负载矩阵测。</li>
+<li><strong>忽略 P99</strong>：推测的随机性让尾部延迟抖动，长尾用户体感会差。</li>
+<li><strong>无损验证偷懒</strong>：贪心模式下输出不一致就是 bug；采样模式要做分布检验，不能只看"长得像"。</li>
+<li><strong>树参数不调</strong>：03 章 64 节点结论、02 章 <span class="arithmatex">\(K^*\)</span> 表格——上线前在目标负载上重新扫一遍。</li>
+<li><strong>长序列下 <span class="arithmatex">\(T_p\)</span> 变贵</strong>：验证前向处理 <span class="arithmatex">\(L+K\)</span> 个位置，<span class="arithmatex">\(L\)</span> 很大时 <span class="arithmatex">\(K\)</span> 要相应调小。</li>
+</ol>
+<hr />
+<h2 id="11">11. 本章小结与系列收尾<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>双因子模型</strong>：总墙钟 = 每步成本 × 步数；量化与推测正交，都做时乘积近似成立。</li>
+<li><strong>交互项</strong>：草稿也要量化，否则推测收益被稀释；KV 量化省显存换长上下文/大 batch。</li>
+<li><strong>TTFT vs TPS</strong>：TTFT 靠量化 + 分块预填充，推测只救 TPS。</li>
+<li><strong>验收协议</strong>：无损性（贪心逐 token 一致 / 采样分布检验）+ 质量（perplexity/benchmark/定制）+ 性能（<span class="arithmatex">\(\alpha\)</span>/<span class="arithmatex">\(\tau\)</span>/c/speedup/P99）+ 组合矩阵。</li>
+<li><strong>决策树</strong>：质量零容忍 → 无损推测；batch=1 → 推测+量化全上；高吞吐 → 缓存/批处理/量化优先；重复任务 → 白捡 PLD。</li>
+</ol>
+<hr />
+<h3 id="0006">系列收尾：00–06 一句话记忆<a class="headerlink" href="#0006" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>00 地图：量化改"每步成本"，推测改"步数"，两条主线正交
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>01 公式：E[N] = (1−α^{K+1})/(1−α)，α = 1 − TV(p,q)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>02 原始：小模型猜 K 步，大模型一次审，拒绝采样保证严格无损
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>03 Medusa：多头 + 树，"猜得准"升级为"覆盖得全"；典型验收≈近似
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>04 EAGLE：特征级自回归，第一个草稿恒接受，70B 2.7–3.5x
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>05 n-gram：翻自己/翻轨迹/翻语料，重复率决定盈亏
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>06 集成：每步成本 × 步数，量化与推测一起上，验收分三关
+</code></pre></div>
+<blockquote>
+<p>一句话记忆（全系列）：<strong>"让每一步更便宜（量化），让需要的步数更少（推测）；猜的方式从外部模型一路进化到特征空间与文本记忆——最后用一份验收协议把它们拧在一起。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="12">12. 习题与解答<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<h3 id="1">题 1（推导）：组合模型<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p>证明：当 <span class="arithmatex">\(q_t = q_d = q\)</span> 时，组合加速比 = <span class="arithmatex">\(q \times \text{speedup}_{\text{spec}}\)</span>；当 <span class="arithmatex">\(q_d = 1\)</span> 时，组合加速比 &lt; <span class="arithmatex">\(q \times \text{speedup}_{\text{spec}}\)</span>（<span class="arithmatex">\(K &gt; 0\)</span> 时严格小于）。</p>
+<details>
+<summary>题 1 解答</summary>
+
+$q_t=q_d=q$：$\text{speedup} = \frac{E\cdot T_p/q}{T_p/q + K T_q/q} = \frac{E\cdot T_p}{T_p + K T_q} = \text{speedup}_{\text{spec}}$，再乘 $q$ 得 $q\times\text{speedup}_{\text{spec}}$。$q_d=1$：分母 $\frac{T_p}{q} + K T_q$ 比 $\frac{T_p + K T_q}{q}$ 大（因为 $\frac{T_p}{q} + K T_q > \frac{T_p}{q} + \frac{K T_q}{q}$ 当 $q>1$），故组件内加速比 < $\text{speedup}_{\text{spec}}$。
+</details>
+
+<h3 id="2_1">题 2（计算）：四场景表<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(T_p=10\)</span>ms、<span class="arithmatex">\(T_q=1\)</span>ms、<span class="arithmatex">\(K=4\)</span>、<span class="arithmatex">\(\alpha=0.8\)</span>：重算第 3 节四行表格，并给出"只量化目标但把草稿也换快（<span class="arithmatex">\(q_d=1.5\)</span>）"这一行的结果。</p>
+<details>
+<summary>题 2 解答</summary>
+
+基线 10.0ms/token；只推测 14/3.36=4.17ms → 2.40x；都量化 7/3.36=2.08ms → 4.80x；只量化目标 9/3.36=2.68ms → 3.73x；只量化草稿 12/3.36=3.57ms → 2.80x。$q_t=2,q_d=1.5$：每轮 $(10/2 + 4\times 1/1.5) = 5+2.67=7.67$ms → 2.28ms/token → 4.38x，介于"只量化目标"与"都量化"之间。
+</details>
+
+<h3 id="3_1">题 3（设计）：验收清单<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<p>给一个"把 EAGLE + W4A16KV4 组合上线的验收清单"（不少于 8 项，覆盖无损性、质量、性能、组合）。</p>
+<details>
+<summary>题 3 解答要点</summary>
+
+① 贪心逐 token 一致性（EAGLE 开/关）；② 采样分布检验（固定 seed，n-gram 统计不可区分）；③ MT-Bench/HumanEval/GSM8K 分数差在噪声内；④ 业务定制评测；⑤ $\alpha$、$\tau$、$c$（量化后重测）；⑥ TTFT/TPS/P99（短/长 prompt、batch 1/N）；⑦ KV 量化对长序列质量的影响；⑧ 组合矩阵 {BF16,W4A16} × {vanilla,EAGLE} 四格全测；⑨ 回归门禁：质量差置信区间含 0、P99 不劣化。
+</details>
+
+<h3 id="4ttft">题 4（思考）：TTFT 为什么不吃推测收益<a class="headerlink" href="#4ttft" title="Permanent link">&para;</a></h3>
+<p>解释推测解码为什么对 TTFT 几乎无效，并列出三种真正改善 TTFT 的手段；指出哪种手段在"多请求排队"场景下最关键。</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+TTFT 由 prefill（处理用户全部输入）决定，此时还没有可验证的草稿 token。改善手段：① 量化（prefill compute-bound，FP8 翻倍 FLOPS）；② 分块预填充（把长 prefill 切片，减少队头阻塞）；③ 前缀缓存（共享前缀只算一次）。排队场景下分块预填充最关键——它直接降低高并发下的 TTFT 方差。
+</details>
+
+<h3 id="5_1">题 5（设计）：四类业务的选型<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
+<p>为以下四个场景各给一个技术组合并说明理由：① 医疗问诊（质量零容忍、batch=1）；② 代码补全 SaaS（延迟敏感、重复性强）；③ 客服机器人（高吞吐、长上下文）；④ 端侧 8GB 显存跑 7B 模型。</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+① 严格无损推测（EAGLE 拒绝采样）+ 可选 KV 量化，权重量化需全套质量关；② PLD 免费叠加 + EAGLE/Medusa + 量化，代码重复率让 n-gram 命中率高；③ 前缀缓存 + 连续批处理 + 分块预填充 + 量化为主，推测按实测收益决定；④ KV 量化优先（显存换上下文）+ W4A16 + 轻量推测（草稿也要量化），注意 batch=1 下推测收益最大。
+</details>
+
+<h3 id="6">题 6（编程）：组合收益敏感性分析<a class="headerlink" href="#6" title="Permanent link">&para;</a></h3>
+<p>写一个脚本：输入 <span class="arithmatex">\((\alpha, K, c, q_t, q_d)\)</span>，输出 <span class="arithmatex">\(E[N]\)</span>、组件内加速比、总加速比；扫 <span class="arithmatex">\(\alpha \in \{0.6, 0.7, 0.8, 0.9\}\)</span>、<span class="arithmatex">\(q_d \in \{1, 1.5, 2\}\)</span> 画表，回答"什么时候草稿量化最值钱"。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+总加速比（相对未量化、未推测基线，无量纲）$= \frac{E[N]}{1/q_t + K/(c\cdot q_d)}$，由 $\text{speedup} = \frac{E\cdot T_p/q_t}{T_p/q_t + K\cdot T_q/q_d}$ 上下同除 $T_p$ 得到。扫表会发现：$\alpha$ 高（$E[N]$ 大）时草稿开销占比高，$q_d$ 的边际收益更大——**草稿量化在"推测收益高"时最值钱**；$\alpha$ 低时推测本身就不划算，先解决草稿质量再谈量化。
+</details>
+
+<hr />
+<h2 id="13">13. 延伸阅读<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://docs.vllm.ai/en/latest/features/spec_decode.html">vLLM 推测解码文档（Speculative Decoding）</a>：<code>[ngram]</code>、EAGLE、Medusa 的工程集成与参数。</li>
+<li><a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM In-flight Batching 与 Speculative Decoding 文档</a>：生产级组合实现。</li>
+<li><a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">量化系列 10 章（质量评估方法论）</a>：本章质量验收的方法论基础。</li>
+<li><a href="https://arxiv.org/abs/2402.12374">Sequoia（arXiv:2402.12374）</a>：面向推测解码的树结构缩放理论，进一步学习起点。</li>
+<li><a href="https://arxiv.org/abs/2402.18904">Hydra（arXiv:2402.18904）</a> / <a href="https://arxiv.org/abs/2310.03701">DistillSpec（arXiv:2310.03701）</a>：多分支草稿与蒸馏草稿，推测解码的延伸方向。</li>
+<li><a href="https://arxiv.org/abs/2408.04678">CREST（arXiv:2408.04678）</a>：REST 的 datastore 压缩改进。</li>
+<li>上一篇：<a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/">05 n-gram/检索式与无模型路线</a>。<strong>本系列完结。</strong></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 05 n-gram/检索式与无模型路线">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                05 n-gram/检索式与无模型路线
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

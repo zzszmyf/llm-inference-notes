@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/">
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E6%8E%A5%E5%8F%97%E7%8E%87%E6%95%B0%E5%AD%A6/">
       
       
-        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/">
+        <link rel="prev" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">
       
       
-        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">
+        <link rel="next" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>09 QAT 与训练内量化 - LLM 推理优化精读笔记</title>
+        <title>01 问题形式化与接受率数学 - LLM 推理优化精读笔记</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#llm-09-qat-steqlorabitnet-b158" class="md-skip">
+        <a href="#llm-01" class="md-skip">
           跳转至
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              09 QAT 与训练内量化
+              01 问题形式化与接受率数学
             
           </span>
         </div>
@@ -556,37 +556,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    09 QAT 与训练内量化
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
         
   
   
@@ -602,386 +575,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目录（本章）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. 本章目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. 为什么需要训练侧参与
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-ste" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. STE：让量化可训练
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. STE：让量化可训练">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.1 问题：量化函数几乎处处不可导
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-straight-through-estimator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.2 直通估计器（Straight-Through Estimator）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.3 手推一个反向传播例子
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-scalelsq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 进阶：可学习 scale（LSQ 思路）
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-qat" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. QAT 的标准流程与代价
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. QAT 的标准流程与代价">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4.1 流程
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-ptq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4.2 与 PTQ 的成本对比
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-qlora" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. QLoRA：量化 × 微调
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. QLoRA：量化 × 微调">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.1 动机
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.2 三件套
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53-lora" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.3 架构：量化基座 + LoRA
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#54" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.4 结果
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-bitnet-b158-1-bit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. BitNet b1.58：为 1-bit 而生的架构
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. BitNet b1.58：为 1-bit 而生的架构">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#61" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.1 三值权重
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#62" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.2 无乘法矩阵乘
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#63-qat" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.3 训练：从头 QAT
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#64" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.4 结果
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. 四条路线对比
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. 本章小结
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. 习题与解答
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. 习题与解答">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1ste" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 1（手算）：STE 反向
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2158-bit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 2（推导）：1.58 bit 怎么来的
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3nf4-vs-int4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 3（对比）：NF4 vs INT4
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-bitnet" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 4（设计）：给 BitNet 写部署要点
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 5（开放）：量化 + 微调的组合矩阵
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. 延伸阅读
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1044,8 +637,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1056,13 +651,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_15" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
         
           
           <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="">
@@ -1083,7 +676,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_15">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1126,10 +719,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E6%8E%A5%E5%8F%97%E7%8E%87%E6%95%B0%E5%AD%A6/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 问题形式化与接受率数学
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1145,6 +765,458 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 自回归解码为什么慢：形式化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 自回归解码为什么慢：形式化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 自回归的结构性约束
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 浪费在哪里
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 关键矛盾
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 核心思想：草稿 + 并行验证
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 核心思想：草稿 + 并行验证">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 两个模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 一轮操作的流程（预览）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 先记三个量
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 接受率数学：α 与 E[N]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 接受率数学：α 与 E[N]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 定义接受概率 α
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-tv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 α 与 TV 距离的关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-token-en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 期望 token 数 E[N] 的推导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 数值算例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-c-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 墙钟收益模型：速度比 c 与最优 K
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 墙钟收益模型：速度比 c 与最优 K">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 一轮的墙钟时间
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 加速比公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 数值算例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 收益的两个边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 最优 K
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 为什么无损：拒绝采样的边际分布定理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 为什么无损：拒绝采样的边际分布定理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 拒绝采样规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 边际分布验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 一个直觉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-kc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 设计空间：α、K、c 三者如何决定收益
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：期望 token 数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：加速比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3tv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（推导）：TV 恒等式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（推导）：无损性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（思考）：为什么说推测解码是"无损"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：模拟接受过程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1349,30 +1421,69 @@
   <a href="#2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. 为什么需要训练侧参与
+        2. 自回归解码为什么慢：形式化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 自回归解码为什么慢：形式化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 自回归的结构性约束
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#3-ste" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. STE：让量化可训练
+        2.2 浪费在哪里
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. STE：让量化可训练">
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 关键矛盾
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 核心思想：草稿 + 并行验证
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 核心思想：草稿 + 并行验证">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#31" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.1 问题：量化函数几乎处处不可导
+        3.1 两个模型
       
     </span>
   </a>
@@ -1380,10 +1491,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#32-straight-through-estimator" class="md-nav__link">
+  <a href="#32" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.2 直通估计器（Straight-Through Estimator）
+        3.2 一轮操作的流程（预览）
       
     </span>
   </a>
@@ -1394,18 +1505,7 @@
   <a href="#33" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.3 手推一个反向传播例子
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-scalelsq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 进阶：可学习 scale（LSQ 思路）
+        3.3 先记三个量
       
     </span>
   </a>
@@ -1418,22 +1518,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-qat" class="md-nav__link">
+  <a href="#4-en" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. QAT 的标准流程与代价
+        4. 接受率数学：α 与 E[N]
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="4. QAT 的标准流程与代价">
+    <nav class="md-nav" aria-label="4. 接受率数学：α 与 E[N]">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#41" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.1 流程
+        4.1 定义接受概率 α
       
     </span>
   </a>
@@ -1441,10 +1541,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#42-ptq" class="md-nav__link">
+  <a href="#42-tv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.2 与 PTQ 的成本对比
+        4.2 α 与 TV 距离的关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-token-en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 期望 token 数 E[N] 的推导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 数值算例
       
     </span>
   </a>
@@ -1457,22 +1579,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-qlora" class="md-nav__link">
+  <a href="#5-c-k" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. QLoRA：量化 × 微调
+        5. 墙钟收益模型：速度比 c 与最优 K
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. QLoRA：量化 × 微调">
+    <nav class="md-nav" aria-label="5. 墙钟收益模型：速度比 c 与最优 K">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#51" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.1 动机
+        5.1 一轮的墙钟时间
       
     </span>
   </a>
@@ -1483,7 +1605,7 @@
   <a href="#52" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.2 三件套
+        5.2 加速比公式
       
     </span>
   </a>
@@ -1491,10 +1613,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#53-lora" class="md-nav__link">
+  <a href="#53" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.3 架构：量化基座 + LoRA
+        5.3 数值算例
       
     </span>
   </a>
@@ -1505,7 +1627,18 @@
   <a href="#54" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.4 结果
+        5.4 收益的两个边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 最优 K
       
     </span>
   </a>
@@ -1518,22 +1651,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-bitnet-b158-1-bit" class="md-nav__link">
+  <a href="#6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. BitNet b1.58：为 1-bit 而生的架构
+        6. 为什么无损：拒绝采样的边际分布定理
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. BitNet b1.58：为 1-bit 而生的架构">
+    <nav class="md-nav" aria-label="6. 为什么无损：拒绝采样的边际分布定理">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#61" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.1 三值权重
+        6.1 问题
       
     </span>
   </a>
@@ -1544,7 +1677,7 @@
   <a href="#62" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.2 无乘法矩阵乘
+        6.2 拒绝采样规则
       
     </span>
   </a>
@@ -1552,10 +1685,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#63-qat" class="md-nav__link">
+  <a href="#63" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.3 训练：从头 QAT
+        6.3 边际分布验证
       
     </span>
   </a>
@@ -1566,7 +1699,7 @@
   <a href="#64" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.4 结果
+        6.4 一个直觉
       
     </span>
   </a>
@@ -1579,10 +1712,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#7" class="md-nav__link">
+  <a href="#7-kc" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. 四条路线对比
+        7. 设计空间：α、K、c 三者如何决定收益
       
     </span>
   </a>
@@ -1613,10 +1746,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1ste" class="md-nav__link">
+  <a href="#1-token" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 1（手算）：STE 反向
+        题 1（推导）：期望 token 数
       
     </span>
   </a>
@@ -1624,10 +1757,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2158-bit" class="md-nav__link">
+  <a href="#2_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 2（推导）：1.58 bit 怎么来的
+        题 2（计算）：加速比
       
     </span>
   </a>
@@ -1635,10 +1768,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3nf4-vs-int4" class="md-nav__link">
+  <a href="#3tv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 3（对比）：NF4 vs INT4
+        题 3（推导）：TV 恒等式
       
     </span>
   </a>
@@ -1646,10 +1779,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-bitnet" class="md-nav__link">
+  <a href="#4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 4（设计）：给 BitNet 写部署要点
+        题 4（推导）：无损性
       
     </span>
   </a>
@@ -1660,7 +1793,18 @@
   <a href="#5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 5（开放）：量化 + 微调的组合矩阵
+        题 5（思考）：为什么说推测解码是"无损"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：模拟接受过程
       
     </span>
   </a>
@@ -1703,312 +1847,350 @@
   
 
 
-<h1 id="llm-09-qat-steqlorabitnet-b158">LLM 量化精读笔记 · 09 QAT 与训练内量化：STE、QLoRA、BitNet b1.58<a class="headerlink" href="#llm-09-qat-steqlorabitnet-b158" title="Permanent link">&para;</a></h1>
+<h1 id="llm-01">LLM 推测解码精读笔记 · 01 问题形式化与接受率数学<a class="headerlink" href="#llm-01" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>对应：STE（Bengio et al. 2013；直通估计器）；QLoRA（arXiv:2305.14314，NeurIPS 2023）；BitNet b1.58（arXiv:2402.17764）；MIT 6.5940 Lecture 6（Quantization Part II）。
-学完本章你应该能：① 说明量化函数为什么不可导、STE 怎么绕过去，并手推一个反向传播例子；② 讲清 QLoRA 的三件套（NF4、双重量化、paged optimizer）和"量化基座 + LoRA 适配器"的架构；③ 说出 BitNet b1.58 的三值化设计（{-1,0,+1}、1.58 bit、无乘法）与性能结论；④ 对比 PTQ/QAT/QLoRA/BitNet 四条路线的适用场景。</p>
+<p>对应：Leviathan et al., <em>Fast Inference from Transformers via Speculative Decoding</em>（2023）；Inference Engineering Ch5 的 Speculative Decoding 部分。
+学完本章你应该能：① 说清自回归解码慢的<strong>结构性原因</strong>（因果依赖使 GPU 的并行能力被浪费）；② 用"草稿 + 并行验证"一句话解释推测解码为什么能加速；③ 从定义推导期望 token 数公式 <span class="arithmatex">\(E[N] = (1-\alpha^{K+1})/(1-\alpha)\)</span>；④ 推导墙钟加速比公式并手算数值例；⑤ 解释"为什么推测解码是无损的"（拒绝采样的边际分布等于目标分布）。</p>
 </blockquote>
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
 <li>本章目标</li>
-<li>为什么需要训练侧参与</li>
-<li>STE：让量化可训练</li>
-<li>QAT 的标准流程与代价</li>
-<li>QLoRA：量化 × 微调</li>
-<li>BitNet b1.58：为 1-bit 而生的架构</li>
-<li>四条路线对比</li>
+<li>自回归解码为什么慢：形式化</li>
+<li>核心思想：草稿 + 并行验证</li>
+<li>接受率数学：α 与 E[N]</li>
+<li>墙钟收益模型：速度比 c 与最优 K</li>
+<li>为什么无损：拒绝采样的边际分布定理</li>
+<li>设计空间：α、K、c 三者如何决定收益</li>
 <li>本章小结</li>
 <li>习题与解答</li>
 <li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
-<p>04–08 章全是 <strong>PTQ</strong>（训练后量化）：模型训练完，再想办法把误差压下去。本章转向<strong>训练侧</strong>：让模型在训练时就"学会忍受"量化。这会回答一个 PTQ 答不了的问题：</p>
+<p>量化系列回答"每一步怎么更快"，本系列回答"<strong>怎么用更少的步数生成同样的文本</strong>"。本章建立整个系列的数学地基——接受率 α 和期望 token 数 E[N]。后面所有方法（Medusa、EAGLE、n-gram）本质都在做同一件事：<strong>提高 α 或降低草稿成本</strong>。</p>
+<hr />
+<h2 id="2">2. 自回归解码为什么慢：形式化<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 自回归的结构性约束<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>LLM 按自回归方式生成：</p>
+<div class="arithmatex">\[
+x_{t+1} \sim p(\cdot \mid x_1, \dots, x_t)
+\]</div>
+<p>第 <span class="arithmatex">\(t+1\)</span> 个 token 依赖前 <span class="arithmatex">\(t\)</span> 个 token——<strong>严格串行</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>第 1 步：只算 1 个位置
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>第 2 步：只算 1 个位置（但前向里其实处理了 2 个位置的 KV）
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>……
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>每步只"新增"1 个 token 的预测
+</code></pre></div>
+<h3 id="22">2.2 浪费在哪里<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<p>每次前向，GPU 会并行计算<strong>所有 token 位置</strong>的表示（矩阵乘天生并行），但自回归只取<strong>最后一个位置</strong>的输出：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>GPU 实际算的：seq_len 个位置的全部激活
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>解码真正用的：最后 1 个位置的 logits
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>→ 计算利用率 ≈ 1/seq_len（序列越长越浪费）
+</code></pre></div>
+<p>更准确地说，decode 阶段是<strong>访存密集</strong>的（量化系列 03 章的带宽模型）：瓶颈在把权重从 HBM 搬到寄存器，而不是在"算"。但无论算还是搬，<strong>每步只为 1 个新 token 付费</strong>——这是自回归的根本开销。</p>
+<h3 id="23">2.3 关键矛盾<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>自回归的约束：token 之间存在因果依赖，必须串行决策
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>GPU 的能力：一次前向可以并行处理 K 个位置的输入
+</code></pre></div>
+<p>推测解码的思路：<strong>用便宜的草稿模型先"猜" K 个 token，再用昂贵的目标模型一次并行验证</strong>。如果草稿猜得准，一次目标前向就能产出多个 token。</p>
+<hr />
+<h2 id="3">3. 核心思想：草稿 + 并行验证<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 两个模型<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>目标模型 p：大、准、慢（真正负责质量，输出分布必须由它决定）
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>草稿模型 q：小、快、不太准（猜，猜错了会被纠正）
+</code></pre></div>
+<h3 id="32">3.2 一轮操作的流程（预览）<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>1. 草稿：用 q 自回归生成 K 个候选 token（K 步，每步很快）
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>2. 验证：把 K 个候选一次性喂给 p，一次前向得到 K+1 个位置的 logits
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>3. 接受：从左到右逐个检查候选是否"与 p 一致"（拒绝采样规则）
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>4. 纠正：第一个不一致的位置，从修正分布重采样一个 token
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>5. 产出：这一轮得到 N 个新 token（1 ≤ N ≤ K+1）
+</code></pre></div>
 <blockquote>
-<p>如果量化到 4-bit 以下、甚至 1.58-bit，什么方法还能保住质量？</p>
+<p>关键：验证只花<strong>一次目标前向</strong>（代价约等于正常解码一步），却可能换来最多 K+1 个 token。这就是加速的来源。</p>
 </blockquote>
-<p>三条路线的分工：</p>
-<p>QAT（STE）<span class="arithmatex">\(\to\)</span>标准做法：前向模拟量化，反向用直通估计器
-<span class="arithmatex">\(QLoRA \to\)</span>量化基座 + 高精度 LoRA 适配器：4-bit 微调超大模型
-<span class="arithmatex">\(BitNet b1.58 \to\)</span>架构级：三值权重 + 无乘法矩阵乘，从头训练</p>
+<h3 id="33">3.3 先记三个量<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>K：每轮草稿长度（典型 4~8）
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>α：每个草稿 token 被接受的概率
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>c：目标模型每 token 耗时 / 草稿模型每 token 耗时（典型 5~20）
+</code></pre></div>
 <hr />
-<h2 id="2">2. 为什么需要训练侧参与<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
-<p>PTQ 的隐含假设：<strong>量化只是给训练好的权重加噪声，模型必须"生受"</strong>。位宽越低，这个假设越不成立：</p>
-<p>4-bit：PTQ 还能靠 GPTQ/AWQ 补救
-3-bit：只有少数方法勉强（SqueezeLLM）
-2-bit：PTQ 基本失守（QuIP# 靠"洗牌"续命）
-1.58-bit：必须从训练时就让模型适应</p>
-<p>QAT 的核心思想：<strong>在训练前向里"假量化"（<span class="arithmatex">\(\operatorname{quantize} \to \operatorname{dequantize}\)</span>），让 loss 直接看到量化噪声，梯度因此学会往"量化后依然好"的方向更新。</strong></p>
-<hr />
-<h2 id="3-ste">3. STE：让量化可训练<a class="headerlink" href="#3-ste" title="Permanent link">&para;</a></h2>
-<h3 id="31">3.1 问题：量化函数几乎处处不可导<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
-<p>对称量化的前向：</p>
+<h2 id="4-en">4. 接受率数学：α 与 E[N]<a class="headerlink" href="#4-en" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 定义接受概率 α<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>设目标分布 p、草稿分布 q（同一时刻、同一前缀下）。草稿 token 按 q 采样，验证时以概率</p>
 <div class="arithmatex">\[
-\hat{x} = \operatorname{clamp}(\operatorname{round}(x/s), q_{\min}, q_{\max}) \cdot s
+\min\left(1, \frac{p(x)}{q(x)}\right)
 \]</div>
-<p><code>round</code> 是分段常数函数：除了跳变点，导数处处为 0。如果直接反向传播，梯度全为零，训练根本动不了。</p>
-<h3 id="32-straight-through-estimator">3.2 直通估计器（Straight-Through Estimator）<a class="headerlink" href="#32-straight-through-estimator" title="Permanent link">&para;</a></h3>
-<p>STE 的做法：<strong>前向照常量化，反向把量化器当成恒等函数</strong>：</p>
-<p>前向：<span class="arithmatex">\(\hat{x} = \operatorname{clamp}(\operatorname{round}(x/s), q_{\min}, q_{\max}) \cdot s\)</span>
-反向：<span class="arithmatex">\(\partial L/\partial x \approx \partial L/\partial \hat{x}\)</span>（在量化范围内）</p>
-<p>直觉：量化误差（几十分之一）相对梯度噪声是小事，梯度"假装"没有量化，直接穿过；模型因此既能正常更新，又在前向里尝到量化的苦头。</p>
-<h3 id="33">3.3 手推一个反向传播例子<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
-<p>设<span class="arithmatex">\(x = 2.3\)</span>，<span class="arithmatex">\(s = 1\)</span>（简化），前向：</p>
+<p>接受它（拒绝采样规则，第 6 节证明它保持分布）。于是<strong>无条件接受概率</strong>：</p>
 <div class="arithmatex">\[
-\hat{x} = \operatorname{round}(2.3) = 2
+\alpha = \sum_x q(x) \cdot \min\left(1, \frac{p(x)}{q(x)}\right) = \sum_x \min(p(x), q(x))
 \]</div>
-<p>反向时 STE 令：</p>
+<h3 id="42-tv">4.2 α 与 TV 距离的关系<a class="headerlink" href="#42-tv" title="Permanent link">&para;</a></h3>
+<p>利用 <span class="arithmatex">\(\min(a,b) = \frac{a+b-|a-b|}{2}\)</span>：</p>
 <div class="arithmatex">\[
-\partial L/\partial x = \partial L/\partial \hat{x} \times 1 = \partial L/\partial \hat{x}
+\alpha = \frac{1}{2}\sum_x \left(p(x)+q(x)-|p(x)-q(x)|\right) = 1 - \frac{1}{2}\sum_x |p(x)-q(x)|
 \]</div>
-<p>对比精确导数（0）与 STE（1）：STE 保留了"x 增大应该影响输出"的信息，哪怕量化的跳变把局部导数掩盖了。</p>
-<p>边界处理：x 超出 [qmin·s, qmax·s] 时，clamp 把梯度截到边界（或直接传 0），防止训练把权重推到饱和区。</p>
-<h3 id="34-scalelsq">3.4 进阶：可学习 scale（LSQ 思路）<a class="headerlink" href="#34-scalelsq" title="Permanent link">&para;</a></h3>
-<p>标准 STE 的 s 是超参；LSQ（Learned Step Size）把 s 也变成可学习参数：</p>
-<p><span class="arithmatex">\(\partial L/\partial s = \partial L/\partial \hat{x} \times (\partial \hat{x}/\partial s)\)</span>（用 STE 近似）</p>
-<p>训练中学到的 s 比手调更贴合数据，QAT 质量进一步上升。</p>
-<hr />
-<h2 id="4-qat">4. QAT 的标准流程与代价<a class="headerlink" href="#4-qat" title="Permanent link">&para;</a></h2>
-<h3 id="41">4.1 流程<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
-<ol>
-<li>取预训练模型</li>
-<li>在所有线性层/注意力层插入 fake-quant（quantize+dequantize）</li>
-<li>用任务数据微调（几百到几千步），前向带量化、反向 STE</li>
-<li>训练结束：把 fake-quant 替换成真量化权重部署</li>
-</ol>
-<h3 id="42-ptq">4.2 与 PTQ 的成本对比<a class="headerlink" href="#42-ptq" title="Permanent link">&para;</a></h3>
+<p>即</p>
+<div class="arithmatex">\[
+\alpha = 1 - \mathrm{TV}(p, q)
+\]</div>
+<p><strong>α 越接近 1，草稿与目标分布越一致</strong>。β = 1 − α 就是每 token 被拒绝的概率。</p>
+<h3 id="43-token-en">4.3 期望 token 数 E[N] 的推导<a class="headerlink" href="#43-token-en" title="Permanent link">&para;</a></h3>
+<p>设每轮草稿 K 个 token，token 间相互独立（近似；严格版本对历史取条件期望，结论形式相同）。令 α 为单 token 接受概率。</p>
+<p>每轮产出 N 个 token。N 的分布由"前 <span class="arithmatex">\(i-1\)</span> 个草稿 token 都被接受、第 <span class="arithmatex">\(i\)</span> 个被拒绝（随后补 1 个修正 token）"或"全部 <span class="arithmatex">\(K\)</span> 个都被接受（随后从 <span class="arithmatex">\(p\)</span> 直接采 1 个 bonus token）"决定：</p>
+<div class="arithmatex">\[
+P(N = i) = \alpha^{i-1}(1-\alpha), \quad i = 1, \dots, K; \qquad
+P(N = K+1) = \alpha^{K}
+\]</div>
+<p>期望：</p>
+<div class="arithmatex">\[
+E[N] = \sum_{i=1}^{K} i \cdot \alpha^{i-1}(1-\alpha) + (K+1)\alpha^K
+\]</div>
+<p>用等比数列求和 <span class="arithmatex">\(\sum_{i=1}^{K} i\alpha^{i-1} = \frac{1-(K+1)\alpha^K + K\alpha^{K+1}}{(1-\alpha)^2}\)</span>，整理得：</p>
+<div class="arithmatex">\[
+E[N] = \frac{1-\alpha^{K+1}}{1-\alpha}
+\]</div>
+<p><strong>这是整个系列的"第一公式"。</strong></p>
+<h3 id="44">4.4 数值算例<a class="headerlink" href="#44" title="Permanent link">&para;</a></h3>
+<p>不同 α、K 下的期望每轮 token 数：</p>
 <table>
 <thead>
 <tr>
-<th></th>
-<th>PTQ</th>
-<th>QAT</th>
+<th>α</th>
+<th>K=4 时 E[N]</th>
+<th>K=8 时 E[N]</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>训练数据</td>
-<td>不需要（只需校准集）</td>
-<td>需要</td>
+<td>0.5</td>
+<td>1.94</td>
+<td>1.996</td>
 </tr>
 <tr>
-<td>算力</td>
-<td>分钟<span class="arithmatex">\(\sim\)</span>小时</td>
-<td>小时<span class="arithmatex">\(\sim\)</span>天</td>
+<td>0.6</td>
+<td>2.31</td>
+<td>2.47</td>
 </tr>
 <tr>
-<td>质量上限</td>
-<td>低（模型生受）</td>
-<td>高（模型适应）</td>
+<td>0.7</td>
+<td>2.77</td>
+<td>3.20</td>
 </tr>
 <tr>
-<td>位宽下限</td>
-<td><span class="arithmatex">\(\sim 3-bit\)</span>（极限 2-bit）</td>
-<td>2-bit 可行、1.58-bit 可行</td>
+<td>0.8</td>
+<td>3.36</td>
+<td>4.33</td>
 </tr>
 <tr>
-<td>工程复杂度</td>
-<td>低</td>
-<td>中（训练管线改造）</td>
+<td>0.9</td>
+<td>4.10</td>
+<td>6.13</td>
 </tr>
 </tbody>
 </table>
-<p><strong>工程策略</strong>：先 PTQ 上线；质量不达标时先换更好的 PTQ（AWQ/QuIP#）；最后才考虑局部 QAT。</p>
-<hr />
-<h2 id="5-qlora">5. QLoRA：量化 × 微调<a class="headerlink" href="#5-qlora" title="Permanent link">&para;</a></h2>
-<h3 id="51">5.1 动机<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
-<p>大模型微调最贵的是<strong>优化器状态和梯度</strong>（动辄几十 GB）。QLoRA 的思路：<strong>基座模型用 4-bit 冻结存储，只训练注入的高精度 LoRA 适配器</strong>——单卡就能微调 65B。</p>
-<h3 id="52">5.2 三件套<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
-<p><strong>① NF4：4-bit NormalFloat（信息论最优码本）</strong></p>
-<p>普通 INT4/FP4 的网格对权重分布不是最优。NF4 用<strong>标准正态分布的分位数</strong>做码本：</p>
-<p>16 个码字= <span class="arithmatex">\(7\)</span>个负值 + 0 + 8 个正值（非对称）
-码字位置由 N(0,1) 的分位数决定<span class="arithmatex">\(\to\)</span>信息论上对近似正态的权重最优</p>
-<p>相比均分网格，同样的 4-bit 在权重分布最密集的地方码字更密。</p>
-<p><strong>② 双重量化（Double Quantization）</strong></p>
-<p>NF4 每个 block（64 个元素）配一个 FP32 scale。这些 scale 本身也可以量化：</p>
-<p>第一层：NF4 权重（4-bit） + FP32 block scale
-第二层：把 64 个 FP32 scale 再量成 FP8（每组 256 个 scale 共享一个 FP32 二级 scale）
-收益：平均每参数省约 0.37 bit</p>
-<p><strong>③ Paged Optimizer</strong></p>
-<p>优化器状态峰值（如长序列的梯度 checkpoint）会瞬间爆显存；用 GPU 统一内存的分页机制把峰值"换页"出去，避免 OOM。</p>
-<h3 id="53-lora">5.3 架构：量化基座 + LoRA<a class="headerlink" href="#53-lora" title="Permanent link">&para;</a></h3>
-<p>基座：NF4 冻结（4-bit，前向时反量化到 BF16 计算）
-LoRA：低秩适配器（A、B 两个小矩阵），BF16 可训练
-输出：<span class="arithmatex">\(Y = W_4bit\cdot X + (B\cdot A)\cdot X\)</span></p>
-<h3 id="54">5.4 结果<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>65B 模型在单张 48GB GPU 上微调</strong>（此前需要多卡/数百 GB）。</li>
-<li>Guanaco-65B 达到 ChatGPT 在 Vicuna benchmark 上 <strong>99.3%</strong> 的水平。</li>
-<li>微调质量与 16-bit LoRA 相当（论文在多项任务上验证）。</li>
-</ul>
-<blockquote>
-<p>意义：量化从"部署工具"变成"训练工具"——<strong>QLoRA 证明低精度存储不损失可学性</strong>，是开源社区微调的事实标准之一。</p>
-</blockquote>
-<hr />
-<h2 id="6-bitnet-b158-1-bit">6. BitNet b1.58：为 1-bit 而生的架构<a class="headerlink" href="#6-bitnet-b158-1-bit" title="Permanent link">&para;</a></h2>
-<h3 id="61">6.1 三值权重<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
-<p>BitNet b1.58 把<strong>每个权重</strong>限制为三个值：</p>
+<p>验证一例（α=0.8, K=4）：</p>
 <div class="arithmatex">\[
-w \in \{-1, 0, +1\}
+E[N] = \frac{1-0.8^{5}}{1-0.8} = \frac{1-0.32768}{0.2} = 3.36
 \]</div>
-<p>每个权重 1.58 bit（= <span class="arithmatex">\(\log_2(3)\)</span>）</p>
-<p>与 BitNet b1（二值 {-1,+1}）相比，<strong>多了 0</strong>：</p>
-<p>0 的价值：
-1. 更接近真实权重分布（很多权重本来就接近 0）
-2. 隐含稀疏性（部分权重"关闭"）
-3. 相同模型大小下质量显著提升，达到与 FP16 相当</p>
-<h3 id="62">6.2 无乘法矩阵乘<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
-<p>三值权重与激活相乘：</p>
-<div class="arithmatex">\[
-y = \sum w_{i} \cdot x_{i}, w_{i} \in \{-1, 0, +1\}
-\]</div>
-<p><span class="arithmatex">\(\to\)</span>只需要加法和减法，不需要乘法！</p>
-<p>实现（BitNet.cpp 等）：激活先量化为 8-bit，再用三值权重的符号决定加/减。论文估算（7nm）：矩阵乘算术能耗约为 FP16 的 <strong>1/71.4</strong>。</p>
-<h3 id="63-qat">6.3 训练：从头 QAT<a class="headerlink" href="#63-qat" title="Permanent link">&para;</a></h3>
-<p>BitNet 不能从 FP16 模型"转换"而来，必须<strong>从零训练</strong>：</p>
-<ol>
-<li>权重初始化为 FP16，前向时三值化（round 到 {-1,0,+1}）+ 缩放因子</li>
-<li>反向用 STE（第 3 节）</li>
-<li>激活 8-bit 量化（类似 SmoothQuant 的思路）</li>
-<li>训练稳定后，部署时只剩加/减</li>
-</ol>
-<h3 id="64">6.4 结果<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
-<p>质量：相同模型大小与训练 token 下，匹配 FP16 LLaMA 的 perplexity 与下游任务
-速度：比同规模 FP16 快约 2.71x（论文估计）
-内存：约省 3.55x
-能耗：矩阵乘算术能耗约 1/71.4（7nm 估算）
-规模效应：模型越大，收益越明显</p>
-<blockquote>
-<p>意义：BitNet 说明"量化"不一定要当 PTQ 的补救手段，也可以是<strong>架构的起点</strong>——1-bit 时代的 LLM 设计会反过来重塑硬件（专用 1-bit GEMM 单元）。</p>
-</blockquote>
+<p>直觉：α=0.8 时每轮平均产出 3.36 个 token，而目标只"真正解码"了 1 次。</p>
 <hr />
-<h2 id="7">7. 四条路线对比<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h2 id="5-c-k">5. 墙钟收益模型：速度比 c 与最优 K<a class="headerlink" href="#5-c-k" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 一轮的墙钟时间<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>一轮时间 ≈ T_p + K·T_q
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>         = 一次目标验证 + K 步草稿
+</code></pre></div>
+<p>（目标验证一次前向处理 K+1 个位置，代价近似一次正常解码 T_p；草稿 K 步串行，每步 T_q。）</p>
+<h3 id="52">5.2 加速比公式<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<p>目标单独解码：每 token 耗时 <span class="arithmatex">\(T_p\)</span>，每秒 <span class="arithmatex">\(1/T_p\)</span> 个 token。
+推测解码：每轮 <span class="arithmatex">\(E[N]\)</span> 个 token，耗时 <span class="arithmatex">\(T_p + K T_q\)</span>。</p>
+<div class="arithmatex">\[
+\text{speedup} = \frac{E[N]\cdot T_p}{T_p + K\cdot T_q}
+              = \frac{E[N]\cdot c}{c + K}, \quad c = \frac{T_p}{T_q}
+\]</div>
+<h3 id="53">5.3 数值算例<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<p>设 c = 10（目标比草稿慢 10 倍），α = 0.8，K = 4：</p>
+<div class="arithmatex">\[
+E[N] = 3.36, \quad \text{speedup} = \frac{3.36 \times 10}{10+4} = 2.40
+\]</div>
+<p>即墙钟约快 2.4 倍。再看不同组合：</p>
 <table>
 <thead>
 <tr>
-<th></th>
-<th>PTQ</th>
-<th>QAT</th>
-<th>QLoRA</th>
-<th>BitNet b1.58</th>
+<th>α</th>
+<th>c</th>
+<th>K</th>
+<th>E[N]</th>
+<th>speedup</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>是否需要训练</td>
-<td>否</td>
-<td>是（微调）</td>
-<td>是（LoRA）</td>
-<td>是（从头）</td>
+<td>0.8</td>
+<td>10</td>
+<td>4</td>
+<td>3.36</td>
+<td>2.40x</td>
 </tr>
 <tr>
-<td>数据需求</td>
-<td>校准集</td>
-<td>任务数据</td>
-<td>任务数据</td>
-<td>海量预训练数据</td>
+<td>0.8</td>
+<td>10</td>
+<td>8</td>
+<td>4.33</td>
+<td>2.40x</td>
 </tr>
 <tr>
-<td>位宽</td>
-<td>3–4-bit 起步</td>
-<td>2-bit</td>
-<td>4-bit 基座</td>
-<td>1.58-bit</td>
+<td>0.9</td>
+<td>10</td>
+<td>8</td>
+<td>6.13</td>
+<td>3.40x</td>
 </tr>
 <tr>
-<td>质量上限</td>
-<td>低</td>
-<td>高</td>
-<td>高（受限于基座）</td>
-<td>高（重新训练）</td>
+<td>0.6</td>
+<td>10</td>
+<td>4</td>
+<td>2.31</td>
+<td>1.65x</td>
 </tr>
 <tr>
-<td>训练成本</td>
-<td>分钟<span class="arithmatex">\(\sim\)</span>小时</td>
-<td>小时<span class="arithmatex">\(\sim\)</span>天</td>
-<td>单卡小时级</td>
-<td>预训练级</td>
-</tr>
-<tr>
-<td>典型用途</td>
-<td>生产推理默认</td>
-<td>低比特精度冲刺</td>
-<td>单卡微调大模型</td>
-<td>未来架构探索</td>
+<td>0.8</td>
+<td>5</td>
+<td>4</td>
+<td>3.36</td>
+<td>1.87x</td>
 </tr>
 </tbody>
 </table>
-<p>选型：
-  部署已有模型<span class="arithmatex">\(\to PTQ\)</span>（AWQ/GPTQ）
-  部署 + 质量不够<span class="arithmatex">\(\to\)</span>局部 QAT
-  要微调大模型<span class="arithmatex">\(\to QLoRA\)</span>
-  要 1-bit 极限<span class="arithmatex">\(\to BitNet\)</span>（接受重训成本）</p>
+<h3 id="54">5.4 收益的两个边界<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<p><strong>上界</strong>：α → 1 时 <span class="arithmatex">\(E[N] \to K+1\)</span>，加速比 <span class="arithmatex">\(\to \frac{(K+1)c}{c+K} \to c\)</span>。<strong>推测解码最多快 c 倍</strong>——草稿与目标的速度比是天花板，这解释了为什么要选足够小/快的草稿。</p>
+<p><strong>下界</strong>：α 太低时加速比 &lt; 1（推测反而拖慢）。需要</p>
+<div class="arithmatex">\[
+E[N] &gt; 1 + \frac{K}{c}
+\]</div>
+<h3 id="55-k">5.5 最优 K<a class="headerlink" href="#55-k" title="Permanent link">&para;</a></h3>
+<p>给定 α、c，加速比是 K 的函数：</p>
+<div class="arithmatex">\[
+f(K) = \frac{c}{c+K}\cdot\frac{1-\alpha^{K+1}}{1-\alpha}
+\]</div>
+<p>求整数 K 最大化 f(K)。经验规律：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>α 高（0.8+）→ K 取大（8 甚至 16）收益仍增长
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>α 中（0.6~0.7）→ K 取 4~8 附近有峰值
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>c 小（草稿不够快）→ K 应该更小
+</code></pre></div>
+<hr />
+<h2 id="6">6. 为什么无损：拒绝采样的边际分布定理<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 问题<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>草稿分布 q 和目标分布 p 不一致。<strong>为什么最后产出的 token 分布仍然严格等于 p？</strong> 这使推测解码属于"无损"优化（与量化不同，不改变输出分布）。</p>
+<h3 id="62">6.2 拒绝采样规则<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>从 <span class="arithmatex">\(q\)</span> 采样得到 <span class="arithmatex">\(x\)</span>，然后以概率 <span class="arithmatex">\(\min(1, p(x)/q(x))\)</span> 接受 <span class="arithmatex">\(x\)</span>（直接输出）；否则从修正分布 <span class="arithmatex">\(p_r\)</span> 重采样：</p>
+<div class="arithmatex">\[
+p_r(x) = \frac{\max(0, p(x) - q(x))}{\beta}, \qquad \beta = 1 - \alpha
+\]</div>
+<h3 id="63">6.3 边际分布验证<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<p>输出 x 的概率 = 直接接受 x 的概率 + 被拒后重采样到 x 的概率：</p>
+<div class="arithmatex">\[
+P_{\text{emit}}(x) = q(x)\min\left(1,\frac{p(x)}{q(x)}\right) + \beta \cdot p_r(x)
+\]</div>
+<p>分两种情形：</p>
+<div class="arithmatex">\[
+P_{\text{emit}}(x) = \begin{cases}
+q(x) + (p(x) - q(x)) = p(x), &amp; p(x) \ge q(x) \\
+p(x) + 0 = p(x), &amp; p(x) &lt; q(x)
+\end{cases}
+\]</div>
+<p>统一写法：</p>
+<div class="arithmatex">\[
+P_{\text{emit}}(x) = \min(p(x), q(x)) + \max(0, p(x)-q(x)) = p(x)
+\]</div>
+<p><strong>结论：无论草稿多不准，输出分布都精确等于目标分布。</strong> 这是"无损"的数学保证。</p>
+<h3 id="64">6.4 一个直觉<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
+<p>拒绝采样把"q 猜错的那部分概率"按目标分布 p 重新分配，而不是丢弃：猜对的部分直接保留（min(p,q)），猜错的部分用 p−q 的残差补回来（max(0,p−q)），两者拼起来正好是 p。</p>
+<hr />
+<h2 id="7-kc">7. 设计空间：α、K、c 三者如何决定收益<a class="headerlink" href="#7-kc" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>收益 = E[N](α, K) × c/(c+K)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>     = 接受率    × 草稿开销
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>提高 α：草稿与目标越像越好（架构、训练数据、草稿规模）——02~05 章所有方法的主战场
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>提高 c：草稿越小越快（但太小 α 会掉）——权衡
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>调 K：在"多猜几次"与"多付草稿费"之间找峰值
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>方法谱系预览（后续章节）：
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>02 原始推测解码：独立小模型当草稿（α 中等，c 大）
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>03 Medusa：目标模型自带多头草稿（省草稿前向，α 提升）
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>04 EAGLE：特征空间草稿（α 大幅提升）
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>05 n-gram/检索：零训练草稿（c 极大，α 依赖数据）
+</code></pre></div>
 <hr />
 <h2 id="8">8. 本章小结<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>STE</strong>：前向量化、反向恒等——让不可导的量化变得可训练（配合 LSQ 可学 scale）。</li>
-<li><strong>QAT</strong>：模型在训练中"学会忍受"量化，质量上限高于 PTQ，代价是数据和算力。</li>
-<li><strong>QLoRA</strong>：NF4 分位数码本 + 双重量化 + paged optimizer，量化基座 + BF16 LoRA，单卡微调 65B。</li>
-<li><strong>BitNet b1.58</strong>：三值权重 {-1,0,+1}（1.58 bit）、无乘法矩阵乘、从头 QAT，质量匹敌 FP16、能耗降一个数量级。</li>
-<li><strong>一条主线</strong>：位宽越低，越需要"训练侧参与"——从 PTQ 的补救，到 QAT 的适应，再到 BitNet 的架构重构。</li>
+<li><strong>自回归慢的结构性原因</strong>：每步只产出 1 个 token，GPU 的并行能力被因果依赖锁死。</li>
+<li><strong>推测解码 = 草稿 + 并行验证</strong>：草稿猜 K 个，目标一次验证，产出 E[N] 个。</li>
+<li><strong>第一公式</strong>：<span class="arithmatex">\(E[N] = \dfrac{1-\alpha^{K+1}}{1-\alpha}\)</span>，其中 <span class="arithmatex">\(\alpha = \sum_x \min(p(x), q(x)) = 1 - \mathrm{TV}(p,q)\)</span>。</li>
+<li><strong>墙钟收益</strong>：<span class="arithmatex">\(\text{speedup} = \dfrac{E[N]\cdot c}{c+K}\)</span>；上限 c，α 太低会倒挂。</li>
+<li><strong>无损性</strong>：拒绝采样让边际分布严格等于 p——这是与量化最本质的区别。</li>
 </ol>
 <blockquote>
-<p>一句话记忆：<strong>"PTQ 让模型硬扛噪声，QAT 让模型学会挨打，QLoRA 让噪声只在底座、精细活交给 LoRA，BitNet 干脆把噪声变成架构。"</strong></p>
+<p>一句话记忆：<strong>"草稿负责猜，目标负责审；猜得越准（α）审得越快（c），K 是押注的注数。"</strong></p>
 </blockquote>
 <hr />
 <h2 id="9">9. 习题与解答<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
-<h3 id="1ste">题 1（手算）：STE 反向<a class="headerlink" href="#1ste" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(x = 3.7\)</span>，<span class="arithmatex">\(s = 1\)</span>，前向<span class="arithmatex">\(\hat{x} = \operatorname{round}(3.7) = 4\)</span>。若<span class="arithmatex">\(\partial L/\partial \hat{x} = 0.5\)</span>，STE 下<span class="arithmatex">\(\partial L/\partial x\)</span>是多少？真实导数是多少？为什么 STE 可用？</p>
+<h3 id="1-token">题 1（推导）：期望 token 数<a class="headerlink" href="#1-token" title="Permanent link">&para;</a></h3>
+<p>从 P(N=i) 出发，完整推导 <span class="arithmatex">\(E[N] = (1-\alpha^{K+1})/(1-\alpha)\)</span>。</p>
 <details>
 <summary>题 1 解答</summary>
 
-STE：$\partial L/\partial x = 0.5$。真实导数：round 在$x=3.7$处导数为 0。STE 可用因为它保留"增大 x 会增大输出"的方向信息；量化跳变点的局部导数（0 或 ∞）对训练没有统计意义，且训练中大量样本的 STE 期望近似于真实梯度。
+$E[N] = \sum_{i=1}^{K} i\alpha^{i-1}(1-\alpha) + (K+1)\alpha^K$。利用 $\sum_{i=1}^{K} i\alpha^{i-1} = \frac{1-(K+1)\alpha^K+K\alpha^{K+1}}{(1-\alpha)^2}$，代入并通分：分子 = $1-(K+1)\alpha^K+K\alpha^{K+1}+(K+1)\alpha^K-(K+1)\alpha^{K+1} = 1-\alpha^{K+1}$。得 $E[N] = (1-\alpha^{K+1})/(1-\alpha)$。
 </details>
 
-<h3 id="2158-bit">题 2（推导）：1.58 bit 怎么来的<a class="headerlink" href="#2158-bit" title="Permanent link">&para;</a></h3>
-<p>证明三值权重每参数 1.58 bit，并解释为什么它比"1-bit + 稀疏位"的混合更省。</p>
+<h3 id="2_1">题 2（计算）：加速比<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<p>c = 8，α = 0.7。比较 K = 4 与 K = 8 的加速比，并求使加速比 &gt; 1 所需的最小 α（K=4, c=8）。</p>
 <details>
 <summary>题 2 解答</summary>
 
-三个等概率状态需要$\log_2(3) \approx 1.585 bit$。若用"1 bit 符号 + 1 bit 是否为零"则需要 2 bit（且 4 个码字浪费 1 个）。三值直接编码是最紧凑的表示。
+α=0.7：E[N](K=4) = (1−0.7⁵)/0.3 = 2.77；speedup = 2.77×8/12 = 1.85x。E[N](K=8) = (1−0.7⁹)/0.3 = 3.20；speedup = 3.20×8/16 = 1.60x——K=4 反而更好（草稿费高）。加速比 > 1 需 E[N] > 1+K/c = 1.5；解 (1−α⁵)/(1−α) > 1.5，试 α=0.34：E[N]=1.51 ✓；α=0.33：E[N]=1.49 ✗（边界约 0.34）。
 </details>
 
-<h3 id="3nf4-vs-int4">题 3（对比）：NF4 vs INT4<a class="headerlink" href="#3nf4-vs-int4" title="Permanent link">&para;</a></h3>
-<p>为什么 NF4 的码本对 LLM 权重通常优于均匀 INT4？</p>
+<h3 id="3tv">题 3（推导）：TV 恒等式<a class="headerlink" href="#3tv" title="Permanent link">&para;</a></h3>
+<p>证明 <span class="arithmatex">\(\alpha = 1 - \frac{1}{2}\sum_x |p(x)-q(x)|\)</span>。</p>
 <details>
 <summary>题 3 解答</summary>
 
-LLM 权重近似零均值正态分布：大量值集中在 0 附近。均匀网格在 0 附近只有少量码字（02 章"范围利用率"）；NF4 用标准正态分位数布点，0 附近码字密、尾部疏，同样的 16 个码字信息量更大。
+$\min(a,b) = \frac{a+b-|a-b|}{2}$，代入 $\alpha = \sum_x \min(p,q)$：$\alpha = \frac{1}{2}\sum p + \frac{1}{2}\sum q - \frac{1}{2}\sum|p-q| = 1 - \mathrm{TV}(p,q)$。
 </details>
 
-<h3 id="4-bitnet">题 4（设计）：给 BitNet 写部署要点<a class="headerlink" href="#4-bitnet" title="Permanent link">&para;</a></h3>
-<p>BitNet 推理时，矩阵乘的乘法器可以完全去掉吗？还有哪些地方仍是乘法/高精度？</p>
+<h3 id="4">题 4（推导）：无损性<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<p>写出拒绝采样输出分布，证明 <span class="arithmatex">\(P_{\text{emit}}(x) = p(x)\)</span> 对任意 q 成立。</p>
 <details>
-<summary>题 4 解答要点</summary>
+<summary>题 4 解答</summary>
 
-权重×激活的乘法可退化为加/减（按权重符号），但：① 激活仍要 8-bit 量化（需要 scale 乘法）；② 归一化、残差、输出投影仍可能是高精度；③ 注意力（softmax、QK）仍需乘法。所以"无乘法"主要指权重矩阵乘主体，不是全模型。
+$P_{\text{emit}}(x) = q(x)\min(1, p(x)/q(x)) + \beta\cdot\frac{\max(0,p(x)-q(x))}{\beta} = \min(p,q) + \max(0,p-q) = p(x)$。
 </details>
 
-<h3 id="5">题 5（开放）：量化 + 微调的组合矩阵<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
-<p>画出"位宽 × 是否训练"的 2×3 矩阵（4-bit/2-bit/1.58-bit × PTQ/QAT/从头训练），各填一个代表方法与一句话判断。</p>
+<h3 id="5">题 5（思考）：为什么说推测解码是"无损"<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<p>与量化相比，"无损"具体指什么？如果用户看到两次生成结果不同，怎么解释？</p>
 <details>
 <summary>题 5 解答要点</summary>
 
-4-bit：AWQ（PTQ）✓ 生产可用；QAT 4-bit（更稳）；从头 4-bit（少见）。
-2-bit：QuIP#（PTQ，极限）；QAT 2-bit（可行）；BitNet 类（更适合）。
-1.58-bit：PTQ 无解；QAT 勉强；BitNet b1.58（唯一成熟路线）。
-结论：位宽越低，横轴（训练参与度）必须越大。
+无损指**输出分布**严格等于目标模型的采样分布（对任意解码策略：贪心/采样都保持）。两次生成不同是因为采样本身有随机性，与是否用推测无关。注意：如果实现里"无条件接受第一个草稿 token"（加速常用技巧）或草稿/目标温度不一致，会破坏严格无损——工程上要区分"理论无损"与"实现近似"。
+</details>
+
+<h3 id="6_1">题 6（编程）：模拟接受过程<a class="headerlink" href="#6_1" title="Permanent link">&para;</a></h3>
+<p>给定两个词表分布 p、q（如 100 维），实现：① 计算 α；② 模拟 10000 轮草稿-验证（K=4），统计每轮产出 token 数的均值，与公式对比。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+① α = Σ min(p,q)。② 每轮：从 q 采样 K 个 token，逐个以 min(1,p(x)/q(x)) 接受；第一个拒绝处从残差分布 max(0,p−q)/β 重采样；全接受则再从 p 采 1 个 bonus。统计均值应接近 (1−α⁵)/(1−α)。可再验证输出 token 的经验分布 ≈ p（无损性）。
 </details>
 
 <hr />
 <h2 id="10">10. 延伸阅读<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="https://arxiv.org/abs/2305.14314">QLoRA（arXiv:2305.14314）</a>：NF4、双重量化、paged optimizer</li>
-<li><a href="https://arxiv.org/abs/2402.17764">The Era of 1-bit LLMs: BitNet b1.58（arXiv:2402.17764）</a></li>
-<li><a href="https://github.com/microsoft/BitNet">BitNet.cpp</a>：三值权重的 CPU 推理实现（加/减内核）</li>
-<li>Bengio et al., <em>Estimating or Propagating Gradients Through Stochastic Neurons</em>（2013）：STE 的源头</li>
-<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/">08 KV Cache 量化</a>；下一篇：<strong>[10 质量评估方法论]</strong>——学完所有方法，怎么科学地判断"量化有没有搞砸"。</li>
+<li><a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding（arXiv:2211.17192）</a>：本章公式出处（接受率、E[N]、最优草稿规模、墙钟实验）</li>
+<li><a href="https://arxiv.org/abs/2302.01318">Accelerating LLM Inference with Staged Speculative Decoding（arXiv:2302.01318）</a>：同期独立工作，可对照阅读</li>
+<li><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch5</a>：Speculative Decoding 教材节</li>
+<li>下一篇：<strong>[02 原始推测解码：草稿模型与拒绝采样]</strong>——把本章公式落成完整算法，推导无损性定理并手算完整例子。</li>
 </ol>
 
 
@@ -2045,7 +2227,7 @@ LLM 权重近似零均值正态分布：大量值集中在 0 附近。均匀网�
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 08 KV Cache 量化（KIVI）">
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 00 总览与学习地图">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2055,20 +2237,20 @@ LLM 权重近似零均值正态分布：大量值集中在 0 附近。均匀网�
                 上一页
               </span>
               <div class="md-ellipsis">
-                08 KV Cache 量化（KIVI）
+                00 总览与学习地图
               </div>
             </div>
           </a>
         
         
           
-          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-footer__link md-footer__link--next" aria-label="下一页: 10 质量评估方法论">
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/" class="md-footer__link md-footer__link--next" aria-label="下一页: 02 原始推测解码（草稿模型与拒绝采样）">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                10 质量评估方法论
+                02 原始推测解码（草稿模型与拒绝采样）
               </div>
             </div>
             <div class="md-footer__button md-icon">

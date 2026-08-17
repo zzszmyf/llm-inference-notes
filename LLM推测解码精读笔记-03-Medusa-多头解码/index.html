@@ -1,0 +1,2532 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理优化精读笔记：量化 + 推测解码（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-Medusa-%E5%A4%9A%E5%A4%B4%E8%A7%A3%E7%A0%81/">
+      
+      
+        <link rel="prev" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/">
+      
+      
+        <link rel="next" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>03 Medusa（多头解码） - LLM 推理优化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-03-medusa" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-header__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 推理优化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              03 Medusa（多头解码）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-nav__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 推理优化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推测解码精读笔记
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    推测解码精读笔记
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E6%8E%A5%E5%8F%97%E7%8E%87%E6%95%B0%E5%AD%A6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 问题形式化与接受率数学
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 原始推测解码（草稿模型与拒绝采样）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Medusa（多头解码）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Medusa（多头解码）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 动机：独立草稿模型的三个痛点
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-medusa-heads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 架构：Medusa Heads
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 架构：Medusa Heads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 初始化：让头一开始就"像主干"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 关键性质：头的预测是"平行"的
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 候选树与树注意力
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 候选树与树注意力">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 树的构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 树注意力：一次前向验证整棵树
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 推理循环（伪代码）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 接受率数学：从链到树
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 接受率数学：从链到树">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 覆盖率模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 期望接受长度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 树 vs 链：为什么树赢
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 代价：节点数
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 优化树：节点贡献与贪婪建树
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 验收策略：拒绝采样 vs 典型验收
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 验收策略：拒绝采样 vs 典型验收">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 拒绝采样（严格无损）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-typical-acceptance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 典型验收（Typical Acceptance，默认）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 两种方式的取舍
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-medusa-1-medusa-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 训练配方：Medusa-1 与 Medusa-2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 训练配方：Medusa-1 与 Medusa-2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-medusa-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Medusa-1：只训头，冻结主干
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-medusa-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Medusa-2：联合微调，两阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-self-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 数据：没有训练数据怎么办（Self-Distillation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 数值算例：完整一轮
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 树大小权衡：加速率与开销
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 实验结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 与 02 章对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 实现细节与坑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="16. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：树的期望接受长度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：树节点数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（构造）：错误掩码的反例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：典型验收为什么随温度变快
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（设计）：贪心建树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6toy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：toy 树验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 EAGLE（特征空间草稿）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 n-gram/检索式与无模型路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%AA%8C%E6%94%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 系统集成与生产验收
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 动机：独立草稿模型的三个痛点
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-medusa-heads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 架构：Medusa Heads
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 架构：Medusa Heads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 初始化：让头一开始就"像主干"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 关键性质：头的预测是"平行"的
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 候选树与树注意力
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 候选树与树注意力">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 树的构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 树注意力：一次前向验证整棵树
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 推理循环（伪代码）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 接受率数学：从链到树
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 接受率数学：从链到树">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 覆盖率模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 期望接受长度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 树 vs 链：为什么树赢
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 代价：节点数
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 优化树：节点贡献与贪婪建树
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 验收策略：拒绝采样 vs 典型验收
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 验收策略：拒绝采样 vs 典型验收">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 拒绝采样（严格无损）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-typical-acceptance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 典型验收（Typical Acceptance，默认）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 两种方式的取舍
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-medusa-1-medusa-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 训练配方：Medusa-1 与 Medusa-2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 训练配方：Medusa-1 与 Medusa-2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-medusa-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Medusa-1：只训头，冻结主干
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-medusa-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Medusa-2：联合微调，两阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-self-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 数据：没有训练数据怎么办（Self-Distillation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 数值算例：完整一轮
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 树大小权衡：加速率与开销
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 实验结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 与 02 章对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 实现细节与坑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="16. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：树的期望接受长度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：树节点数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（构造）：错误掩码的反例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：典型验收为什么随温度变快
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（设计）：贪心建树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6toy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：toy 树验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-03-medusa">LLM 推测解码精读笔记 · 03 Medusa：多头解码<a class="headerlink" href="#llm-03-medusa" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：Cai et al., <em>Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads</em>（arXiv:2401.10774，ICML 2024）；官方实现 FasterDecoding/Medusa。
+前置：01 章的接受率数学、02 章的验证与拒绝采样。学完本章你应该能：① 说清 Medusa 相对"独立草稿模型"路线的三个优势；② 写出 Medusa head 的结构、候选树构建公式与树注意力掩码规则；③ 用"覆盖率"模型推导树的期望接受长度，并手算数值例；④ 解释典型验收（typical acceptance）与拒绝采样的区别，以及无损性代价在哪里；⑤ 对比 Medusa-1/Medusa-2 的训练配方与论文加速比数据；⑥ 解释为什么树大小存在最优值。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li>本章目标</li>
+<li>动机：独立草稿模型的三个痛点</li>
+<li>架构：Medusa Heads</li>
+<li>候选树与树注意力</li>
+<li>推理循环（伪代码）</li>
+<li>接受率数学：从链到树</li>
+<li>优化树：节点贡献与贪婪建树</li>
+<li>验收策略：拒绝采样 vs 典型验收</li>
+<li>训练配方：Medusa-1 与 Medusa-2</li>
+<li>数值算例：完整一轮</li>
+<li>树大小权衡：加速率与开销</li>
+<li>实验结果</li>
+<li>与 02 章对照</li>
+<li>实现细节与坑</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
+</ol>
+<hr />
+<h2 id="2">2. 动机：独立草稿模型的三个痛点<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>02 章的原始推测解码把草稿职责交给一个<strong>独立小模型</strong> <span class="arithmatex">\(q\)</span>。理论上优雅，工程上难受：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>痛点 1：草稿模型从哪来？
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  要么现成（很难恰好有"又快又跟目标分布接近"的模型），
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  要么自己预训练/微调一个（SpecInfer 报告约 275 A100 GPU 小时）。
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>痛点 2：分布式部署复杂度。
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  两个模型、两套权重、两份 KV cache、两种调度；
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  论文（Chen et al. 2023）明确提到多模型 serving 的复杂度。
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>痛点 3：草稿阶段是串行的 K 步自回归。
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  每轮要先付 K·T_q 的草稿时间；草稿越慢，K 就越不敢取大。
+</code></pre></div>
+<p>Medusa 的答案：<strong>不给大模型配秘书，而是让大模型自己长出"多头"</strong>——在主干上追加 <span class="arithmatex">\(K\)</span> 个轻量解码头，与主干共享表示，一次前向同时给出多个未来位置的候选；再用<strong>树注意力</strong>把多条候选路径一次性验证完。</p>
+<p>三个痛点对应的解法：</p>
+<table>
+<thead>
+<tr>
+<th>痛点</th>
+<th>Medusa 的解法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>草稿从哪来</td>
+<td>训练 <span class="arithmatex">\(K\)</span> 个头（参数高效，主干可冻结）</td>
+</tr>
+<tr>
+<td>部署复杂度</td>
+<td>仍是单模型、单权重、单 KV cache</td>
+</tr>
+<tr>
+<td>串行草稿成本</td>
+<td>头与前向并行，草稿阶段几乎免费</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-medusa-heads">3. 架构：Medusa Heads<a class="headerlink" href="#3-medusa-heads" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 定义<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>设主干模型在位置 <span class="arithmatex">\(t\)</span> 的最后一层隐藏状态为 <span class="arithmatex">\(h_t \in \mathbb{R}^d\)</span>，词表大小 <span class="arithmatex">\(V\)</span>。原始 LM head 预测位置 <span class="arithmatex">\(t+1\)</span>（记为 head 0，输出分布 <span class="arithmatex">\(p_t^{(0)}\)</span>）。额外添加 <span class="arithmatex">\(K\)</span> 个 Medusa head，第 <span class="arithmatex">\(k\)</span> 个头预测位置 <span class="arithmatex">\(t+k+1\)</span>（<span class="arithmatex">\(k = 1, \dots, K\)</span>），输出分布：</p>
+<div class="arithmatex">\[
+p_t^{(k)} = \mathrm{softmax}\!\left(W_2^{(k)} \cdot \left(\mathrm{SiLU}(W_1^{(k)} h_t) + h_t\right)\right)
+\]</div>
+<p>其中 <span class="arithmatex">\(W_1^{(k)} \in \mathbb{R}^{d \times d}\)</span>、<span class="arithmatex">\(W_2^{(k)} \in \mathbb{R}^{d \times V}\)</span>。每个头是<strong>一个残差 MLP + 输出投影</strong>：残差块 <span class="arithmatex">\(h_t + \mathrm{SiLU}(W_1^{(k)} h_t)\)</span> 相当于一个"轻量特征变换"，再经过 <span class="arithmatex">\(W_2^{(k)}\)</span> 投影到词表。</p>
+<h3 id="32">3.2 初始化：让头一开始就"像主干"<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+W_1^{(k)} \leftarrow 0, \qquad W_2^{(k)} \leftarrow W_{\text{LM head}}
+\]</div>
+<p><span class="arithmatex">\(W_1 = 0\)</span> 使残差块退化为恒等映射，<span class="arithmatex">\(W_2\)</span> 复制原 LM head，于是训练前每个 Medusa head 的预测<strong>恰好等于主干的预测</strong>（<span class="arithmatex">\(p_t^{(k)} = p_t^{(0)}\)</span>）。这有两个好处：训练起点稳定；即使只训少量数据，头也不会一开始就胡猜。</p>
+<h3 id="33">3.3 关键性质：头的预测是"平行"的<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<p>注意第 <span class="arithmatex">\(k\)</span> 个头<strong>只看 <span class="arithmatex">\(h_t\)</span></strong>，不看前几个候选 token。也就是说，<span class="arithmatex">\(p_t^{(k)}\)</span> 是在"不知道中间 token 是什么"的情况下对未来第 <span class="arithmatex">\(k\)</span> 个位置做的猜测。这与 02 章草稿模型的"逐 token 条件化自回归"完全不同——<strong>这正是需要用树来验证的原因</strong>：真正到位置 <span class="arithmatex">\(t+k+1\)</span> 时，正确条件依赖是中间的候选 token，树把各种组合都枚举出来，由主干在验证时重新做条件化。</p>
+<hr />
+<h2 id="4">4. 候选树与树注意力<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 树的构建<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>设第 <span class="arithmatex">\(k\)</span> 个头取 top-<span class="arithmatex">\(s_k\)</span> 候选（<span class="arithmatex">\(s_k\)</span> 是超参）。候选序列由各层候选的<strong>笛卡尔积</strong>构成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>层 0（位置 t+1）：head 0 贪心 token，直接接受（每轮保底 1 个 token）
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>层 1（位置 t+2）：head 1 的 top-s_1
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>层 2（位置 t+3）：head 2 的 top-s_2，与层 1 的每个候选组合
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>……
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>层 K（位置 t+K+1）：head K 的 top-s_K
+</code></pre></div>
+<p>这是一个"每层候选集共享"的规则树：第 <span class="arithmatex">\(k\)</span> 层每个节点都有同样的 <span class="arithmatex">\(s_{k+1}\)</span> 个孩子（因为 <span class="arithmatex">\(p_t^{(k)}\)</span> 只依赖 <span class="arithmatex">\(h_t\)</span>）。整棵树新增的 token 数为：</p>
+<div class="arithmatex">\[
+T(s_1, \dots, s_K) = \sum_{k=1}^{K} \prod_{i=1}^{k} s_i
+\]</div>
+<p>例：<span class="arithmatex">\(s_1 = 2\)</span>、<span class="arithmatex">\(s_2 = 3\)</span> 时，<span class="arithmatex">\(T = 2 + 2\times 3 = 8\)</span>：层 1 有 2 个节点，层 2 有 <span class="arithmatex">\(2\times 3 = 6\)</span> 个叶子。</p>
+<h3 id="42">4.2 树注意力：一次前向验证整棵树<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<p>普通因果注意力的掩码是"只看左侧"。树注意力把掩码改成<strong>"只看自己的祖先"</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>树上节点 (k, j)（第 k 层的第 j 个候选）的注意力范围 =
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    前缀 token ∪ 自己的祖先链（层 1 到层 k-1 各一个节点）∪ 自己
+</code></pre></div>
+<p>同一个层里不同分支的节点<strong>互相不可见</strong>（它们代表互斥的候选世界）。实现上：</p>
+<ul>
+<li>给树节点分配拓扑顺序的位置索引，注意<strong>同一层共享同一个 RoPE 位置</strong>（它们都是前缀之后第 <span class="arithmatex">\(k\)</span> 个 token）；</li>
+<li>预计算一个布尔掩码矩阵 <span class="arithmatex">\(M[i][j] = 1 \iff j\)</span> 是 <span class="arithmatex">\(i\)</span> 的祖先或 <span class="arithmatex">\(i = j\)</span>；</li>
+<li>把 <span class="arithmatex">\(T\)</span> 个候选节点拼进序列，一次前向得到所有节点的 logits——不需要展开 batch。</li>
+</ul>
+<p>树注意力的意义：02 章"一次验证一条链"只检查 <span class="arithmatex">\(K+1\)</span> 个位置；树注意力一次检查 <span class="arithmatex">\(T\)</span> 个位置，<strong>把"猜错一个就整条链作废"的风险摊薄到多个分支上</strong>。</p>
+<hr />
+<h2 id="5">5. 推理循环（伪代码）<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>输入：带 K 个 Medusa head 的模型、前缀 x_&lt;t、树配置 s_1..s_K、验收策略
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>输出：N 个新 token（N ≥ 1）
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>每轮：
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>1. 取当前最后位置隐藏状态 h_t（首轮来自 prefill；之后复用上一轮验证的 hidden state）
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>2. 候选生成（并行、几乎免费）：
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>     第 1 位置：head 0 贪心 token（无条件接受）
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>     第 k 层（k=1..K）：head k 的 top-s_k 候选
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>3. 树注意力验证（一次主干前向）：
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>     对树上每个节点算 p(· | 前缀 + 该节点祖先链)
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>4. 验收（沿树找最长可接受前缀）：
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>     层 0：直接接受
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>     层 k：若某候选满足验收条件（拒绝采样或典型验收）→ 接受，进入它的孩子；
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>           否则 → 停在层 k-1
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>5. 输出接受路径上的所有 token；该路径末端节点的 hidden state 成为下一轮的 h_t
+</code></pre></div>
+<p>一轮最多产出 <span class="arithmatex">\(K+1\)</span> 个 token（层 0 的 1 个 + <span class="arithmatex">\(K\)</span> 层候选），至少 1 个。注意第 2 步"几乎免费"：头是主干之上的小 MLP，且第 3 步验证前向的 hidden state 直接复用于下一轮——<strong>没有独立的草稿前向</strong>，这是与 02 章最大的结构性差异。</p>
+<hr />
+<h2 id="6">6. 接受率数学：从链到树<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 覆盖率模型<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>02 章的单链每层只有 1 个候选，接受率是 <strong>top-1 命中率</strong> <span class="arithmatex">\(\alpha\)</span>。Medusa 每层有 <span class="arithmatex">\(s_k\)</span> 个候选，接受条件放宽为"目标 token 落在候选集里"。定义第 <span class="arithmatex">\(k\)</span> 层的<strong>覆盖率</strong>：</p>
+<div class="arithmatex">\[
+q_k = P\!\left(\arg\max_x p(x \mid \text{前缀} + \text{已接受路径}) \in \text{head } k \text{ 的 top-}s_k \text{ 候选集}\right)
+\]</div>
+<p>（路径平均意义上的概率；下文与论文一致，假设各层覆盖率独立。）</p>
+<h3 id="62">6.2 期望接受长度<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>记 <span class="arithmatex">\(N\)</span> 为每轮产出 token 数。<span class="arithmatex">\(P(N \ge 1) = 1\)</span>（层 0 保底），<span class="arithmatex">\(P(N \ge 1 + m) = \prod_{j=1}^{m} q_j\)</span>（前 <span class="arithmatex">\(m\)</span> 层都命中），于是：</p>
+<div class="arithmatex">\[
+E[N] = \sum_{i \ge 1} P(N \ge i)
+      = 1 + q_1 + q_1 q_2 + \cdots + \prod_{j=1}^{K} q_j
+\]</div>
+<p><strong>退化检查</strong>：当所有 <span class="arithmatex">\(s_k = 1\)</span> 时，<span class="arithmatex">\(q_k = \alpha\)</span>（top-1 接受率），上式退化为 <span class="arithmatex">\(1 + \alpha + \cdots + \alpha^K = \dfrac{1-\alpha^{K+1}}{1-\alpha}\)</span>——与 02 章公式完全一致。树不改变公式结构，改变的是<strong>每层的 <span class="arithmatex">\(q_k\)</span></strong>。</p>
+<h3 id="63-vs">6.3 树 vs 链：为什么树赢<a class="headerlink" href="#63-vs" title="Permanent link">&para;</a></h3>
+<p>覆盖率 <span class="arithmatex">\(q_k\)</span> 是"目标 token 在 top-<span class="arithmatex">\(s_k\)</span> 里"的概率，而 top-1 命中率只是 <span class="arithmatex">\(s_k=1\)</span> 的特例。对常见分布，覆盖率随 <span class="arithmatex">\(s\)</span> 的增长远快于线性：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>每层接受概率</th>
+<th style="text-align: right;">E[N]（K=2）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>链式草稿（02 章）</td>
+<td>top-1：<span class="arithmatex">\(\alpha = 0.6\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1 + 0.6 + 0.36 = 1.96\)</span></td>
+</tr>
+<tr>
+<td>Medusa 树 <span class="arithmatex">\(s=(1,1)\)</span></td>
+<td><span class="arithmatex">\(q = 0.6\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1.96\)</span>（退化，同上）</td>
+</tr>
+<tr>
+<td>Medusa 树 <span class="arithmatex">\(s=(3,2)\)</span></td>
+<td><span class="arithmatex">\(q = (0.9, 0.8)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1 + 0.9 + 0.72 = 2.62\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>同一条"主干"，top-3 覆盖率 0.9 远高于 top-1 命中率 0.6——树把"单个候选猜对"变成"候选集覆盖对"，这就是树注意力的数学价值。</p>
+<h3 id="64">6.4 代价：节点数<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
+<p>覆盖率提高不是免费的：<span class="arithmatex">\(s_k\)</span> 越大，树节点 <span class="arithmatex">\(T = \sum_k \prod_{i \le k} s_i\)</span> 增长得越快（组合爆炸），验证前向处理的 token 越多。<span class="arithmatex">\(E[N]\)</span> 增长是<strong>线性叠加</strong>（每层至多加一项），而 <span class="arithmatex">\(T\)</span> 增长是<strong>乘积式</strong>——收益与开销赛跑，最优树一定在中间（第 11 节量化）。</p>
+<hr />
+<h2 id="7">7. 优化树：节点贡献与贪婪建树<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<p>论文（§2.3.3）给了一个可操作的建树准则。设 <span class="arithmatex">\(a_k^{(i)}\)</span> 为 head <span class="arithmatex">\(k\)</span> 的第 <span class="arithmatex">\(i\)</span> 高候选的<strong>边际命中率</strong>（即 top-<span class="arithmatex">\(i\)</span> 命中率减 top-<span class="arithmatex">\((i-1)\)</span> 命中率，用校准集统计）。假设各层独立，节点 <span class="arithmatex">\([i_1, \dots, i_k]\)</span>（依次取各层的第 <span class="arithmatex">\(i_j\)</span> 高候选）对期望接受长度的贡献为：</p>
+<div class="arithmatex">\[
+\text{contrib}\!\left([i_1, \dots, i_k]\right) = \prod_{j=1}^{k} a_j^{(i_j)}
+\]</div>
+<p>整个树的期望接受长度就是所有节点贡献之和：</p>
+<div class="arithmatex">\[
+E[\text{accept length}] = \sum_{[i_1, \dots, i_k] \in \text{tree}} \prod_{j=1}^{k} a_j^{(i_j)}
+\]</div>
+<p>因此建树变成"<strong>往树上加节点</strong>"的贪心过程：每次从"与当前树相邻的节点"里选贡献 <span class="arithmatex">\(\prod_j a_j^{(i_j)}\)</span> 最大的一个，加到节点预算用完为止。这样得到的<strong>稀疏树</strong>在 64 个节点时加速率优于 256 节点的稠密树（论文 Fig. 4）——因为稠密树的节点大多是低边际命中的"陪跑"候选，白付验证开销。</p>
+<hr />
+<h2 id="8-vs">8. 验收策略：拒绝采样 vs 典型验收<a class="headerlink" href="#8-vs" title="Permanent link">&para;</a></h2>
+<p>Medusa 提供两种验收方式。</p>
+<h3 id="81">8.1 拒绝采样（严格无损）<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<p>与 02 章相同的规则：候选 <span class="arithmatex">\(x\)</span> 以概率 <span class="arithmatex">\(\min(1, p(x)/q(x))\)</span> 接受（<span class="arithmatex">\(q\)</span> 是 head 分布），拒绝时从残差分布重采样。这是<strong>严格无损</strong>的：输出分布等于主干模型的分布。代价：温度升高时，两个分布都变平，拒绝率上升，加速率下降（02 章末尾提到的问题）。</p>
+<h3 id="82-typical-acceptance">8.2 典型验收（Typical Acceptance，默认）<a class="headerlink" href="#82-typical-acceptance" title="Permanent link">&para;</a></h3>
+<p>论文观察到：实际部署里温度只是调"创造力"的旋钮，不需要让草稿分布严格等于目标分布。于是他们改用<strong>合理性阈值</strong>：候选 <span class="arithmatex">\(x\)</span> 在位置 <span class="arithmatex">\(n+k\)</span> 被接受当且仅当</p>
+<div class="arithmatex">\[
+p_{\text{original}}\!\left(x \mid x_1, \dots, x_{n+k-1}\right) &gt; \min\!\left(\epsilon,\ \delta \exp\!\left(-H(p_{\text{original}}(\cdot \mid x_1, \dots, x_{n+k-1}))\right)\right)
+\]</div>
+<p>其中 <span class="arithmatex">\(H(\cdot)\)</span> 是目标分布的信息熵，<span class="arithmatex">\(\epsilon\)</span> 是硬阈值，<span class="arithmatex">\(\delta\)</span> 是熵相关阈值（官方默认 <span class="arithmatex">\(\epsilon = 0.09\)</span>、<span class="arithmatex">\(\delta = 0.3 \approx \sqrt{\epsilon}\)</span>）。直觉：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>候选概率足够高 → 合理，接受
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>目标分布本身很平（熵高）→ 阈值放松，各种候选都算合理
+</code></pre></div>
+<p>另外，<strong>第一个 token 用贪心并无条件接受</strong>（保证每轮至少 1 个 token），然后沿树取"最长满足条件的可接受前缀"。</p>
+<h3 id="83">8.3 两种方式的取舍<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>拒绝采样</th>
+<th>典型验收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分布保证</td>
+<td>严格等于 <span class="arithmatex">\(p\)</span></td>
+<td>近似（质量靠阈值保护）</td>
+</tr>
+<tr>
+<td>温度升高时</td>
+<td>接受率下降</td>
+<td>接受率<strong>上升</strong>（熵高 → 阈值低）</td>
+</tr>
+<tr>
+<td>速度</td>
+<td>较慢</td>
+<td>更快（官方默认）</td>
+</tr>
+<tr>
+<td>使用场景</td>
+<td>需要理论无损</td>
+<td>生产默认、追求吞吐</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>一个常见的误读是"Medusa 一定无损"。准确说法：<strong>Medusa-1 + 拒绝采样</strong>是严格无损的（论文抽象里的 lossless 指这条路线）；默认的典型验收是<strong>近似无损</strong>的工程选择。写报告时务必区分。</p>
+</blockquote>
+<hr />
+<h2 id="9-medusa-1-medusa-2">9. 训练配方：Medusa-1 与 Medusa-2<a class="headerlink" href="#9-medusa-1-medusa-2" title="Permanent link">&para;</a></h2>
+<h3 id="91-medusa-1">9.1 Medusa-1：只训头，冻结主干<a class="headerlink" href="#91-medusa-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>主干完全冻结，只训练 <span class="arithmatex">\(K\)</span> 个头的参数；</li>
+<li>参数高效、显存友好，甚至可以对主干做 QLoRA 式量化来省显存（头照训）；</li>
+<li>因为主干不变，<strong>能力零损失</strong>；头学会"顺着主干表示猜未来 token"；</li>
+<li>论文数据：Vicuna-7B 2.18x、Vicuna-13B 2.33x。</li>
+</ul>
+<h3 id="92-medusa-2">9.2 Medusa-2：联合微调，两阶段<a class="headerlink" href="#92-medusa-2" title="Permanent link">&para;</a></h3>
+<p>只训头时，头的预测受限于主干既有的表示。Medusa-2 把主干也放开微调，让头和主干协同，接受率更高：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>阶段 1：冻结主干，只训头（即 Medusa-1）
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>阶段 2：联合微调主干 + 头，用特殊配方保住原模型能力
+</code></pre></div>
+<p>特殊配方的关键：主干用<strong>知识蒸馏损失</strong>而不是硬标签：</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\text{LM-distill}} = \mathrm{KL}\!\left(p_{\text{original}, t}^{(0)} \,\|\, p_{t}^{(0)}\right)
+\]</div>
+<p>让微调后的主干尽量贴着原模型的预测分布，而不是被新数据带偏。实现上主干用 LoRA 适配器训练，"教师"就是<strong>关掉适配器的原模型</strong>，几乎不增加显存。</p>
+<h3 id="93-self-distillation">9.3 数据：没有训练数据怎么办（Self-Distillation）<a class="headerlink" href="#93-self-distillation" title="Permanent link">&para;</a></h3>
+<p>有些模型（如 RLHF 后的 Zephyr、私有数据训练的 Vicuna-33B）没有公开微调数据。论文的<strong>自蒸馏</strong>方案：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>1. 拿一份同领域的种子数据（如 ShareGPT 的 prompt）
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>2. 让目标模型自己生成回答（多轮可自问自答）
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>3. 用生成结果训练 Medusa 头
+</code></pre></div>
+<p>本质是"让模型教自己的头如何模仿自己"。论文报告自蒸馏模型（Zephyr-7B、Vicuna-33B）的加速比略低于有原始数据的模型——质量与速度的权衡。</p>
+<hr />
+<h2 id="10">10. 数值算例：完整一轮<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<p>场景：前缀 "The capital of France is"，<span class="arithmatex">\(K = 2\)</span> 个 Medusa head，树配置 <span class="arithmatex">\(s = (3, 2)\)</span>。</p>
+<p><strong>候选生成</strong>（全部由当前 <span class="arithmatex">\(h_t\)</span> 并行算出）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>层 0（位置 t+1）：head 0 贪心 → " Paris"
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>层 1（位置 t+2）：head 1 的 top-3 → {",", " and", "!"}
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>层 2（位置 t+3）：head 2 的 top-2 → {" the", " a"}
+</code></pre></div>
+<p>树节点数：</p>
+<div class="arithmatex">\[
+T = s_1 + s_1 s_2 = 3 + 3 \times 2 = 9
+\]</div>
+<p><strong>树注意力验证</strong>（一次主干前向，9 个候选节点 + 前缀）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>位置 t+2 给定 "Paris"：p 的 argmax = "," → 在层 1 候选集里 ✓
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>位置 t+3 给定 "Paris,"：p 的 argmax = " the" → 在层 2 候选集里 ✓
+</code></pre></div>
+<p><strong>产出</strong>：<code>Paris</code> + <code>,</code> + <code>the</code>，本轮 <span class="arithmatex">\(N = 3\)</span>。下一轮直接复用 " the" 的 hidden state 继续。</p>
+<p><strong>与公式对照</strong>：设 <span class="arithmatex">\(q_1 = 0.9\)</span>、<span class="arithmatex">\(q_2 = 0.8\)</span>（覆盖率），</p>
+<div class="arithmatex">\[
+E[N] = 1 + q_1 + q_1 q_2 = 1 + 0.9 + 0.72 = 2.62
+\]</div>
+<p>本轮实际 3 个 token，高于期望，正常波动。若验证前向比普通 decode 贵 15%（9 个树节点 + 前缀的额外计算），净加速约 <span class="arithmatex">\(2.62 / 1.15 \approx 2.3\text{x}\)</span>。</p>
+<hr />
+<h2 id="11">11. 树大小权衡：加速率与开销<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<p>论文定义 <strong>加速率 = 加速比 / 开销</strong>（overhead 指树前向比单 token 前向多出的计算）。两个相反的趋势：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>加速率：随节点数增长，但呈对数式衰减（前几个候选收益最大）
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>开销：随节点数近线性增长（矩阵乘、注意力都变重）
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>净加速：先升后降，存在最优节点数
+</code></pre></div>
+<p>示意数值（趋势取自论文 Fig. 4，非实验精确值）：</p>
+<table>
+<thead>
+<tr>
+<th>树配置</th>
+<th style="text-align: right;">节点数 T</th>
+<th style="text-align: right;">示意 E[N]</th>
+<th style="text-align: right;">示意开销</th>
+<th style="text-align: right;">净加速</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无树（单链 <span class="arithmatex">\(s=1\)</span>）</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1.96</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.96x</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(s=(3,2)\)</span></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2.62</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">2.38x</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(s=(4,3,2)\)</span></td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">3.31</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">2.81x</td>
+</tr>
+<tr>
+<td>优化稀疏树</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">3.45</td>
+<td style="text-align: right;">1.25</td>
+<td style="text-align: right;">2.76x</td>
+</tr>
+<tr>
+<td>稠密大树</td>
+<td style="text-align: right;">256+</td>
+<td style="text-align: right;">3.6+</td>
+<td style="text-align: right;">1.5+</td>
+<td style="text-align: right;">2.4x 以下</td>
+</tr>
+</tbody>
+</table>
+<p>论文在 Vicuna-7B（Medusa-2）上的实际结论：<strong>64 节点的优化稀疏树效果最好</strong>；超过约 64 个候选后速度开始下降（Fig. 4b / 附录 Fig. 21）。工程启示：树配置是超参，要在目标负载上扫描，别盲目加大 <span class="arithmatex">\(s_k\)</span>。</p>
+<hr />
+<h2 id="12">12. 实验结果<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<p>论文与官方仓库的已核实数据（MT-Bench，GPT-4 评分验证质量不变）：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th style="text-align: right;">加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Medusa-1 · Vicuna-7B</td>
+<td style="text-align: right;">2.18x</td>
+</tr>
+<tr>
+<td>Medusa-1 · Vicuna-13B</td>
+<td style="text-align: right;">2.33x</td>
+</tr>
+<tr>
+<td>Medusa-2 · Vicuna-7B</td>
+<td style="text-align: right;">2.83x</td>
+</tr>
+<tr>
+<td>Medusa-2 · Vicuna-13B</td>
+<td style="text-align: right;">2.83x</td>
+</tr>
+<tr>
+<td>Medusa-2 · Vicuna-7B（coding 类）</td>
+<td style="text-align: right;">3.29x</td>
+</tr>
+<tr>
+<td>Medusa-2 · Vicuna-7B（extraction 类）</td>
+<td style="text-align: right;">3.62x</td>
+</tr>
+<tr>
+<td>论文摘要（多模型、多提示）</td>
+<td style="text-align: right;">Medusa-1 &gt; 2.2x；Medusa-2 2.3–2.8x</td>
+</tr>
+<tr>
+<td>官方仓库更新（更多 LLM）</td>
+<td style="text-align: right;">2.2–3.6x</td>
+</tr>
+</tbody>
+</table>
+<p>几个值得注意的观察：</p>
+<ol>
+<li><strong>代码/提取类任务收益最高</strong>（3.29x/3.62x）——这些任务的局部结构规律性强，多头更容易猜中；</li>
+<li>自蒸馏模型（Zephyr-7B、Vicuna-33B）加速比略低，因为头的训练分布与真实分布有偏移；</li>
+<li>论文对比了同批模型上可获得的草稿模型方案，Medusa 的加速比更高——"模型自己的头"比"外部草稿模型"更懂自己。</li>
+</ol>
+<hr />
+<h2 id="13-02">13. 与 02 章对照<a class="headerlink" href="#13-02" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>02 原始推测解码</th>
+<th>03 Medusa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>草稿来源</td>
+<td>独立小模型（需预训练/获取）</td>
+<td>主干自带的 <span class="arithmatex">\(K\)</span> 个头（需训练头）</td>
+</tr>
+<tr>
+<td>词表/分布一致性</td>
+<td>需强制对齐</td>
+<td>天然一致（同一主干）</td>
+</tr>
+<tr>
+<td>草稿成本</td>
+<td><span class="arithmatex">\(K\)</span> 步串行自回归（<span class="arithmatex">\(K \cdot T_q\)</span>）</td>
+<td>头并行前向，几乎免费</td>
+</tr>
+<tr>
+<td>候选结构</td>
+<td>单条链</td>
+<td>树（笛卡尔积，多候选并行）</td>
+</tr>
+<tr>
+<td>每层接受</td>
+<td>top-1 命中率 <span class="arithmatex">\(\alpha\)</span></td>
+<td>top-<span class="arithmatex">\(s\)</span> 覆盖率 <span class="arithmatex">\(q \ge \alpha\)</span></td>
+</tr>
+<tr>
+<td>分布保证</td>
+<td>严格无损</td>
+<td>拒绝采样=严格无损；典型验收≈近似</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>双模型、分布式复杂</td>
+<td>单模型、无缝接入</td>
+</tr>
+<tr>
+<td>训练</td>
+<td>无（草稿现成）</td>
+<td>Medusa-1（只训头）/ Medusa-2（联合微调）</td>
+</tr>
+<tr>
+<td>典型加速</td>
+<td>2–3x（T5-XXL 实验）</td>
+<td>2.2–3.6x</td>
+</tr>
+</tbody>
+</table>
+<p>一句话概括演进：02 章解决"<strong>怎么用便宜的猜测换并行</strong>"，03 章把"便宜的猜测"从<strong>外部模型</strong>换成<strong>模型自己的头</strong>，并用树把"猜得准"升级为"覆盖得全"。</p>
+<hr />
+<h2 id="14">14. 实现细节与坑<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>树掩码必须正确</strong>：同一层不同分支不可互见。若误用全因果掩码，层 2 的候选会"偷看"到兄弟分支的信息，验证分布全错。测试办法：把树退化到 <span class="arithmatex">\(s_k = 1\)</span>，输出必须与逐 token 贪心完全一致。</li>
+<li><strong>RoPE 位置</strong>：同一层的所有候选共享同一个位置索引（都是前缀后第 <span class="arithmatex">\(k\)</span> 个 token），不能用扁平化的拓扑序号。</li>
+<li><strong>只收一条路径</strong>：同一层可能有多个候选满足阈值；要按优先级（如 head 概率序）只选一条继续，避免"同时活在多个世界"。</li>
+<li><strong>KV cache 复用</strong>：验证前向为整棵树算 KV；接受路径的 KV 保留，其余丢弃。下一轮 head 直接复用路径末端 hidden state，省一次前向。</li>
+<li><strong>严格无损 vs 默认行为</strong>：官方默认典型验收 + 第一个 token 无条件接受，<strong>不是</strong>严格无损；要严格无损就切拒绝采样。</li>
+<li><strong>batch 支持</strong>：官方实现只支持 batch=1（本地单用户场景）；多请求批处理需要把多个请求的树拼进同一个注意力掩码（vLLM / TensorRT-LLM 的 Medusa 实现做了这件事）。</li>
+<li><strong>与量化组合</strong>：Medusa-1 训练时可量化主干（QLoRA 式）；推理时可与 W4A16 等量化方案叠加——每步成本降一半、步数再降一半，06 章会算联合收益。</li>
+<li><strong>树配置要调</strong>：<span class="arithmatex">\(s_k\)</span> 不是越大越好（第 11 节）；用校准集按第 7 节公式贪心建树。</li>
+</ol>
+<hr />
+<h2 id="15">15. 本章小结<a class="headerlink" href="#15" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>动机</strong>：独立草稿模型有三痛（获取难、部署重、草稿串行贵）；Medusa 用主干自带的头替代。</li>
+<li><strong>头</strong>：<span class="arithmatex">\(p_t^{(k)} = \mathrm{softmax}(W_2^{(k)}(\mathrm{SiLU}(W_1^{(k)} h_t) + h_t))\)</span>，<span class="arithmatex">\(W_1\)</span> 初始化 0、<span class="arithmatex">\(W_2\)</span> 复制 LM head。</li>
+<li><strong>树</strong>：候选 = 各层 top-<span class="arithmatex">\(s_k\)</span> 的笛卡尔积，节点数 <span class="arithmatex">\(T = \sum_k \prod_{i \le k} s_i\)</span>；树注意力掩码只允许看祖先。</li>
+<li><strong>数学</strong>：<span class="arithmatex">\(E[N] = 1 + q_1 + q_1 q_2 + \cdots + \prod_j q_j\)</span>，树的收益来自覆盖率 <span class="arithmatex">\(q \ge\)</span> top-1 命中率 <span class="arithmatex">\(\alpha\)</span>；节点贡献公式指导贪婪建树。</li>
+<li><strong>验收</strong>：拒绝采样严格无损；典型验收（概率 &gt; 阈值）更快但近似。</li>
+<li><strong>训练</strong>：Medusa-1 冻结主干只训头；Medusa-2 两阶段联合微调 + KL 蒸馏保住质量；无数据用自蒸馏。</li>
+<li><strong>数据</strong>：2.18–3.62x 不等；树最优约 64 节点，不是越大越好。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"不请秘书（草稿模型），给大模型装上多副眼镜（多头）+ 一张地图（树）——一眼扫过整棵候选树，只收最长那条活路。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="16">16. 习题与解答<a class="headerlink" href="#16" title="Permanent link">&para;</a></h2>
+<h3 id="1">题 1（推导）：树的期望接受长度<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p>给定 <span class="arithmatex">\(K=3\)</span>、覆盖率 <span class="arithmatex">\(q = (0.9, 0.8, 0.7)\)</span>，写出 <span class="arithmatex">\(E[N]\)</span> 表达式并计算；再验证 <span class="arithmatex">\(q_k = \alpha\)</span> 时退化为 02 章公式。</p>
+<details>
+<summary>题 1 解答</summary>
+
+$E[N] = 1 + q_1 + q_1 q_2 + q_1 q_2 q_3 = 1 + 0.9 + 0.72 + 0.504 = 3.124$。退化：$1 + \alpha + \alpha^2 + \alpha^3 = (1-\alpha^4)/(1-\alpha)$，即 02 章 $K=3$ 时的公式。
+</details>
+
+<h3 id="2_1">题 2（计算）：树节点数<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<p>分别计算 <span class="arithmatex">\(s=(4,2)\)</span>、<span class="arithmatex">\(s=(4,3,2)\)</span>、<span class="arithmatex">\(s=(5,4,3)\)</span> 的节点数 <span class="arithmatex">\(T\)</span>；若验证开销与 <span class="arithmatex">\(T\)</span> 近似线性、覆盖率提升随 <span class="arithmatex">\(s\)</span> 递减，哪个树更可能最优？为什么？</p>
+<details>
+<summary>题 2 解答</summary>
+
+$T = 4 + 8 = 12$；$T = 4 + 12 + 24 = 40$；$T = 5 + 20 + 60 = 85$。第三个树节点数比第二个翻倍，但覆盖率从 top-4→top-5 的增益很小（边际命中递减），开销却近线性增长——大概率不如 40 节点树。这解释了"最优树在中间"。
+</details>
+
+<h3 id="3">题 3（构造）：错误掩码的反例<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p>构造一个最小例子说明：若层 2 的候选能注意到同层兄弟分支的 token，验证分布会出什么问题。</p>
+<details>
+<summary>题 3 解答</summary>
+
+设层 1 有两个候选 A、B（互斥世界），层 2 的候选来自"给定 A"的分布。若层 2 在计算注意力时混入 B 的信息，它得到的条件分布既不是 $p(\cdot|A)$ 也不是 $p(\cdot|B)$，而是两者的混合——验收时无法与 head 的分布对齐，接受/拒绝决策失真。树注意力的意义就是保证每个节点只活在"自己的祖先链"里。
+</details>
+
+<h3 id="4_1">题 4（思考）：典型验收为什么随温度变快<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<p>解释：为什么温度升高时拒绝采样的接受率下降，而典型验收的接受率反而上升？这对"严格无损"意味着什么？</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+温度升高 → $p$ 与 $q$ 都变平 → 拒绝采样中 $\min(1, p/q)$ 的"匹配度"下降，且两份独立采样更容易不一致。典型验收只看 $p_{\text{original}}(x)$ 是否超过阈值：分布越平，熵越高，$\delta e^{-H}$ 阈值越低，更多候选被放行。代价是输出分布不再严格等于 $p$——质量靠阈值（$\epsilon$、$\delta$）保护，是工程近似而非数学保证。
+</details>
+
+<h3 id="5_1">题 5（设计）：贪心建树<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
+<p>用校准集统计出 head 1 的边际命中率 <span class="arithmatex">\(a_1 = (0.6, 0.2, 0.1, 0.05)\)</span>、head 2 的 <span class="arithmatex">\(a_2 = (0.5, 0.25, 0.15)\)</span>。预算 5 个节点，按贡献贪心建树，写出加入顺序与最终树的期望接受长度。</p>
+<details>
+<summary>题 5 解答</summary>
+
+节点贡献 = 路径上边际命中率之积。候选及贡献：层1：$a_1^{(1)}=0.6$、$a_1^{(2)}=0.2$、$a_1^{(3)}=0.1$；层2（必须挂在已选层1节点下）：$0.6\times 0.5=0.3$、$0.6\times 0.25=0.15$、$0.6\times 0.15=0.09$。贪心顺序：层1第1（0.6）→ 层2第1（0.3）→ 层1第2（0.2）→ 层2第2（0.15）→ 层1第3（0.1）。期望接受长度 $= 1 + 0.6 + 0.3 + 0.2 + 0.15 + 0.1 = 2.35$（1 为保底首 token）。对比：若把第 5 个名额给层 2 第 3 个候选（挂在层 1 第 1 名下），$1 + 0.6 + 0.3 + 0.15 + 0.2 + 0.09 = 2.34$，略低于贪心。注意即使预算再加 1（第 6 个节点），边际贡献也只有 0.1 或 0.09——收益递减，这正是第 11 节"树不是越大越好"的来源。
+</details>
+
+<h3 id="6toy">题 6（编程）：toy 树验证<a class="headerlink" href="#6toy" title="Permanent link">&para;</a></h3>
+<p>实现一个 2-head、<span class="arithmatex">\(s=(2,2)\)</span> 的 toy 验证器：给定 head 分布与目标分布（小词表），① greedy 模式跑 5 万轮统计每轮 token 数，与 <span class="arithmatex">\(E[N] = 1 + q_1 + q_1 q_2\)</span> 对比；② 切到典型验收（阈值 <span class="arithmatex">\(\epsilon\)</span>），观察温度/阈值对接受长度的影响。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+① 每轮：首 token 贪心直接收；层 1 检查目标 argmax 是否在 top-2 里，层 2 同理；统计均值应接近公式（覆盖率按实际分布计算）。② 典型验收把"argmax ∈ 集合"换成"候选概率 > min(ε, δe^{−H})"，$\epsilon$ 越小接受越多；对比两种方式的经验输出分布会发现典型验收有可测偏差——这就是 8.3 节表格的实验证据。
+</details>
+
+<hr />
+<h2 id="17">17. 延伸阅读<a class="headerlink" href="#17" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2401.10774">Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads（arXiv:2401.10774）</a>：本章全部内容出处（head 定义 §2.1.1、树注意力 §2.1.2、典型验收 §2.3.1、优化树 §2.3.3、实验 §3）。</li>
+<li><a href="https://github.com/FasterDecoding/Medusa">FasterDecoding/Medusa 官方仓库</a>：参考实现（单 GPU、batch=1、典型验收默认参数）。</li>
+<li><a href="https://arxiv.org/abs/2305.09781">SpecInfer（arXiv:2305.09781）</a>：树验证的一般框架（多草稿模型 + 自底向上建树），与 Medusa 的自顶向下建树对照阅读。</li>
+<li><a href="https://arxiv.org/abs/1808.02647">Blockwise Parallel Decoding（arXiv:1808.02647）</a>：多头并行解码的思想源头。</li>
+<li>上一篇：<a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/">02 原始推测解码</a>；下一篇：<strong>04 EAGLE：特征空间草稿</strong>——回答"为什么在隐藏状态上做自回归，接受率会大幅提升"。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 02 原始推测解码（草稿模型与拒绝采样）">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                02 原始推测解码（草稿模型与拒绝采样）
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/" class="md-footer__link md-footer__link--next" aria-label="下一页: 04 EAGLE（特征空间草稿）">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                04 EAGLE（特征空间草稿）
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

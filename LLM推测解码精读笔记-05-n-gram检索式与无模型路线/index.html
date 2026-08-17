@@ -1,0 +1,2478 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理优化精读笔记：量化 + 推测解码（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/">
+      
+      
+        <link rel="prev" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/">
+      
+      
+        <link rel="next" href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%AA%8C%E6%94%B6/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>05 n-gram/检索式与无模型路线 - LLM 推理优化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-05-n-gram" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-header__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 推理优化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              05 n-gram/检索式与无模型路线
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-nav__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 推理优化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推测解码精读笔记
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    推测解码精读笔记
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E6%8E%A5%E5%8F%97%E7%8E%87%E6%95%B0%E5%AD%A6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 问题形式化与接受率数学
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 原始推测解码（草稿模型与拒绝采样）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-Medusa-%E5%A4%9A%E5%A4%B4%E8%A7%A3%E7%A0%81/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Medusa（多头解码）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 EAGLE（特征空间草稿）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 n-gram/检索式与无模型路线
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 n-gram/检索式与无模型路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 动机：草稿的第三种来源——记忆与检索
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-n-gram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 统一框架：n-gram 续写 + 目标验证
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-prompt-lookup-decodingpld" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 方法一：Prompt Lookup Decoding（PLD）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 方法一：Prompt Lookup Decoding（PLD）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 为什么有效
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-lookahead-decoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 方法二：Lookahead Decoding（自生成轨迹记忆）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 方法二：Lookahead Decoding（自生成轨迹记忆）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 自回归解码 = 解非线性方程组
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-jacobi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Jacobi 迭代：并行解方程组，但几乎不加速
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-lookahead-n-gram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Lookahead 的补救：把轨迹变成 n-gram 记忆
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 无损性与采样支持
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 缩放律
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 方法三：REST（外部语料记忆）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 方法三：REST（外部语料记忆）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-datastore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Datastore 构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 检索：后缀精确匹配（几乎零开销）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-trie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Trie 建草稿：把一堆续写变成一棵候选树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 验证与无损性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 三种方法对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-n-gram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 接受率数学：n-gram 命中率模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 接受率数学：n-gram 命中率模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 把无模型路线套进统一公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 命中率由什么决定
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 与训练路线的根本区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 数值算例
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 数值算例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-pld" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 PLD：一轮完整流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-lookahead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Lookahead：轨迹如何变成记忆
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 REST：命中率对加速的放大
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 实验结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 决策框架：无模型 vs 训练路线
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 实现细节与坑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：统一公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：命中率对加速的影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3jacobi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（推导）：Jacobi 为什么收敛但低效
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4lookahead-jacobi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：Lookahead 如何救活 Jacobi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5rest-datastore-trie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（设计）：REST 的 datastore 与 Trie
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6pld-toy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：PLD 的 toy 实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%AA%8C%E6%94%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 系统集成与生产验收
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 动机：草稿的第三种来源——记忆与检索
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-n-gram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 统一框架：n-gram 续写 + 目标验证
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-prompt-lookup-decodingpld" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 方法一：Prompt Lookup Decoding（PLD）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 方法一：Prompt Lookup Decoding（PLD）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 为什么有效
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-lookahead-decoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 方法二：Lookahead Decoding（自生成轨迹记忆）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 方法二：Lookahead Decoding（自生成轨迹记忆）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 自回归解码 = 解非线性方程组
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-jacobi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Jacobi 迭代：并行解方程组，但几乎不加速
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-lookahead-n-gram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Lookahead 的补救：把轨迹变成 n-gram 记忆
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 无损性与采样支持
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 缩放律
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 方法三：REST（外部语料记忆）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 方法三：REST（外部语料记忆）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-datastore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Datastore 构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 检索：后缀精确匹配（几乎零开销）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-trie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Trie 建草稿：把一堆续写变成一棵候选树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 验证与无损性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 三种方法对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-n-gram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 接受率数学：n-gram 命中率模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 接受率数学：n-gram 命中率模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 把无模型路线套进统一公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 命中率由什么决定
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 与训练路线的根本区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 数值算例
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 数值算例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-pld" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 PLD：一轮完整流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-lookahead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Lookahead：轨迹如何变成记忆
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 REST：命中率对加速的放大
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 实验结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 决策框架：无模型 vs 训练路线
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 实现细节与坑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：统一公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：命中率对加速的影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3jacobi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（推导）：Jacobi 为什么收敛但低效
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4lookahead-jacobi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：Lookahead 如何救活 Jacobi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5rest-datastore-trie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（设计）：REST 的 datastore 与 Trie
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6pld-toy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：PLD 的 toy 实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-05-n-gram">LLM 推测解码精读笔记 · 05 n-gram / 检索式与无模型路线<a class="headerlink" href="#llm-05-n-gram" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：Fu et al., <em>Breaking the Sequential Dependency of LLM Inference Using Lookahead Decoding</em>（arXiv:2307.09991 / 2402.02057，ICML 2024）；He et al., <em>REST: Retrieval-Based Speculative Decoding</em>（arXiv:2311.08252，2023）；Saxena, <em>Prompt Lookup Decoding</em>（vLLM / TensorRT-LLM 的 <code>[ngram]</code> 模式）。
+前置：01–04 章。学完本章你应该能：① 说出无模型路线的统一公式"n-gram 记忆 + 目标并行验证"；② 比较 Prompt Lookup、Lookahead Decoding、REST 三种"记忆来源"的差异；③ 把自回归解码写成非线性方程组，解释 Jacobi 迭代为什么本身不加速、Lookahead 又怎么救活它；④ 写出 REST 的 datastore → 检索 → Trie 建草稿 → 树验证流程；⑤ 用命中率模型解释为什么这些方法在"重复性强"的任务上赢、在自由生成上输；⑥ 说清它们为什么都是无损的。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li>本章目标</li>
+<li>动机：草稿的第三种来源——记忆与检索</li>
+<li>统一框架：n-gram 续写 + 目标验证</li>
+<li>方法一：Prompt Lookup Decoding（prompt 记忆）</li>
+<li>方法二：Lookahead Decoding（自生成轨迹记忆）</li>
+<li>方法三：REST（外部语料记忆）</li>
+<li>三种方法对照</li>
+<li>接受率数学：n-gram 命中率模型</li>
+<li>数值算例</li>
+<li>实验结果</li>
+<li>决策框架：无模型 vs 训练路线</li>
+<li>实现细节与坑</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
+</ol>
+<hr />
+<h2 id="2">2. 动机：草稿的第三种来源——记忆与检索<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>前三章回答了"草稿从哪来"的三种答案：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>02：独立小模型（要预训练、要部署）
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>03：主干的头（要训练 K 个头）
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>04：特征级 decoder（要训练轻量模型）
+</code></pre></div>
+<p>共同点：<strong>都要训练</strong>。本章回答第四个问题：<strong>不训练任何东西，能不能猜？</strong></p>
+<p>答案藏在文本的结构里：生成过程经常重复已有文本——代码里的模板、摘要里复述原文的句子、多轮对话里重复的指令。这些"重复"是<strong>免费的草稿来源</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>上下文结尾是 "return self.value + "，prompt 里出现过一模一样的片段，
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>后面大概率还是 "self.offset" 之类——直接在记忆里查，不用任何模型猜。
+</code></pre></div>
+<p>这类方法的共同名字叫<strong>无模型路线</strong>（model-free）：没有草稿模型、没有训练，只有"查表 + 验证"。</p>
+<hr />
+<h2 id="3-n-gram">3. 统一框架：n-gram 续写 + 目标验证<a class="headerlink" href="#3-n-gram" title="Permanent link">&para;</a></h2>
+<p>本章三种方法（Prompt Lookup、Lookahead、REST）可以写成<strong>同一个公式</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>候选 = 在"记忆"里找到与当前上下文后缀匹配的 n-gram，取出它的续写
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>验证 = 目标模型一次前向并行验证这些续写（拒绝采样保持无损）
+</code></pre></div>
+<p>差别只有一处——<strong>记忆从哪来</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>记忆来源</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prompt Lookup</td>
+<td>当前 prompt / 已生成文本</td>
+<td>"翻自己说过的话"</td>
+</tr>
+<tr>
+<td>Lookahead Decoding</td>
+<td>自生成的 Jacobi 轨迹缓存</td>
+<td>"翻自己刚想过的词"</td>
+</tr>
+<tr>
+<td>REST</td>
+<td>外部大规模语料 datastore</td>
+<td>"翻全世界说过的话"</td>
+</tr>
+</tbody>
+</table>
+<p>后面每一节就是"把一种记忆源讲清楚 + 它特有的机制"。</p>
+<hr />
+<h2 id="4-prompt-lookup-decodingpld">4. 方法一：Prompt Lookup Decoding（PLD）<a class="headerlink" href="#4-prompt-lookup-decodingpld" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 算法<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>PLD 是最简单的无模型方法：把草稿模型替换成<strong>字符串匹配函数</strong>。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>输入：当前已生成序列 S、lookup 长度范围 [min, max]
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>1. 取 S 末尾的 n 个 token 作为查询 q（从 max 开始，逐次减到 min）
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>2. 在 S 的前面部分（prompt + 已生成文本）里找 q 的精确匹配
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>3. 若找到：匹配位置之后的 token 序列（最长可用长度）作为草稿候选
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>4. 目标模型并行验证，接受匹配上的前缀
+</code></pre></div>
+<p>vLLM 里对应 <code>speculative_model="[ngram]"</code>，超参 <code>prompt_lookup_min</code> / <code>prompt_lookup_max</code> / <code>num_speculative_tokens</code>；TensorRT-LLM 的 NGram 模式同理。</p>
+<h3 id="42">4.2 为什么有效<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<p>典型场景：摘要、代码补全、翻译、多轮对话——输出大量<strong>逐字复用</strong>输入文本：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>prompt ：“请总结：&lt;长文&gt;”
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>输出    ：“本文介绍了……文中提到……”   ← 大量短语直接来自 &lt;长文&gt;
+</code></pre></div>
+<p>EAGLE-2 论文的实验也印证：PLD 在摘要任务（CNN/DailyMail）上拿到无模型方法里最高的加速比，因为摘要与原文的重叠率最高。</p>
+<h3 id="43">4.3 边界<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<p>自由创作、开放域对话等<strong>重复率低</strong>的任务上，n-gram 匹配经常失败——PLD 退化为普通解码（白付一次验证开销）。所以 PLD 通常作为"零成本插件"与其他草稿方案组合，而不是独立路线。</p>
+<hr />
+<h2 id="5-lookahead-decoding">5. 方法二：Lookahead Decoding（自生成轨迹记忆）<a class="headerlink" href="#5-lookahead-decoding" title="Permanent link">&para;</a></h2>
+<p>Lookahead 回答的是另一个问题：<strong>没有外部记忆、prompt 也不重复时，草稿从哪来？</strong> 答案是"让模型自己边想边记"。</p>
+<h3 id="51">5.1 自回归解码 = 解非线性方程组<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>设要生成 <span class="arithmatex">\(m\)</span> 个 token（贪心），自回归过程可以写成 <span class="arithmatex">\(m\)</span> 个方程：</p>
+<div class="arithmatex">\[
+y_i = \arg\max_y P_M(y \mid y_1, \dots, y_{i-1}, \mathbf{x}^0), \qquad i = 1, \dots, m
+\]</div>
+<p>定义 <span class="arithmatex">\(f(y_i, \mathbf{y}_{1:i-1}, \mathbf{x}^0) = y_i - \arg\max_y P_M(y \mid \mathbf{y}_{1:i-1}, \mathbf{x}^0)\)</span>，上式等价于非线性方程组：</p>
+<div class="arithmatex">\[
+f(y_i, \mathbf{y}_{1:i-1}, \mathbf{x}^0) = 0, \qquad i = 1, \dots, m
+\]</div>
+<h3 id="52-jacobi">5.2 Jacobi 迭代：并行解方程组，但几乎不加速<a class="headerlink" href="#52-jacobi" title="Permanent link">&para;</a></h3>
+<p>求解非线性方程组的标准方法之一是 <strong>Jacobi 迭代</strong>：从一个初始猜测 <span class="arithmatex">\(\mathbf{y}^0\)</span> 出发，<strong>每一轮并行更新所有位置</strong>：</p>
+<div class="arithmatex">\[
+y_i^{t+1} = \arg\max_y P_M(y \mid y_1^{t}, \dots, y_{i-1}^{t}, \mathbf{x}^0)
+\]</div>
+<p>性质：</p>
+<ol>
+<li><strong>每轮至少 1 个 token 正确</strong>：第一个位置用的是真实前缀，所以 <span class="arithmatex">\(y_1^{t+1}\)</span> 就是自回归的第一个 token——最多 <span class="arithmatex">\(m\)</span> 轮收敛；</li>
+<li>运气好时一轮能"蒙对"多个位置，减少解码步数；</li>
+<li>但论文实验发现 Jacobi 解码<strong>几乎不加速</strong>：猜对的 token 常被放在错误位置，且后续迭代会把已经放对的位置<strong>覆盖掉</strong>。</li>
+</ol>
+<h3 id="53-lookahead-n-gram">5.3 Lookahead 的补救：把轨迹变成 n-gram 记忆<a class="headerlink" href="#53-lookahead-n-gram" title="Permanent link">&para;</a></h3>
+<p>Jacobi 每轮产生的轨迹 <span class="arithmatex">\((\mathbf{y}^0, \mathbf{y}^1, \dots)\)</span> 里藏着一个事实：<strong>相邻两步的 token 组合是有意义的 2-gram</strong>（因为 <span class="arithmatex">\(y_i^{t+1}\)</span> 是基于 <span class="arithmatex">\(y_{i-1}^{t}\)</span> 生成的）。Lookahead 把这个观察推广到 <span class="arithmatex">\(n\)</span>-gram，并加了两样东西：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>① lookahead branch：一个固定大小的 2D 窗口
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>   W = 向前看几个位置（并行解码宽度）
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>   N = 往回看几步轨迹（n-gram 长度）
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>   每轮在 W 个位置并行生成 token，沿轨迹收集 n-gram
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>② n-gram pool：缓存轨迹里出现过的所有 n-gram
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>   下一轮用"当前最后 token"做 key，从 pool 里找以它开头的 n-gram 作为草稿
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>每轮三步：
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>1. lookahead branch：W 个位置并行生成新 token（一条新轨迹）
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>2. verification branch：从 n-gram pool 里取"以当前最后 token 开头"的候选，
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>   目标模型并行验证、接受匹配前缀
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>3. 把新轨迹的 n-gram 写回 pool；滑动窗口丢弃最旧的 token
+</code></pre></div>
+<p>注意 lookahead 分支与验证分支<strong>互不可见</strong>（各自独立的注意力掩码），同一个前向里并行执行。</p>
+<h3 id="54">5.4 无损性与采样支持<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<p>验证采用"不匹配即停"规则：n-gram 前缀与目标输出一致就接受，第一个不一致处停下。论文证明（Appendix B）：<strong>不相交 n-gram 的并行验证保持输出分布</strong>——这是 Lookahead 无损性的核心定理。</p>
+<p>采样（非贪心）场景有个实现技巧：n-gram pool 若存概率分布会爆内存，所以 lookahead 分支<strong>强制贪心</strong>生成 n-gram——分布退化为 one-hot，只存选中的 token 即可。论文论证验证与草稿采样方式无关（采样方式只影响接受率，不改变输出分布），所以无损性依然成立。</p>
+<h3 id="55">5.5 缩放律<a class="headerlink" href="#55" title="Permanent link">&para;</a></h3>
+<p>定义每步产出 <span class="arithmatex">\(S = \frac{\#\text{生成 token}}{\#\text{Lookahead 步数}}\)</span>。论文推导：</p>
+<div class="arithmatex">\[
+S = \frac{f - 1 + E[\#\text{tokens}]}{f}
+\]</div>
+<p>（每 <span class="arithmatex">\(f\)</span> 步有 1 步好的猜测，其余退回自回归。）结论：<strong>步数随每步 <span class="arithmatex">\(\log(\text{FLOPs})\)</span> 线性下降</strong>——与推测解码"接受率封顶"不同，Lookahead 可以靠加算力（<span class="arithmatex">\(W\)</span>、<span class="arithmatex">\(N\)</span>）持续压步数；这也支撑它在多 GPU 上的强扩展性（lookahead parallelism：每 GPU 一份完整模型，按分支分发 token）。</p>
+<hr />
+<h2 id="6-rest">6. 方法三：REST（外部语料记忆）<a class="headerlink" href="#6-rest" title="Permanent link">&para;</a></h2>
+<p>REST 把记忆从"自己"扩展到"全世界"：<strong>用一个外部语料库当草稿模型</strong>。</p>
+<h3 id="61-datastore">6.1 Datastore 构建<a class="headerlink" href="#61-datastore" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+D = \{(c_i, t_i)\}
+\]</div>
+<p>对语料里每个位置，<span class="arithmatex">\(c_i\)</span> 是上下文、<span class="arithmatex">\(t_i\)</span> 是对应的续写，构成"上下文-续写"对。论文用了两个库：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>代码域：The Stack 的 270 万条 Python 样本 → 加速 CodeLlama 7B/13B
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>通用域：UltraChat 约 77.4 万条对话 → 加速 Vicuna 7B/13B
+</code></pre></div>
+<h3 id="62">6.2 检索：后缀精确匹配（几乎零开销）<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>用当前上下文 <span class="arithmatex">\(s\)</span> 作为查询，在 <span class="arithmatex">\(D\)</span> 里找与 <span class="arithmatex">\(s\)</span> <strong>最长后缀</strong>精确匹配的条目；匹配不到就缩短后缀长度再试。实现用<strong>后缀数组</strong>（suffix array），检索开销 &lt; 6%：</p>
+<div class="arithmatex">\[
+\text{Retrieve}(D, s) = \{(c_i, t_i) : c_i \text{ 以 } s \text{ 的最长匹配后缀结尾}\}
+\]</div>
+<h3 id="63-trie">6.3 Trie 建草稿：把一堆续写变成一棵候选树<a class="headerlink" href="#63-trie" title="Permanent link">&para;</a></h3>
+<p>检索结果可能很多，全用会撑爆验证前向。REST 用 <strong>Trie</strong> 合并它们：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>1. 把所有续写 t_i 插进 Trie，每个节点累计"出现频次"作为权重
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>2. 按权重挑出 top-c 个最高频前缀（即"最被语料支持"的续写）
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>3. 这些前缀构成一棵草稿树
+</code></pre></div>
+<h3 id="64">6.4 验证与无损性<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
+<p>草稿树用树注意力一次前向验证，从根开始接受，<strong>第一个不一致处之后全部丢弃</strong>；拒绝位置用标准拒绝采样修正。REST 与 PLD、Lookahead 一样<strong>严格无损</strong>——只影响草稿质量，不改变目标分布。</p>
+<hr />
+<h2 id="7">7. 三种方法对照<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Prompt Lookup</th>
+<th>Lookahead Decoding</th>
+<th>REST</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>记忆来源</td>
+<td>当前 prompt/生成文本</td>
+<td>自生成 Jacobi 轨迹</td>
+<td>外部语料 datastore</td>
+</tr>
+<tr>
+<td>记忆规模</td>
+<td>1 个序列（小）</td>
+<td>固定窗口（中）</td>
+<td>百万级语料（大）</td>
+</tr>
+<tr>
+<td>特有机制</td>
+<td>无（纯字符串匹配）</td>
+<td>2D 窗口 + n-gram pool</td>
+<td>后缀数组检索 + Trie 加权</td>
+</tr>
+<tr>
+<td>训练</td>
+<td>无</td>
+<td>无</td>
+<td>无（但要建 datastore）</td>
+</tr>
+<tr>
+<td>无损</td>
+<td>严格</td>
+<td>严格（Appendix B 证明）</td>
+<td>严格</td>
+</tr>
+<tr>
+<td>最擅长的任务</td>
+<td>摘要/代码/多轮</td>
+<td>代码补全（规律性强）</td>
+<td>代码（HumanEval）最强，通用其次</td>
+</tr>
+<tr>
+<td>典型加速</td>
+<td>取决于重复度</td>
+<td>1.5–2.3x</td>
+<td>1.62–2.36x</td>
+</tr>
+</tbody>
+</table>
+<p>一个有趣的递进：<strong>记忆从小到大、检索从简单到复杂</strong>，但底层都是"找到与当前后缀匹配的 n-gram，取续写，交给目标验证"。</p>
+<hr />
+<h2 id="8-n-gram">8. 接受率数学：n-gram 命中率模型<a class="headerlink" href="#8-n-gram" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 把无模型路线套进统一公式<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<p>设检索/查表得到续写 <span class="arithmatex">\((\hat{t}_1, \dots, \hat{t}_K)\)</span>，目标逐位验证。沿用 01–04 章的记号，第 <span class="arithmatex">\(i\)</span> 层接受概率：</p>
+<div class="arithmatex">\[
+\alpha_i = P\!\left(\hat{t}_i = \arg\max_x p(x \mid \text{上下文} + \hat{t}_{&lt;i})\right)
+\]</div>
+<p>期望产出（贪心，K 个草稿 + 1 个修正/bonus）：</p>
+<div class="arithmatex">\[
+E[N] = 1 + \alpha_1 + \alpha_1\alpha_2 + \cdots + \prod_{i=1}^{K}\alpha_i
+\]</div>
+<h3 id="82">8.2 命中率由什么决定<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(\alpha_i\)</span> 的核心是 <strong>n-gram 命中</strong>：续写 <span class="arithmatex">\(\hat{t}_{1:i}\)</span> 恰好等于目标真正会生成的序列。命中概率由两个因素决定：</p>
+<div class="arithmatex">\[
+P(\text{命中 } i \text{ 个}) = \underbrace{P(\text{上下文在记忆中出现过})}_{\text{覆盖}} \times \underbrace{P(\text{续写与目标一致} \mid \text{出现})}_{\text{规律性}}
+\]</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>摘要/代码/翻译：两个因素都高 → α ≈ 0.8~0.9，接近 Medusa/EAGLE
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>自由创作：覆盖低、规律性低 → α ≈ 0.2~0.4，加速比 &lt; 1（白付验证费）
+</code></pre></div>
+<p>这就是第 4–6 节反复强调"重复性强"的原因——<strong>无模型路线不是万能的，它押注的是文本的可复用性</strong>。</p>
+<h3 id="83">8.3 与训练路线的根本区别<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>训练路线（Medusa/EAGLE）</th>
+<th>无模型路线（本章）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>α 的来源</td>
+<td>学出来的（参数记忆规律）</td>
+<td>查出来的（显式记忆实例）</td>
+</tr>
+<tr>
+<td>覆盖范围</td>
+<td>任意上下文（泛化）</td>
+<td>只覆盖记忆里出现过的 n-gram</td>
+</tr>
+<tr>
+<td>长距离依赖</td>
+<td>有（模型条件化）</td>
+<td>基本没有（局部匹配）</td>
+</tr>
+<tr>
+<td>部署成本</td>
+<td>训练 + 额外权重</td>
+<td>零训练，但 REST 要带 datastore</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. 数值算例<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91-pld">9.1 PLD：一轮完整流程<a class="headerlink" href="#91-pld" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>已生成序列：
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  "请总结：AlphaGo 使用蒙特卡洛树搜索和深度神经网络。
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>   蒙特卡洛树搜索用于评估棋盘局面，深度神经网络……
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>   总结：AlphaGo 使用蒙特卡洛树搜索"
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>查询：取末尾 n=5："AlphaGo 使用蒙特卡洛树搜索"
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>匹配：在 prompt 开头找到相同片段（第 1 处）
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>草稿：取出其后续 "和深度神经网络"
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>验证：目标一次前向；贪心链 = "和深度神经网络" → 全部接受（α=1 直到第 5 位）
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>本轮产出：5 个 token（若第 6 位开始偏离则停在第一个不一致处）
+</code></pre></div>
+<p>设实际接受率剖面 <span class="arithmatex">\(\alpha = (1, 1, 0.95, 0.9, 0.8)\)</span>（前几位完全复用原文，越往后越自由）：</p>
+<div class="arithmatex">\[
+E[N] = 1 + 1 + 1 + 0.95 + 0.855 + 0.684 = 5.49
+\]</div>
+<p>一个目标前向换 5.49 个 token——摘要场景下 PLD 的威力。</p>
+<h3 id="92-lookahead">9.2 Lookahead：轨迹如何变成记忆<a class="headerlink" href="#92-lookahead" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>前缀 "The cat sat"，目标续写应为 "on the mat"。
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>步 1：Jacobi 轨迹初始猜测 y^0 = (on, a, rug)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>      并行更新：y^1 = (on, the, mat)     ← 一轮蒙对 3 个位置
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>      收集 n-gram：(on, the), (the, mat), (on, the, mat) → 写入 pool
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>步 2：当前最后 token = "sat"，pool 里查不到以 "sat" 开头的 n-gram
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>      → 验证分支查 "以当前序列末尾 n-gram 开头" 的候选：
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>      序列末尾是 "sat"，pool 有 ("sat" 之后的轨迹)……若无匹配则退化为普通一步
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>      （实际运行中，验证分支直接检查以当前最后 token 开头的 n-gram：
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>        若轨迹上一轮已生成 "on the mat" 且 "on" 紧邻当前 token，则直接验证 "on the mat"）
+</code></pre></div>
+<p>关键是：<strong>Jacobi 一轮蒙对的 token 不再被覆盖，而是以 n-gram 形式缓存，下一轮通过验证正式"转正"</strong>。这就是"边想边记"。</p>
+<h3 id="93-rest">9.3 REST：命中率对加速的放大<a class="headerlink" href="#93-rest" title="Permanent link">&para;</a></h3>
+<p>设 REST 检索到一条 6-token 续写，实际接受率剖面 <span class="arithmatex">\(\alpha = (0.9, 0.85, 0.8, 0.7, 0.6, 0.5)\)</span>：</p>
+<div class="arithmatex">\[
+E[N] = 1 + 0.9 + 0.765 + 0.612 + 0.428 + 0.257 + 0.129 = 4.09
+\]</div>
+<p>对照：若命中率整体砍半（<span class="arithmatex">\(\alpha = (0.45, 0.425, 0.4, 0.35, 0.3, 0.25)\)</span>），<span class="arithmatex">\(E[N] \approx 1.75\)</span>，再算上检索和验证开销，加速比就贴近 1 了——再次说明"记忆覆盖"是命门。</p>
+<hr />
+<h2 id="10">10. 实验结果<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<p>论文已核实数据：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>实验设置</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lookahead</td>
+<td>多种数据集，单 GPU</td>
+<td>1.5x–2.3x；代码补全最高 2.3x</td>
+</tr>
+<tr>
+<td>Lookahead</td>
+<td>模型规模对比</td>
+<td>小模型加速比更高（大模型更快触及 FLOPs 上限）</td>
+</tr>
+<tr>
+<td>REST</td>
+<td>CodeLlama 7B/13B + The Stack，HumanEval</td>
+<td>2.12x–2.36x</td>
+</tr>
+<tr>
+<td>REST</td>
+<td>Vicuna 7B/13B + UltraChat，MT-Bench</td>
+<td>1.62x–1.77x</td>
+</tr>
+<tr>
+<td>REST（摘要）</td>
+<td>整体声明</td>
+<td>1.62x–2.36x（代码或文本生成）</td>
+</tr>
+<tr>
+<td>PLD</td>
+<td>EAGLE-2 论文对照实验</td>
+<td>摘要任务（CNN/DM）上无模型方法中最高加速</td>
+</tr>
+</tbody>
+</table>
+<p>两个共同规律：</p>
+<ol>
+<li><strong>代码 &gt; 文本</strong>：代码模板重复率高，n-gram 命中率显著更高（Lookahead 2.3x、REST 2.36x 都出现在代码任务）；</li>
+<li><strong>重复率决定一切</strong>：同一方法在 HumanEval 与自由对话之间的差距可达 2 倍以上。</li>
+</ol>
+<hr />
+<h2 id="11-vs">11. 决策框架：无模型 vs 训练路线<a class="headerlink" href="#11-vs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>选无模型（本章）：
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  ✓ 零训练、即插即用、严格无损
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  ✓ 任务重复性强（摘要/代码/翻译/长上下文复用）
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>  ✗ 自由生成时命中率低，可能白付验证开销
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>选训练路线（03/04）：
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>  ✓ 接受率稳定（EAGLE ≈ 0.8），任意上下文可用
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>  ✓ 可与树、动态树、量化叠加
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>  ✗ 要训练、要维护额外权重
+</code></pre></div>
+<p>工程里的常见组合：<strong>PLD 当"免费彩票"</strong>（命中就赚，不命中退回原速）+ <strong>EAGLE/Medusa 当主力</strong>。06 章会给出组合验收的具体协议。</p>
+<hr />
+<h2 id="12">12. 实现细节与坑<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>n-gram 匹配要设长度下限</strong>：太短的匹配（如 1-gram）几乎必然错误，白费验证；vLLM 的 <code>prompt_lookup_min</code> 默认设 1，工程上建议 ≥ 2–3。</li>
+<li><strong>匹配位置要排除"正在生成的部分"</strong>：PLD 必须只在已确认文本里查，否则会匹配到"自己刚猜的候选"，形成循环。</li>
+<li><strong>Lookahead 的 2D 窗口参数要调</strong>：<span class="arithmatex">\(W\)</span>（向前看）与 <span class="arithmatex">\(N\)</span>（往回看）决定每步 FLOPs；<span class="arithmatex">\(W\)</span>、<span class="arithmatex">\(N\)</span> 太大会撞 GPU FLOPs 上限，加速比反而下降（论文 Fig. 4）。</li>
+<li><strong>REST 的 datastore 要与任务同域</strong>：代码模型配代码语料、对话模型配对话语料，否则覆盖率为 0。</li>
+<li><strong>检索不是免费的</strong>：REST 用后缀数组把开销压到 &lt; 6%，但 naive 扫描会吃掉全部收益。</li>
+<li><strong>无损性依赖验证</strong>：无模型方法如果跳过验证直接采用检索续写（有些工程实现图快这么做），输出分布就变了——严格无损必须走拒绝采样/贪心比对。</li>
+<li><strong>组合使用</strong>：PLD 常被叠加在其他草稿方案上做"附加通道"；注意多个草稿源的候选要合并进同一棵树，掩码与概率记账都要相应处理。</li>
+</ol>
+<hr />
+<h2 id="13">13. 本章小结<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>统一公式</strong>：无模型路线 = n-gram 记忆续写 + 目标并行验证；差异只在记忆来源。</li>
+<li><strong>PLD</strong>：查自己（prompt），最简单，靠重复率吃饭。</li>
+<li><strong>Lookahead</strong>：查自己的 Jacobi 轨迹（2D 窗口 + n-gram pool），把"蒙对又覆盖"变成"缓存后转正"；缩放律支持靠算力压步数。</li>
+<li><strong>REST</strong>：查外部语料（后缀数组 + Trie），把语料当"非参数草稿模型"。</li>
+<li><strong>数学</strong>：<span class="arithmatex">\(E[N] = 1 + \alpha_1 + \alpha_1\alpha_2 + \cdots\)</span>，<span class="arithmatex">\(\alpha_i\)</span> 由"记忆覆盖 × 文本规律性"决定；重复性强则接近训练路线，否则失效。</li>
+<li><strong>共同底线</strong>：全部严格无损（验证保证），这是它们作为"插件"的前提。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"不训练也能猜——前提是文本会重复：翻自己（PLD）、翻自己刚想的（Lookahead）、翻全世界（REST），都是把'说过的话'变成'接下来要说的话'。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="14">14. 习题与解答<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
+<h3 id="1">题 1（推导）：统一公式<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p>写出无模型路线的统一流程，并解释为什么三种方法的唯一区别是"记忆来源"。用 <span class="arithmatex">\(E[N] = 1 + \sum_{i=1}^{K}\prod_{j \le i}\alpha_j\)</span> 说明验证的作用。</p>
+<details>
+<summary>题 1 解答要点</summary>
+
+统一流程：① 在记忆里找与当前后缀匹配的 n-gram → 取续写；② 目标并行验证；③ 拒绝采样/贪心比对保持分布。PLD/Lookahead/REST 只换第①步的记忆源。公式里 $\alpha_i$ 全由检索命中决定，验证本身不改变分布——所以无论 $\alpha$ 多低，无损性都成立。
+</details>
+
+<h3 id="2_1">题 2（计算）：命中率对加速的影响<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<p>比较两组接受率剖面：A = (0.9, 0.8, 0.7)、B = (0.5, 0.4, 0.3)（均 K=3），算 <span class="arithmatex">\(E[N]\)</span>；设一次验证开销为 1.1 次普通前向，分别算净加速。</p>
+<details>
+<summary>题 2 解答</summary>
+
+A：$1 + 0.9 + 0.72 + 0.504 = 3.124$，净加速 $3.124/1.1 = 2.84\text{x}$。B：$1 + 0.5 + 0.2 + 0.06 = 1.76$，净加速 $1.76/1.1 = 1.60\text{x}$。B 虽然还是正的，但若检索再花一点时间就跌破 1——命中率是盈亏分界线。
+</details>
+
+<h3 id="3jacobi">题 3（推导）：Jacobi 为什么收敛但低效<a class="headerlink" href="#3jacobi" title="Permanent link">&para;</a></h3>
+<p>证明 Jacobi 解码至多 <span class="arithmatex">\(m\)</span> 轮收敛（<span class="arithmatex">\(m\)</span> 为生成长度），并解释为什么"每轮至少 1 个 token 正确"不足以带来墙钟加速。</p>
+<details>
+<summary>题 3 解答</summary>
+
+第 $t+1$ 轮第 1 个位置用真实前缀计算，$y_1^{t+1}$ 必等于自回归首 token；第 $t+2$ 轮第 2 个位置可用 $y_1^{t+1}$（已正确）……归纳得每轮至少"多对 1 个位置"，故至多 $m$ 轮。低效原因：多轮迭代的 FLOPs 总和通常 ≥ 自回归的 $m$ 次前向（每轮都是全模型前向）；且已对的位置会被后续轮次用旧猜测覆盖，正确 token 常"落不了地"。
+</details>
+
+<h3 id="4lookahead-jacobi">题 4（思考）：Lookahead 如何救活 Jacobi<a class="headerlink" href="#4lookahead-jacobi" title="Permanent link">&para;</a></h3>
+<p>解释"2D 窗口 + n-gram pool"分别解决了 Jacobi 的两个缺陷（错位、被覆盖），并说明验证分支为什么能"转正"轨迹里的 n-gram。</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+错位：n-gram 按"起点 token"检索，只有与当前序列衔接的 n-gram 才会被验证，不再要求"整体序列刚好对齐"。被覆盖：轨迹里的 n-gram 被写进 pool 持久化，即使后续迭代覆盖了轨迹中的位置，pool 里仍保留候选。验证分支用目标模型确认"该 n-gram 的每个 token 与真实条件分布一致"，一致的前缀转正，不一致处停止——这就是无损的保证。
+</details>
+
+<h3 id="5rest-datastore-trie">题 5（设计）：REST 的 datastore 与 Trie<a class="headerlink" href="#5rest-datastore-trie" title="Permanent link">&para;</a></h3>
+<p>给定语料里 5 条命中续写，说明 Trie 节点权重如何累计、为什么"最高频前缀"是好的草稿选择；若检索到 1000 条续写而验证预算只有 64 个节点，贪心挑权重最高的前缀子树会出现什么问题？</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+每条续写的每个前缀都让对应 Trie 节点计数 +1；权重 = 频次，代表"语料里有多少证据支持这个前缀"。高频前缀是语料共识，命中率高。预算 64 节点时，纯按权重贪心会偏向"第一个 token 高频"的分支而忽略次高频的多样分支——需要在"深度"和"分支覆盖"间平衡（类似 03 章优化树的思路；REST 论文的 top-c 截断是一种简单近似）。
+</details>
+
+<h3 id="6pld-toy">题 6（编程）：PLD 的 toy 实现<a class="headerlink" href="#6pld-toy" title="Permanent link">&para;</a></h3>
+<p>实现一个 toy：给定一个长 prompt 与目标贪心函数，跑 1 万轮 PLD（min=2, max=8），统计命中率与每轮 token 数；再构造一个"零重复"的随机 prompt 对比，观察加速比如何跌破 1。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+① 每次取末尾 n 个 token 在已确认文本里搜最长匹配，取后续为草稿；② 目标逐位比对，接受一致前缀，不一致处输出目标 token 并停；③ 统计 $E[N]$ 与公式对照；④ 随机 prompt 下匹配几乎失败，$E[N] \approx 1$ 且每轮仍付一次验证前向，净加速 < 1——复现"重复率决定盈亏"。
+</details>
+
+<hr />
+<h2 id="15">15. 延伸阅读<a class="headerlink" href="#15" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2307.09991">Breaking the Sequential Dependency of LLM Inference Using Lookahead Decoding（arXiv:2307.09991 / 2402.02057）</a>：Jacobi 形式化、2D 窗口、n-gram pool、无损性证明（Appendix B）、缩放律。</li>
+<li><a href="https://arxiv.org/abs/2311.08252">REST: Retrieval-Based Speculative Decoding（arXiv:2311.08252）</a>：datastore、后缀数组检索、Trie 建草稿、实验。</li>
+<li><a href="https://github.com/apoorvumang/prompt-lookup-decoding">Prompt Lookup Decoding（Saxena, GitHub）</a>：PLD 的规范实现；vLLM 的 <code>[ngram]</code> 模式与 TensorRT-LLM NGram 模式文档。</li>
+<li><a href="https://arxiv.org/abs/2309.14455">LLMA: Let Language Models be Maracas Again（Yang et al., arXiv:2309.14455）</a>：从 RAG 提供的参考上下文检索草稿的早期工作，REST 论文与之对比。</li>
+<li>上一篇：<a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/">04 EAGLE：特征空间草稿</a>；下一篇：<strong>06 系统集成与生产验收</strong>——把量化、推测解码、KV 缓存、批处理组合成一份部署方案，并给出验收协议。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 04 EAGLE（特征空间草稿）">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                04 EAGLE（特征空间草稿）
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%AA%8C%E6%94%B6/" class="md-footer__link md-footer__link--next" aria-label="下一页: 06 系统集成与生产验收">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                06 系统集成与生产验收
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
