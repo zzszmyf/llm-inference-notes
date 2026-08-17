@@ -1557,12 +1557,8 @@ Y = WX
 <p>流程：</p>
 <ol>
 <li>前向时统计该层激活 X，找出 |x| &gt; 6.0 的列（outlier 维度）</li>
-</ol>
-<div class="arithmatex">\[\begin{aligned}
-2. X_{\text{low}}、W_{\text{low}} $\to$ INT8 GEMM（vector-wise scale）
-3. X_{\text{outlier}}、W_{\text{outlier}} $\to$ FP16 GEMM
-\end{aligned}\]</div>
-<ol>
+<li><span class="arithmatex">\(X_{\text{low}}\)</span>、<span class="arithmatex">\(W_{\text{low}}\)</span> → INT8 GEMM（vector-wise scale）</li>
+<li><span class="arithmatex">\(X_{\text{outlier}}\)</span>、<span class="arithmatex">\(W_{\text{outlier}}\)</span> → FP16 GEMM</li>
 <li>两部分结果相加<span class="arithmatex">\(\to\)</span>输出</li>
 </ol>
 <p>由于 outlier 维度≤ <span class="arithmatex">\(7\)</span>（13B 以下），FP16 路径只占<span class="arithmatex">\(\sim 0.1\%\)</span>的计算和内存。</p>

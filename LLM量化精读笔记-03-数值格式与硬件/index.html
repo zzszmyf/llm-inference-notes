@@ -1882,11 +1882,10 @@ Blackwell (2024)：FP4 / MXFP8 / MXFP4 原生</p>
 <h3 id="73-prefill-flops">7.3 prefill 计算模型：位宽 = FLOPS<a class="headerlink" href="#73-prefill-flops" title="Permanent link">&para;</a></h3>
 <p>推理 forward 每 token 的<span class="arithmatex">\(FLOPs \approx 2N\)</span>（N 为参数量；乘法 + 加法各一次）：</p>
 <p>70B 模型、2048 token 的 prefill：</p>
-<div class="arithmatex">\[\begin{aligned}
- FLOPs $\approx$ 2 $\times$ 70e9 $\times$ 2048 $\approx$ 287 TFLOP
- H100 FP16（989 TFLOPS）：$\approx$ 0.29 s
- H100 FP8 （1979 TFLOPS）：$\approx$ 0.145 s
-\end{aligned}\]</div>
+<div class="arithmatex">\[
+\text{FLOPs} \approx 2 \times 70e9 \times 2048 \approx 287 \text{ TFLOP}
+\]</div>
+<p>H100 FP16（989 TFLOPS）≈ 0.29 s；H100 FP8（1979 TFLOPS）≈ 0.145 s</p>
 <p>这就是"prefill 是计算密集、量化降一级 FLOPS 翻倍、TTFT 减半"的出处。</p>
 <blockquote>
 <p><strong>把 7.2 和 7.3 放在一起</strong>，就得到推理工程的完整图景：量化对 prefill 的作用在计算单元（FLOPS 翻倍），对 decode 的作用在数据通路（带宽翻倍）。两者的共同分母都是"位宽"。</p>
