@@ -1344,6 +1344,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 前缀缓存与 KV 复用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1517,6 +1545,12 @@
 <td>与量化/推测解码/调度组合、注意力精度验收、决策树</td>
 <td>vLLM/SGLang/TensorRT-LLM 实践</td>
 </tr>
+<tr>
+<td>08</td>
+<td>08-前缀缓存与KV复用</td>
+<td>跨请求 KV 复用、radix tree、cache-aware 调度、KV 存储层级、路由、disaggregation</td>
+<td>RadixAttention / SGLang（arXiv:2312.07104）；Inference Engineering Ch5</td>
+</tr>
 </tbody>
 </table>
 <h2 id="2">2. 三部系列的关系：一张总表<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
@@ -1598,6 +1632,7 @@
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  → 05 PagedAttention（系统侧：KV 显存怎么分页管理）
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  → 06 内核优化（硬件侧：算子融合与 Tensor Core）
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  → 07 系统集成与验收（怎么组合、怎么验收）
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  → 08 前缀缓存与 KV 复用（跨请求的 KV 别重算、往哪存、怎么路由）
 </code></pre></div>
 <h2 id="5">5. 配套资源<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
 <table>
@@ -1627,6 +1662,10 @@
 <tr>
 <td><a href="https://arxiv.org/abs/2309.06180">PagedAttention / vLLM（arXiv:2309.06180）</a></td>
 <td>KV 分页与系统集成</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2312.07104">SGLang / RadixAttention（arXiv:2312.07104）</a></td>
+<td>前缀缓存与 KV 复用的系统实现</td>
 </tr>
 <tr>
 <td><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch5</a></td>

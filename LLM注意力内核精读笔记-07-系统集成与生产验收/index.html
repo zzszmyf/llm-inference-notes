@@ -16,6 +16,8 @@
         <link rel="prev" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E5%86%85%E6%A0%B8%E4%BC%98%E5%8C%96%E4%B8%8E%E7%AE%97%E5%AD%90%E8%9E%8D%E5%90%88/">
       
       
+        <link rel="next" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/">
+      
       
         
       
@@ -1429,10 +1431,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#0007" class="md-nav__link">
+  <a href="#0008" class="md-nav__link">
     <span class="md-ellipsis">
       
-        系列收尾：00–07 一句话记忆
+        系列收尾：00–08 一句话记忆
       
     </span>
   </a>
@@ -1542,6 +1544,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 前缀缓存与 KV 复用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1731,10 +1761,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#0007" class="md-nav__link">
+  <a href="#0008" class="md-nav__link">
     <span class="md-ellipsis">
       
-        系列收尾：00–07 一句话记忆
+        系列收尾：00–08 一句话记忆
       
     </span>
   </a>
@@ -1862,7 +1892,7 @@
 
 <h1 id="llm-07">LLM 注意力与计算内核精读笔记 · 07 系统集成与生产验收<a class="headerlink" href="#llm-07" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>对应：本系列 01–06 章的工程综合；vLLM / SGLang / TensorRT-LLM 实践；量化系列 10 章（质量评估）与 11 章（系统部署）方法论。<strong>本系列完结章。</strong>
+<p>对应：本系列 01–06 章的工程综合；vLLM / SGLang / TensorRT-LLM 实践；量化系列 10 章（质量评估）与 11 章（系统部署）方法论。<strong>本系列的系统集成章。</strong>
 前置：01–06 章全部内容。学完本章你应该能：① 画出"注意力优化四层次"（维度/内容/布局/内核）与"推理三因子"（每步成本 × 步数 × 单步内部效率）的组合框架；② 给长上下文系统列出一份完整组件清单；③ 区分"精确"与"近似"的注意力优化并分别设计验收；④ 手算一个"量化 + GQA + 推测"端到端收益算例；⑤ 按四类业务场景给出技术选型与验收协议。</p>
 </blockquote>
 <hr />
@@ -1885,7 +1915,7 @@
 <h2 id="2">2. 全系列回顾：注意力优化的四个层次<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>维度（03 章）：每 token 存多少 KV —— MQA / GQA / MLA
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>内容（04 章）：存哪些 token —— 滑窗 / H2O / StreamingLLM
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>布局（05 章）：怎么存放与共享 —— PagedAttention / COW / 前缀缓存
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>布局（05/08 章）：怎么存放与共享 —— PagedAttention / COW / 前缀缓存
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>内核（02/06 章）：怎么算得快 —— FlashAttention / 融合 / FP8
 </code></pre></div>
 <p>四层正交，可以<strong>叠加</strong>：MLA 压维度 → H2O 挑内容 → 分页管布局 → FlashAttention/FP8 提速计算。</p>
@@ -2094,7 +2124,7 @@ t_{\text{step}} = 15/2000 = 7.5\ \text{ms}
 <li><strong>精确/近似分类</strong>决定验收深度；组合矩阵防误差复合。</li>
 <li><strong>决策树</strong>：长上下文/高并发/端侧/研究各有最优组合。</li>
 </ol>
-<h3 id="0007">系列收尾：00–07 一句话记忆<a class="headerlink" href="#0007" title="Permanent link">&para;</a></h3>
+<h3 id="0008">系列收尾：00–08 一句话记忆<a class="headerlink" href="#0008" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>00 地图：注意力是"单步内部"的主战场，与量化/推测正交
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>01 基础：4L²d 的 FLOPs、KV 账本、prefill 计算密集 vs decode 带宽密集
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>02 FlashAttention：中间矩阵不落地，online softmax 保证精确，IO 最优
@@ -2103,9 +2133,10 @@ t_{\text{step}} = 15/2000 = 7.5\ \text{ms}
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>05 PagedAttention：像 OS 分页一样管 KV，碎片趋零、可共享
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>06 内核：Roofline 判瓶颈，融合 + Tensor Core + FP8 逼近 GEMM 效率
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>07 集成：四层次 × 三因子，精确类直接上，近似类过质量关
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>08 前缀缓存：KV 只依赖前缀——radix tree 记住 KV，命中率 h 省 h 的 prefill
 </code></pre></div>
 <blockquote>
-<p>一句话记忆（全系列）：<strong>"注意力优化的四把钥匙——存少点（03）、看少点（04）、排好点（05）、算快点（02/06）——最后用一份'精确还是近似'的验收协议把它们拧成一个系统。"</strong></p>
+<p>一句话记忆（全系列）：<strong>"注意力优化的五把钥匙——存少点（03）、看少点（04）、排好点（05）、记住点（08）、算快点（02/06）——最后用一份'精确还是近似'的验收协议把它们拧成一个系统。"</strong></p>
 </blockquote>
 <hr />
 <h2 id="11">11. 习题与解答<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
@@ -2216,6 +2247,22 @@ MHA：$2\times32\times4096\times2 = 512$ KB/token $\times 131072 = 64$ GiB（权
             </div>
           </a>
         
+        
+          
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/" class="md-footer__link md-footer__link--next" aria-label="下一页: 08 前缀缓存与 KV 复用">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                08 前缀缓存与 KV 复用
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
         
       </nav>
     

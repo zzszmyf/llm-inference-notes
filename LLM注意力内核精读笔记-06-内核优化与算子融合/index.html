@@ -1397,44 +1397,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#7-cuda-graphtriton" class="md-nav__link">
+  <a href="#7-gemm-opsbyte" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. CUDA Graph、Triton 与编译优化
+        7. GEMM 内核栈与 ops/byte 数据
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-fa1fa3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. 注意力内核的效率曲线（FA1→FA3）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-roofline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. 数值算例：Roofline 判定
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. 数值算例：Roofline 判定">
+    <nav class="md-nav" aria-label="7. GEMM 内核栈与 ops/byte 数据">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#91-decode7bl4k" class="md-nav__link">
+  <a href="#71-opsbyte" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.1 decode：7B、\(L=4K\)
+        7.1 ops/byte：这台机器到底"喂"得起多少算力
       
     </span>
   </a>
@@ -1442,21 +1420,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#92-prefilll4k" class="md-nav__link">
+  <a href="#72" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.2 prefill：\(L=4K\) 单层注意力
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#93" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9.3 优化方向验证
+        7.2 内核栈的选型逻辑
       
     </span>
   </a>
@@ -1469,10 +1436,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
+  <a href="#8-cuda-graphtriton" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. 本章小结
+        8. CUDA Graph、Triton 与编译优化
       
     </span>
   </a>
@@ -1480,15 +1447,87 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11" class="md-nav__link">
+  <a href="#9-fa1fa3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. 习题与解答
+        9. 注意力内核的效率曲线（FA1→FA3）
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="11. 习题与解答">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-roofline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 数值算例：Roofline 判定
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 数值算例：Roofline 判定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-decode7bl4k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 decode：7B、\(L=4K\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-prefilll4k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 prefill：\(L=4K\) 单层注意力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 优化方向验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 习题与解答">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1557,16 +1596,27 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#7opsbyte-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 7（计算）：ops/byte 视角下的 FP8
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#12" class="md-nav__link">
+  <a href="#13" class="md-nav__link">
     <span class="md-ellipsis">
       
-        12. 延伸阅读
+        13. 延伸阅读
       
     </span>
   </a>
@@ -1597,6 +1647,34 @@
     
   
     07 系统集成与生产验收
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 前缀缓存与 KV 复用
   
 
     
@@ -1788,44 +1866,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#7-cuda-graphtriton" class="md-nav__link">
+  <a href="#7-gemm-opsbyte" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. CUDA Graph、Triton 与编译优化
+        7. GEMM 内核栈与 ops/byte 数据
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-fa1fa3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. 注意力内核的效率曲线（FA1→FA3）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-roofline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. 数值算例：Roofline 判定
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. 数值算例：Roofline 判定">
+    <nav class="md-nav" aria-label="7. GEMM 内核栈与 ops/byte 数据">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#91-decode7bl4k" class="md-nav__link">
+  <a href="#71-opsbyte" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.1 decode：7B、\(L=4K\)
+        7.1 ops/byte：这台机器到底"喂"得起多少算力
       
     </span>
   </a>
@@ -1833,21 +1889,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#92-prefilll4k" class="md-nav__link">
+  <a href="#72" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.2 prefill：\(L=4K\) 单层注意力
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#93" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9.3 优化方向验证
+        7.2 内核栈的选型逻辑
       
     </span>
   </a>
@@ -1860,10 +1905,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
+  <a href="#8-cuda-graphtriton" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. 本章小结
+        8. CUDA Graph、Triton 与编译优化
       
     </span>
   </a>
@@ -1871,15 +1916,87 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11" class="md-nav__link">
+  <a href="#9-fa1fa3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. 习题与解答
+        9. 注意力内核的效率曲线（FA1→FA3）
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="11. 习题与解答">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-roofline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 数值算例：Roofline 判定
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 数值算例：Roofline 判定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-decode7bl4k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 decode：7B、\(L=4K\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-prefilll4k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 prefill：\(L=4K\) 单层注意力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 优化方向验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 习题与解答">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1948,16 +2065,27 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#7opsbyte-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 7（计算）：ops/byte 视角下的 FP8
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#12" class="md-nav__link">
+  <a href="#13" class="md-nav__link">
     <span class="md-ellipsis">
       
-        12. 延伸阅读
+        13. 延伸阅读
       
     </span>
   </a>
@@ -1987,7 +2115,7 @@
 <h1 id="llm-06">LLM 注意力与计算内核精读笔记 · 06 内核优化与算子融合<a class="headerlink" href="#llm-06" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>对应：Williams et al., <em>Roofline: An Insightful Visual Performance Model for Multicore Architectures</em>（2009）；FlashAttention 系列（02 章已核实数据）；vLLM / TensorRT-LLM / Triton 工程实践。
-前置：01 章（FLOPs 与 KV 账本）、02 章（IO 感知）、03/05 章（KV 优化）、量化系列 03 章（带宽模型）。学完本章你应该能：① 用算术强度（FLOPs/byte）判断一个 kernel 是计算受限还是带宽受限；② 推导 decode 与 prefill 分别落在 Roofline 的哪一侧；③ 说出算子融合的三种层次（elementwise、reduction、整体融合）与 FlashAttention 融合了什么；④ 解释 Tensor Core 与 FP8 张量核对注意力的意义；⑤ 对比 CUDA Graph、Triton、torch.compile 的适用场景。</p>
+前置：01 章（FLOPs 与 KV 账本）、02 章（IO 感知）、03/05 章（KV 优化）、量化系列 03 章（带宽模型）。学完本章你应该能：① 用算术强度（FLOPs/byte）判断一个 kernel 是计算受限还是带宽受限；② 推导 decode 与 prefill 分别落在 Roofline 的哪一侧；③ 说出算子融合的三种层次（elementwise、reduction、整体融合）与 FlashAttention 融合了什么；④ 解释 Tensor Core 与 FP8 张量核对注意力的意义；⑤ 对比 CUDA Graph、Triton、torch.compile 的适用场景；⑥ 说出 cuBLAS/CUTLASS/CuTe/FlashInfer/DeepGEMM 的分工；⑦ 用 ops/byte 判断 H100/B200 的算力-带宽平衡，并解释为什么 FP8 主要利好 prefill。</p>
 </blockquote>
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
@@ -1998,6 +2126,7 @@
 <li>算子融合：三种层次</li>
 <li>Tensor Core 与矩阵乘组织</li>
 <li>FP8 注意力与低精度内核</li>
+<li>GEMM 内核栈与 ops/byte 数据</li>
 <li>CUDA Graph、Triton 与编译优化</li>
 <li>注意力内核的效率曲线（FA1→FA3）</li>
 <li>数值算例：Roofline 判定</li>
@@ -2080,20 +2209,93 @@
 </code></pre></div>
 <p>注意：<strong>FP8 注意力是"近似"</strong>（低精度），与 FlashAttention 的"精确"是两回事——前者省的是数值位宽，后者省的是 IO。生产上两者可叠加（如 QServe 的 FP8 Attention，量化系列 11 章）。</p>
 <hr />
-<h2 id="7-cuda-graphtriton">7. CUDA Graph、Triton 与编译优化<a class="headerlink" href="#7-cuda-graphtriton" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>CUDA Graph：把一串 kernel launch 固化成图，一次提交、GPU 端自动调度
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  → 消除 CPU 端 launch 开销（小 batch/短序列时收益显著）
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  → 推理引擎（vLLM 等）普遍使用
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>Triton：类 Python 的 kernel 语言，自动做 tile 划分与共享内存分配
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  → 让研究者写出接近手写 CUDA 性能的 kernel（FlashAttention 有 Triton 版）
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>torch.compile：把 PyTorch 计算图做算子融合 + 代码生成
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  → 训练/研究场景的开箱即用优化
+<h2 id="7-gemm-opsbyte">7. GEMM 内核栈与 ops/byte 数据<a class="headerlink" href="#7-gemm-opsbyte" title="Permanent link">&para;</a></h2>
+<p>注意力（以及整个 transformer 前向）的底层几乎全是 GEMM。书的 Software 章给了一条"内核栈"，从黑盒到可编程：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>工具</th>
+<th>定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>厂商库</td>
+<td>cuBLAS</td>
+<td>通用 GEMM 黑盒，覆盖最广，不可定制</td>
+</tr>
+<tr>
+<td>模板库</td>
+<td>CUTLASS</td>
+<td>可组合的 GEMM 模板（tile、swizzle、流水线均可改）</td>
+</tr>
+<tr>
+<td>元编程</td>
+<td>CuTe</td>
+<td>CUTLASS 的布局/张量抽象，写新内核的"积木"</td>
+</tr>
+<tr>
+<td>注意力专用</td>
+<td>FlashInfer</td>
+<td>面向 LLM serving 的注意力模板库（分页、前缀缓存友好）</td>
+</tr>
+<tr>
+<td>MoE/超低精度</td>
+<td>DeepGEMM</td>
+<td>DeepSeek 开源的 FP8 GEMM，面向 MoE 与细粒度量化</td>
+</tr>
+</tbody>
+</table>
+<p>FlashAttention 类内核 = 在 CUTLASS/CuTe 之上写注意力专用 GEMM——书的原话：一个 FlashAttention 等效内核手写要上万行。这正是 02/06 章所有融合的"载体"。</p>
+<h3 id="71-opsbyte">7.1 ops/byte：这台机器到底"喂"得起多少算力<a class="headerlink" href="#71-opsbyte" title="Permanent link">&para;</a></h3>
+<p>把 Roofline 的"山脊"（ridge point）算出来，就能知道机器偏爱哪类算法：</p>
+<table>
+<thead>
+<tr>
+<th>机器</th>
+<th style="text-align: right;">FP16/BF16（TFLOPS）</th>
+<th style="text-align: right;">HBM 带宽（TB/s）</th>
+<th style="text-align: right;">山脊 = ops/byte</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H100</td>
+<td style="text-align: right;">989</td>
+<td style="text-align: right;">3.35</td>
+<td style="text-align: right;">≈ 295</td>
+</tr>
+<tr>
+<td>B200</td>
+<td style="text-align: right;">≈ 2250</td>
+<td style="text-align: right;">8.0</td>
+<td style="text-align: right;">≈ 281</td>
+</tr>
+</tbody>
+</table>
+<p>含义：机器大约"喂"得起约 300 FLOP/byte 的算法。本章的 decode（AI ≈ 0.4）与 prefill 注意力（AI ≈ 5461）都远离山脊，一个在带宽侧、一个在计算侧。FP8 把张量核吞吐翻倍（H100 989→1979 TFLOPS），山脊也翻倍到 ≈ 590——<strong>计算受限的 prefill 直接受益</strong>；decode 的 AI 仍远低于 590，所以 FP8 对 decode 的收益主要来自"KV/权重字节减半"（带宽侧），而不是算力翻倍。</p>
+<h3 id="72">7.2 内核栈的选型逻辑<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>快速上线、通用形状 → cuBLAS（黑盒）
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>榨干特定形状/融合 → CUTLASS / CuTe 手写
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>做 LLM serving → FlashInfer 等注意力库（分页/前缀已内置）
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>MoE / 超低精度 → DeepGEMM 这类专用内核
+</code></pre></div>
+<hr />
+<h2 id="8-cuda-graphtriton">8. CUDA Graph、Triton 与编译优化<a class="headerlink" href="#8-cuda-graphtriton" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>CUDA Graph：把一串 kernel launch 固化成图，一次提交、GPU 端自动调度
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  → 消除 CPU 端 launch 开销（小 batch/短序列时收益显著）
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  → 推理引擎（vLLM 等）普遍使用
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>Triton：类 Python 的 kernel 语言，自动做 tile 划分与共享内存分配
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  → 让研究者写出接近手写 CUDA 性能的 kernel（FlashAttention 有 Triton 版）
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>torch.compile：把 PyTorch 计算图做算子融合 + 代码生成
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  → 训练/研究场景的开箱即用优化
 </code></pre></div>
 <p>选择逻辑：追求极致性能且算力充足 → 手写/FA 库；需要快速迭代 → Triton / torch.compile；部署固定形状 → CUDA Graph + 预编译引擎。</p>
 <hr />
-<h2 id="8-fa1fa3">8. 注意力内核的效率曲线（FA1→FA3）<a class="headerlink" href="#8-fa1fa3" title="Permanent link">&para;</a></h2>
+<h2 id="9-fa1fa3">9. 注意力内核的效率曲线（FA1→FA3）<a class="headerlink" href="#9-fa1fa3" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -2132,8 +2334,8 @@
 </table>
 <p>从 30% 到 75% 的每一步，都是在<strong>逼近 GEMM 的效率</strong>——注意力的内核优化史，就是"把非 GEMM 的部分藏进 GEMM"的历史。</p>
 <hr />
-<h2 id="9-roofline">9. 数值算例：Roofline 判定<a class="headerlink" href="#9-roofline" title="Permanent link">&para;</a></h2>
-<h3 id="91-decode7bl4k">9.1 decode：7B、<span class="arithmatex">\(L=4K\)</span><a class="headerlink" href="#91-decode7bl4k" title="Permanent link">&para;</a></h3>
+<h2 id="10-roofline">10. 数值算例：Roofline 判定<a class="headerlink" href="#10-roofline" title="Permanent link">&para;</a></h2>
+<h3 id="101-decode7bl4k">10.1 decode：7B、<span class="arithmatex">\(L=4K\)</span><a class="headerlink" href="#101-decode7bl4k" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
 \text{FLOPs} \approx 32 \times (4\times4096\times4096 + 8\times4096^2) = 32 \times 2.01\times10^8 \approx 6.4\ \text{GFLOP}
 \]</div>
@@ -2143,28 +2345,29 @@
 <div class="arithmatex">\[
 \text{AI} = 6.4/15000 \approx 0.43\ \text{FLOP/byte} \ll 150 \Rightarrow \textbf{带宽受限}
 \]</div>
-<h3 id="92-prefilll4k">9.2 prefill：<span class="arithmatex">\(L=4K\)</span> 单层注意力<a class="headerlink" href="#92-prefilll4k" title="Permanent link">&para;</a></h3>
+<h3 id="102-prefilll4k">10.2 prefill：<span class="arithmatex">\(L=4K\)</span> 单层注意力<a class="headerlink" href="#102-prefilll4k" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
 \text{AI} = \frac{4L^2d}{3Ld} = \frac{4L}{3} = 5461 \gg 150 \Rightarrow \textbf{计算受限}
 \]</div>
-<h3 id="93">9.3 优化方向验证<a class="headerlink" href="#93" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>decode：量化权重（带宽减半）→ 每步时间接近减半 ✓（量化系列 03 章）
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>prefill：FP8 张量核（FLOPs/s 翻倍）→ 长 prefill 明显提速 ✓（FA3）
+<h3 id="103">10.3 优化方向验证<a class="headerlink" href="#103" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>decode：量化权重（带宽减半）→ 每步时间接近减半 ✓（量化系列 03 章）
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>prefill：FP8 张量核（FLOPs/s 翻倍）→ 长 prefill 明显提速 ✓（FA3）
 </code></pre></div>
 <hr />
-<h2 id="10">10. 本章小结<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h2 id="11">11. 本章小结<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Roofline 是决策框架</strong>：先算算术强度，再决定"减搬移"还是"减 FLOPs"。</li>
 <li><strong>decode 带宽受限、prefill 计算受限</strong>——整个系列的优化路线由此展开。</li>
 <li><strong>融合三层次</strong>：elementwise → reduction → 整体；FlashAttention 是 reduction 融合的典范。</li>
 <li><strong>Tensor Core + FP8</strong> 是算力侧的两大杠杆；FP8 注意力需要块级量化与 incoherent processing。</li>
 <li><strong>工程手段</strong>：CUDA Graph 消启动、Triton/torch.compile 提效率。</li>
+<li><strong>GEMM 内核栈</strong>：cuBLAS → CUTLASS/CuTe → FlashInfer/DeepGEMM；H100/B200 的山脊约 300 ops/byte，FP8 把它翻倍，主要利好 prefill。</li>
 </ol>
 <blockquote>
 <p>一句话记忆：<strong>"先问 Roofline 缺什么：decode 缺带宽就给内存做减法（量化/GQA/分页），prefill 缺算力就给计算做减法（FlashAttention/FP8/稀疏）——所有内核优化都是把'瓶颈环节'藏到'不瓶颈的硬件'里。"</strong></p>
 </blockquote>
 <hr />
-<h2 id="11">11. 习题与解答<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<h2 id="12">12. 习题与解答<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
 <h3 id="1decode">题 1（推导）：decode 的算术强度<a class="headerlink" href="#1decode" title="Permanent link">&para;</a></h3>
 <p>推导 decode 每步 FLOPs 与搬移字节的表达式，并说明"为什么加算力救不了 decode"。</p>
 <details>
@@ -2213,14 +2416,25 @@ FlashAttention 省 HBM 访问（IO），结果精确；FP8 省每字节位数与
 torch.profiler 会显示 kernel 个数从 3+ 降到 1；小输入时每个 kernel 的启动/调度开销占比高，融合收益最大；大输入时带宽占主导，融合主要省中间张量读写。这正好复现第 2 节的"IO 稀缺"观点。
 </details>
 
+<h3 id="7opsbyte-fp8">题 7（计算）：ops/byte 视角下的 FP8<a class="headerlink" href="#7opsbyte-fp8" title="Permanent link">&para;</a></h3>
+<p>H100 FP8 张量核吞吐 1979 TFLOPS、带宽 3.35 TB/s。解释为什么"FP8 注意力对 prefill 有效、对 decode 帮助有限"，并给出判断依据。</p>
+<details>
+<summary>题 7 解答要点</summary>
+
+FP8 后山脊 1979/3.35 ≈ 590 ops/byte。prefill 注意力的 AI ≈ 4L/3（$L=4096$ 时约 5461）远高于山脊 → 计算受限，FLOPs/s 翻倍直接转化为提速。decode 的 AI ≈ 0.4 仍远低于 590 → 带宽受限，算力翻倍无济于事；FP8 对 decode 的真实收益是 KV/权重字节减半（带宽侧）。如果只给注意力用 FP8 而不量化权重/KV，decode 几乎无感——这正是量化系列"先看带宽再看算力"的结论。
+</details>
+
 <hr />
-<h2 id="12">12. 延伸阅读<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<h2 id="13">13. 延伸阅读<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
 <ol>
 <li><a href="https://people.eecs.berkeley.edu/~kubitron/courses/cs267-S12/handouts/roofline.pdf">Roofline: An Insightful Visual Performance Model（Williams et al., 2009）</a>：本章性能模型的原始出处。</li>
 <li><a href="https://arxiv.org/abs/2205.14135">FlashAttention 三篇论文</a>（02 章）：效率曲线的全部数据来源。</li>
 <li><a href="https://triton-lang.org/">Triton 官方文档</a>：kernel 编写与自动优化。</li>
 <li><a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">量化系列 03/11 章</a>：带宽模型与 FP8 Attention 的部署案例。</li>
-<li>上一篇：<a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-PagedAttention%E4%B8%8EKV%E6%98%BE%E5%AD%98%E7%AE%A1%E7%90%86/">05 PagedAttention 与 KV 显存管理</a>；下一篇：<strong>07 系统集成与生产验收</strong>——把本系列所有方法放进一份部署决策与验收协议（本系列完结章）。</li>
+<li><a href="https://github.com/NVIDIA/cutlass">CUTLASS / CuTe</a>：可组合 GEMM 模板与布局抽象。</li>
+<li><a href="https://github.com/flashinfer-ai/flashinfer">FlashInfer</a>：LLM serving 的注意力模板库（分页/前缀缓存友好）。</li>
+<li><a href="https://github.com/deepseek-ai/DeepGEMM">DeepGEMM</a>：DeepSeek 开源的 FP8 GEMM。</li>
+<li>上一篇：<a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-PagedAttention%E4%B8%8EKV%E6%98%BE%E5%AD%98%E7%AE%A1%E7%90%86/">05 PagedAttention 与 KV 显存管理</a>；下一篇：<strong>07 系统集成与生产验收</strong>（部署决策与验收协议），再下一篇 08 前缀缓存与 KV 复用。</li>
 </ol>
 
 

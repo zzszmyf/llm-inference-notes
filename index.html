@@ -342,10 +342,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#00-07" class="md-nav__link">
+  <a href="#00-08" class="md-nav__link">
     <span class="md-ellipsis">
       
-        注意力与计算内核（00-07）
+        注意力与计算内核（00-08）
       
     </span>
   </a>
@@ -1342,6 +1342,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 前缀缓存与 KV 复用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1398,10 +1426,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#00-07" class="md-nav__link">
+  <a href="#00-08" class="md-nav__link">
     <span class="md-ellipsis">
       
-        注意力与计算内核（00-07）
+        注意力与计算内核（00-08）
       
     </span>
   </a>
@@ -1451,10 +1479,11 @@
 
 
 <h1 id="llm">LLM 推理优化精读笔记<a class="headerlink" href="#llm" title="Permanent link">&para;</a></h1>
-<p>一套 <strong>MIT lecture note 级别</strong>的 LLM 推理优化中文精读笔记，两大主线：</p>
+<p>一套 <strong>MIT lecture note 级别</strong>的 LLM 推理优化中文精读笔记，三大主线：</p>
 <ul>
 <li><strong>量化（有损换速度）</strong>：从信息论与数值编码的地基，到均匀量化理论、数值格式、粒度与离群值、主流 PTQ/QAT 方法（GPTQ / AWQ / SmoothQuant / KIVI / QLoRA / BitNet 等）、质量评估与生产部署。</li>
 <li><strong>推测解码（无损换步数）</strong>：从接受率数学与拒绝采样，到原始推测解码、Medusa 多头解码、EAGLE 特征空间草稿、n-gram/检索式无模型路线，以及系统集成与生产验收。</li>
+<li><strong>注意力与计算内核（无损换效率）</strong>：从注意力复杂度与 KV cache，到 FlashAttention、MQA/GQA/MLA、稀疏/线性注意力、PagedAttention、内核优化与算子融合、前缀缓存与 KV 复用，以及系统集成与生产验收。</li>
 </ul>
 <p>全部公式使用 <strong>Markdown + LaTeX</strong>（行内 <code>$...$</code>、独立 <code>$$...$$</code>），本站通过 MathJax 渲染。</p>
 <h2 id="00-06">推测解码（00-06）<a class="headerlink" href="#00-06" title="Permanent link">&para;</a></h2>
@@ -1559,7 +1588,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="00-07">注意力与计算内核（00-07）<a class="headerlink" href="#00-07" title="Permanent link">&para;</a></h2>
+<h2 id="00-08">注意力与计算内核（00-08）<a class="headerlink" href="#00-08" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1609,18 +1638,24 @@
 <td>与量化/推测解码组合、注意力精度验收</td>
 <td>✅</td>
 </tr>
+<tr>
+<td><a href="LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-%E5%89%8D%E7%BC%80%E7%BC%93%E5%AD%98%E4%B8%8EKV%E5%A4%8D%E7%94%A8/">08 前缀缓存与 KV 复用</a></td>
+<td>RadixAttention、radix tree、KV 存储层级、cache-aware routing、disaggregation</td>
+<td>✅</td>
+</tr>
 </tbody>
 </table>
 <h2 id="_1">阅读顺序<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>注意力与内核：00 总览 → 01 基础与复杂度 → 02 FlashAttention → 03 MQA/GQA/MLA
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>             → 04 稀疏/线性注意力 → 05 PagedAttention → 06 内核优化 → 07 集成验收
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>推测解码：00 总览 → 01 接受率数学 → 02 原始推测解码 → 03 Medusa
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>          → 04 EAGLE → 05 n-gram/检索式 → 06 系统集成与验收
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>量化：01 数值编码（地基）→ 02 均匀量化理论（数学）→ 03 数值格式与硬件（格式）
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      → 04 粒度、校准与离群值（难点）→ 05-06 权重量化 → 07 激活量化
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      → 08 KV Cache → 09 训练侧 → 10 质量评估 → 11 系统与部署
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>             → 04 稀疏/线性注意力 → 05 PagedAttention → 06 内核优化
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>             → 07 集成验收 → 08 前缀缓存与 KV 复用
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>推测解码：00 总览 → 01 接受率数学 → 02 原始推测解码 → 03 Medusa
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>          → 04 EAGLE → 05 n-gram/检索式 → 06 系统集成与验收
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>量化：01 数值编码（地基）→ 02 均匀量化理论（数学）→ 03 数值格式与硬件（格式）
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      → 04 粒度、校准与离群值（难点）→ 05-06 权重量化 → 07 激活量化
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>      → 08 KV Cache → 09 训练侧 → 10 质量评估 → 11 系统与部署
 </code></pre></div>
 <p>两套系列每章结构统一：形式化定义 → 数学推导 → 伪代码/算法 → 数值算例 → 直觉解释 → 习题（含答案）→ 延伸阅读。</p>
 <h2 id="_2">素材来源<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
@@ -1629,6 +1664,7 @@
 <li><a href="https://hanlab.mit.edu/courses/2026-fall-65940">MIT 6.5940 EfficientML.ai</a>（Song Han / HAN Lab）</li>
 <li>论文：LLM.int8() / GPTQ / SmoothQuant / AWQ / SqueezeLLM / QuIP# / KIVI / QServe / QLoRA / BitNet b1.58 / FP8 白皮书 / OCP MX 规范（各章"延伸阅读"附 arXiv 链接）</li>
 <li>推测解码论文：Leviathan et al. 2023 / Chen et al. 2023 / Medusa / EAGLE / EAGLE-2 / Lookahead Decoding / REST（各章"延伸阅读"附 arXiv 链接）</li>
+<li>注意力内核论文：FlashAttention 1/2/3 / GQA / DeepSeek-V2 MLA / StreamingLLM / Mamba / PagedAttention / SGLang-RadixAttention（各章"延伸阅读"附 arXiv 链接）</li>
 </ul>
 
 
