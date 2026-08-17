@@ -4,7 +4,7 @@
 >
 > - **量化（有损换速度）**：信息论与数值编码 → 均匀量化理论 → 数值格式与硬件 → 粒度/校准/离群值 → PTQ/QAT（GPTQ / AWQ / SmoothQuant / KIVI / QLoRA / BitNet 等）→ 质量评估 → 生产部署，共 11 章 + 总览。
 > - **推测解码（无损换步数）**：接受率数学 → 原始推测解码 → Medusa 多头解码 → EAGLE 特征空间草稿 → n-gram/检索式无模型路线 → 系统集成与生产验收，共 6 章 + 总览。
-> - **注意力与计算内核**：注意力机制与复杂度 → FlashAttention → MQA/GQA/MLA → 稀疏/线性注意力 → PagedAttention → 内核优化 → 系统集成（写作中，已出 00-02）。
+> - **注意力与计算内核**：注意力机制与复杂度 → FlashAttention → MQA/GQA/MLA → 稀疏/线性注意力 → PagedAttention → 内核优化 → 系统集成，共 7 章 + 总览。
 >
 > 全部公式使用 **Markdown + LaTeX**（行内 `$...$`、独立 `$$...$$`），可直接在支持 MathJax/KaTeX 的 Markdown 阅读器中渲染。
 
@@ -60,7 +60,11 @@
 | [00 总览与学习地图](./docs/LLM注意力内核精读笔记-00-总览与学习地图.md) | 章节结构、符号约定、与量化/推测解码系列的关系 | ✅ |
 | [01 注意力机制基础与复杂度分析](./docs/LLM注意力内核精读笔记-01-注意力机制基础与复杂度分析.md) | softmax attention 定义、O(L²) 复杂度、KV cache 角色、prefill/decode 形态 | ✅ |
 | [02 FlashAttention（IO 感知的精确注意力）](./docs/LLM注意力内核精读笔记-02-FlashAttention-IO感知的精确注意力.md) | IO 复杂度、tiling、online softmax、重计算、FA2/FA3 | ✅ |
-| 03-07 | MQA/GQA/MLA、稀疏/线性注意力、PagedAttention、内核优化、系统集成 | 写作中 |
+| [03 注意力头变体（MQA/GQA/MLA）](./docs/LLM注意力内核精读笔记-03-注意力头变体-MQA-GQA-MLA.md) | KV 头共享、低秩压缩、DeepSeek MLA | ✅ |
+| [04 稀疏、滑动窗口与线性注意力](./docs/LLM注意力内核精读笔记-04-稀疏滑动窗口与线性注意力.md) | StreamingLLM、滑动窗口、H2O、Mamba | ✅ |
+| [05 PagedAttention 与 KV 显存管理](./docs/LLM注意力内核精读笔记-05-PagedAttention与KV显存管理.md) | 分页 KV、vLLM 块管理、与批处理组合 | ✅ |
+| [06 内核优化与算子融合](./docs/LLM注意力内核精读笔记-06-内核优化与算子融合.md) | 访存-计算模型、Tensor Core、FP8 注意力、编译优化 | ✅ |
+| [07 系统集成与生产验收](./docs/LLM注意力内核精读笔记-07-系统集成与生产验收.md) | 与量化/推测解码组合、注意力精度验收 | ✅ |
 
 ## 阅读顺序
 
