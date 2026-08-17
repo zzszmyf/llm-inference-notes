@@ -1,10 +1,13 @@
-# LLM 量化精读笔记
+# LLM 推理优化精读笔记
 
-一套 **MIT lecture note 级别**的 LLM 推理量化中文精读笔记：从信息论与数值编码的地基，到均匀量化理论、数值格式、粒度与离群值、主流 PTQ/QAT 方法（GPTQ / AWQ / SmoothQuant / KIVI / QLoRA / BitNet 等）、质量评估与生产部署。
+一套 **MIT lecture note 级别**的 LLM 推理优化中文精读笔记，两大主线：
+
+- **量化（有损换速度）**：从信息论与数值编码的地基，到均匀量化理论、数值格式、粒度与离群值、主流 PTQ/QAT 方法（GPTQ / AWQ / SmoothQuant / KIVI / QLoRA / BitNet 等）、质量评估与生产部署。
+- **推测解码（无损换步数）**：从接受率数学与拒绝采样，到原始推测解码、Medusa 多头解码、EAGLE 特征空间草稿、n-gram/检索式无模型路线，以及系统集成与生产验收。
 
 全部公式使用 **Markdown + LaTeX**（行内 `$...$`、独立 `$$...$$`），本站通过 MathJax 渲染。
 
-## 章节
+## 量化精读笔记（00-11）
 
 | 章节 | 内容 |
 |---|---|
@@ -22,6 +25,18 @@
 | [10 质量评估方法论](./LLM量化精读笔记-10-质量评估方法论.md) | perplexity、智能基准、自定义评测、统计显著性与验收关卡 |
 | [11 系统协同与部署](./LLM量化精读笔记-11-系统协同与部署.md) | QServe W4A8KV4、FP8 Attention、引擎选型与部署决策树 |
 
+## 推测解码精读笔记（00-06）
+
+| 章节 | 内容 |
+|---|---|
+| [00 总览与学习地图](./LLM推测解码精读笔记-00-总览与学习地图.md) | 章节结构、符号约定、与量化系列的关系 |
+| [01 问题形式化与接受率数学](./LLM推测解码精读笔记-01-问题形式化与接受率数学.md) | 自回归为什么慢、接受率 α、E[N] 推导、墙钟收益模型 |
+| [02 原始推测解码（草稿模型与拒绝采样）](./LLM推测解码精读笔记-02-原始推测解码-草稿模型与拒绝采样.md) | 完整算法、无损性定理、最优 K、草稿规模权衡 |
+| [03 Medusa（多头解码）](./LLM推测解码精读笔记-03-Medusa-多头解码.md) | 多头并行预测、树注意力、典型验收、Medusa-1/2 |
+| [04 EAGLE（特征空间草稿）](./LLM推测解码精读笔记-04-EAGLE-特征空间草稿.md) | 特征级自回归、shifted-token、EAGLE-2 动态树 |
+| [05 n-gram/检索式与无模型路线](./LLM推测解码精读笔记-05-n-gram检索式与无模型路线.md) | Prompt Lookup、Lookahead Decoding、REST |
+| [06 系统集成与生产验收](./LLM推测解码精读笔记-06-系统集成与生产验收.md) | 量化 × 推测组合模型、TTFT/TPS、验收协议、决策树 |
+
 ## 阅读顺序
 
 ```
@@ -30,10 +45,11 @@
 → 08 KV Cache → 09 训练侧 → 10 质量评估 → 11 系统与部署
 ```
 
-每章结构统一：形式化定义 → 数学推导 → 伪代码/算法 → 数值算例 → 直觉解释 → 习题（含答案）→ 延伸阅读。
+两套系列每章结构统一：形式化定义 → 数学推导 → 伪代码/算法 → 数值算例 → 直觉解释 → 习题（含答案）→ 延伸阅读。
 
 ## 素材来源
 
 - [Inference Engineering, Ch5](https://inferenceengineering.tech/chapters/techniques/)（Baseten 出品）
 - [MIT 6.5940 EfficientML.ai](https://hanlab.mit.edu/courses/2026-fall-65940)（Song Han / HAN Lab）
 - 论文：LLM.int8() / GPTQ / SmoothQuant / AWQ / SqueezeLLM / QuIP# / KIVI / QServe / QLoRA / BitNet b1.58 / FP8 白皮书 / OCP MX 规范（各章"延伸阅读"附 arXiv 链接）
+- 推测解码论文：Leviathan et al. 2023 / Chen et al. 2023 / Medusa / EAGLE / EAGLE-2 / Lookahead Decoding / REST（各章"延伸阅读"附 arXiv 链接）

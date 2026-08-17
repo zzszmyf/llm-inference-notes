@@ -1,5 +1,5 @@
-site_name: LLM 量化精读笔记
-site_description: MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）
+site_name: LLM 推理优化精读笔记
+site_description: MIT lecture note 级别的 LLM 推理优化精读笔记：量化 + 推测解码（Markdown + LaTeX）
 site_url: https://zzszmyf.github.io/llm-quantization-notes/
 repo_url: https://github.com/zzszmyf/llm-quantization-notes
 edit_uri: edit/main/docs/
@@ -65,3 +65,11 @@ nav:
   - 09 QAT 与训练内量化: LLM量化精读笔记-09-QAT与训练内量化-STE-QLoRA-BitNet.md
   - 10 质量评估方法论: LLM量化精读笔记-10-质量评估方法论.md
   - 11 系统协同与部署: LLM量化精读笔记-11-系统协同与部署.md
+  - 推测解码精读笔记:
+      - 00 总览与学习地图: LLM推测解码精读笔记-00-总览与学习地图.md
+      - 01 问题形式化与接受率数学: LLM推测解码精读笔记-01-问题形式化与接受率数学.md
+      - 02 原始推测解码（草稿模型与拒绝采样）: LLM推测解码精读笔记-02-原始推测解码-草稿模型与拒绝采样.md
+      - 03 Medusa（多头解码）: LLM推测解码精读笔记-03-Medusa-多头解码.md
+      - 04 EAGLE（特征空间草稿）: LLM推测解码精读笔记-04-EAGLE-特征空间草稿.md
+      - 05 n-gram/检索式与无模型路线: LLM推测解码精读笔记-05-n-gram检索式与无模型路线.md
+      - 06 系统集成与生产验收: LLM推测解码精读笔记-06-系统集成与生产验收.md
