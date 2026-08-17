@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/">
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/">
       
       
-        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">
+        <link rel="prev" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">
       
-      
-        <link rel="next" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>11 系统协同与部署 - LLM 推理优化精读笔记</title>
+        <title>01 注意力机制基础与复杂度分析 - LLM 推理优化精读笔记</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#llm-11-qservefp8-attention" class="md-skip">
+        <a href="#llm-01" class="md-skip">
           跳转至
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              11 系统协同与部署
+              01 注意力机制基础与复杂度分析
             
           </span>
         </div>
@@ -543,8 +541,6 @@
       
   
   
-    
-  
   
   
     
@@ -557,11 +553,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -582,7 +580,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -933,37 +931,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    11 系统协同与部署
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
         
   
   
@@ -979,297 +950,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目录（本章）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. 本章目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. 从算法到系统：三个隐形瓶颈
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. 从算法到系统：三个隐形瓶颈">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-dequantization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1 反量化（dequantization）开销
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.2 内存布局与打包
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#23-kernel" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3 kernel 覆盖
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-qservew4a8kv4-" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. QServe：W4A8KV4 的算法-系统协同
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. QServe：W4A8KV4 的算法-系统协同">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-qoqw4a8kv4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.1 QoQ：W4A8KV4 量化方案
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.2 两个"为什么"
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.3 系统技术
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 性能
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. 注意力量化（前沿）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. 推理引擎的量化支持地图
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. 组合优化栈：无损优先
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. 部署决策树（含验收闭环）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. 本章小结
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. 习题与解答
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. 习题与解答">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-4-bit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 1（思考）：为什么 4-bit 不一定快
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-70b" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 2（设计）：给 70B 部署选型
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3w4a16-vs-w4a8kv4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 3（对比）：W4A16 vs W4A8KV4
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 4（排错）：量化后速度没提升
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 5（开放）：量化 × 推测解码
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. 延伸阅读
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1286,8 +966,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1298,13 +980,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -1325,7 +1005,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1368,10 +1048,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 注意力机制基础与复杂度分析
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1387,6 +1094,331 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-transformer-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 注意力的位置：Transformer 里唯一的 token 交互通道
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 形式化定义：缩放点积注意力
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 形式化定义：缩放点积注意力">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-sqrtd_texthead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 为什么要除以 \(\sqrt{d_{\text{head}}}\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ol2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 复杂度分析：O(L²) 从哪来
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 复杂度分析：O(L²) 从哪来">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 FLOPs 推导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-ffn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 与 FFN 的比值：长上下文判据
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 因果掩码与 KV Cache
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 因果掩码与 KV Cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 因果掩码
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-kv-cachedecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 KV Cache：decode 为什么能省一半计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-7b-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 算例：7B 模型的 KV 显存
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-prefill-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Prefill 与 Decode：两种形态
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-max-subtraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 数值稳定性：max-subtraction 与低精度
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 数值稳定性：max-subtraction 与低精度">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 朴素 softmax 的溢出问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 低精度下的风险
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 数值算例
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：FLOPs 与头数无关
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：手算完整一行
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（推导）：长上下文判据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（计算）：KV cache 账本
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（思考）：为什么 decode 是访存密集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6causal-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：causal attention 实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1437,10 +1469,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
+  <a href="#2-transformer-token" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. 本章目标
+        2. 注意力的位置：Transformer 里唯一的 token 交互通道
       
     </span>
   </a>
@@ -1448,44 +1480,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
+  <a href="#3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. 从算法到系统：三个隐形瓶颈
+        3. 形式化定义：缩放点积注意力
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. 从算法到系统：三个隐形瓶颈">
+    <nav class="md-nav" aria-label="3. 形式化定义：缩放点积注意力">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-dequantization" class="md-nav__link">
+  <a href="#31-sqrtd_texthead" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1 反量化（dequantization）开销
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.2 内存布局与打包
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#23-kernel" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3 kernel 覆盖
+        3.1 为什么要除以 \(\sqrt{d_{\text{head}}}\)
       
     </span>
   </a>
@@ -1498,22 +1508,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-qservew4a8kv4-" class="md-nav__link">
+  <a href="#4-ol2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. QServe：W4A8KV4 的算法-系统协同
+        4. 复杂度分析：O(L²) 从哪来
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. QServe：W4A8KV4 的算法-系统协同">
+    <nav class="md-nav" aria-label="4. 复杂度分析：O(L²) 从哪来">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-qoqw4a8kv4" class="md-nav__link">
+  <a href="#41-flops" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.1 QoQ：W4A8KV4 量化方案
+        4.1 FLOPs 推导
       
     </span>
   </a>
@@ -1521,32 +1531,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#32" class="md-nav__link">
+  <a href="#42-ffn" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.2 两个"为什么"
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.3 系统技术
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 性能
+        4.2 与 FFN 的比值：长上下文判据
       
     </span>
   </a>
@@ -1559,10 +1547,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4" class="md-nav__link">
+  <a href="#5-kv-cache" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. 注意力量化（前沿）
+        5. 因果掩码与 KV Cache
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 因果掩码与 KV Cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 因果掩码
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-kv-cachedecode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 KV Cache：decode 为什么能省一半计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-7b-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 算例：7B 模型的 KV 显存
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-prefill-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Prefill 与 Decode：两种形态
       
     </span>
   </a>
@@ -1570,35 +1608,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
+  <a href="#7-max-subtraction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. 推理引擎的量化支持地图
+        7. 数值稳定性：max-subtraction 与低精度
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 数值稳定性：max-subtraction 与低精度">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 朴素 softmax 的溢出问题
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#6" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. 组合优化栈：无损优先
+        7.2 低精度下的风险
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. 部署决策树（含验收闭环）
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1606,7 +1650,7 @@
   <a href="#8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. 本章小结
+        8. 数值算例
       
     </span>
   </a>
@@ -1617,19 +1661,30 @@
   <a href="#9" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. 习题与解答
+        9. 本章小结
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="9. 习题与解答">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-4-bit" class="md-nav__link">
+  <a href="#1flops" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 1（思考）：为什么 4-bit 不一定快
+        题 1（推导）：FLOPs 与头数无关
       
     </span>
   </a>
@@ -1637,10 +1692,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-70b" class="md-nav__link">
+  <a href="#2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 2（设计）：给 70B 部署选型
+        题 2（计算）：手算完整一行
       
     </span>
   </a>
@@ -1648,10 +1703,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3w4a16-vs-w4a8kv4" class="md-nav__link">
+  <a href="#3_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 3（对比）：W4A16 vs W4A8KV4
+        题 3（推导）：长上下文判据
       
     </span>
   </a>
@@ -1659,10 +1714,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4_1" class="md-nav__link">
+  <a href="#4kv-cache" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 4（排错）：量化后速度没提升
+        题 4（计算）：KV cache 账本
       
     </span>
   </a>
@@ -1670,10 +1725,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5_1" class="md-nav__link">
+  <a href="#5-decode" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 5（开放）：量化 × 推测解码
+        题 5（思考）：为什么 decode 是访存密集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6causal-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：causal attention 实现
       
     </span>
   </a>
@@ -1686,10 +1752,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
+  <a href="#11" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. 延伸阅读
+        11. 延伸阅读
       
     </span>
   </a>
@@ -1716,248 +1782,303 @@
   
 
 
-<h1 id="llm-11-qservefp8-attention">LLM 量化精读笔记 · 11 系统协同与部署：QServe、FP8 Attention 与工程工具<a class="headerlink" href="#llm-11-qservefp8-attention" title="Permanent link">&para;</a></h1>
+<h1 id="llm-01">LLM 注意力与计算内核精读笔记 · 01 注意力机制基础与复杂度分析<a class="headerlink" href="#llm-01" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>对应：QServe / QoQ（arXiv:2405.04532，MLSys 2025）；FlashAttention-3（arXiv:2407.08691）；SageAttention（arXiv:2410.02367）；vLLM / TensorRT-LLM / llama.cpp。
-学完本章你应该能：① 解释"量化算法好 ≠ 端到端快"的系统瓶颈（dequant、内存布局、kernel）；② 讲清 QServe 的 W4A8KV4 协同设计（为什么 W4A8 而不是 W4A4、KV4 为什么重要）；③ 说出主流引擎的量化支持地图；④ 给出"无损优先"的组合优化栈与部署决策树。</p>
+<p>对应：Vaswani et al., <em>Attention Is All You Need</em>（2017）；Inference Engineering Ch5 的 Attention 部分。
+前置：量化系列 03 章（带宽模型）、推测解码系列 01 章（解码过程）。学完本章你应该能：① 写出缩放点积注意力的完整定义并解释 <span class="arithmatex">\(\sqrt{d_{\text{head}}}\)</span> 的作用；② 推导注意力的 FLOPs 公式 <span class="arithmatex">\(4L^2 d\)</span>，并说明为什么与头数无关；③ 用 <span class="arithmatex">\(L/(2d)\)</span> 判据判断"长到什么程度注意力反超 FFN"；④ 推导 KV cache 的大小公式，手算 7B 模型 128K 上下文的显存；⑤ 说清 prefill 与 decode 两种注意力形态（计算密集 vs 访存密集）；⑥ 解释 softmax 为什么要做 max-subtraction，以及低精度下的风险。</p>
 </blockquote>
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
 <li>本章目标</li>
-<li>从算法到系统：三个隐形瓶颈</li>
-<li>QServe：W4A8KV4 的算法-系统协同</li>
-<li>注意力量化（前沿）</li>
-<li>推理引擎的量化支持地图</li>
-<li>组合优化栈：无损优先</li>
-<li>部署决策树（含验收闭环）</li>
+<li>注意力的位置：Transformer 里唯一的 token 交互通道</li>
+<li>形式化定义：缩放点积注意力</li>
+<li>复杂度分析：O(L²) 从哪来</li>
+<li>因果掩码与 KV Cache</li>
+<li>Prefill 与 Decode：两种形态</li>
+<li>数值稳定性：max-subtraction 与低精度</li>
+<li>数值算例</li>
 <li>本章小结</li>
 <li>习题与解答</li>
 <li>延伸阅读</li>
 </ol>
 <hr />
-<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
-<p>前面各章证明了"某种量化<strong>算法</strong>质量好"。本章回答最后一个问题：</p>
-<blockquote>
-<p>同一套量化方案，为什么在不同引擎里速度差几倍？怎么把量化装进生产系统，和其他优化组合？</p>
-</blockquote>
-<p>核心转变：从"量化权重"到"<strong>为量化重新设计系统</strong>"。</p>
-<hr />
-<h2 id="2">2. 从算法到系统：三个隐形瓶颈<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
-<h3 id="21-dequantization">2.1 反量化（dequantization）开销<a class="headerlink" href="#21-dequantization" title="Permanent link">&para;</a></h3>
-<p>低比特权重在 GPU 上<strong>不能直接算矩阵乘</strong>（Tensor Core 没有 INT4 指令，FP4 只在 Blackwell 有），通常要：</p>
+<h2 id="2-transformer-token">2. 注意力的位置：Transformer 里唯一的 token 交互通道<a class="headerlink" href="#2-transformer-token" title="Permanent link">&para;</a></h2>
+<p>Transformer 的每一层由两类子层组成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>token-wise 子层（MLP、LayerNorm、激活）：每个 token 独立处理，互不通信
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>注意力子层：唯一让 token 之间交换信息的通道
+</code></pre></div>
+<p>这个结构决定了两个重要事实：</p>
 <ol>
-<li>读入打包的 4-bit 权重</li>
-<li>解包成 INT8/FP16 格式</li>
-<li>乘 scale（dequant）</li>
-<li>才能喂给 Tensor Core</li>
+<li><strong>序列长度 <span class="arithmatex">\(L\)</span> 只会让注意力变贵</strong>：MLP 的 FLOPs 对 <span class="arithmatex">\(L\)</span> 是线性的，注意力的 FLOPs 是 <span class="arithmatex">\(L^2\)</span>——长上下文的计算瓶颈一定先在注意力出现；</li>
+<li><strong>token 的"记忆"都压在注意力上</strong>：第 <span class="arithmatex">\(t\)</span> 个 token 要知道前面的任何信息，只能通过注意力去"看"前面 token 的表示。KV cache 之所以存在，正是为了省掉 decode 阶段重复计算这些"看"的键值。</li>
 </ol>
-<p>如果第 2–3 步在寄存器/内存里反复做，省下的带宽可能被计算开销吃回去。<strong>"4-bit 权重= <span class="arithmatex">\(2\)</span>倍速度"只在 kernel 把 dequant 做进流水线时才成立。</strong></p>
-<h3 id="22">2.2 内存布局与打包<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
-<p>4-bit 不是字节对齐的（2 个<span class="arithmatex">\(4-bit = 1\)</span>字节）。怎么把 4-bit 值塞进寄存器、怎么按 group 排列 scale，决定 kernel 效率。差的布局会让访存模式碎裂。</p>
-<h3 id="23-kernel">2.3 kernel 覆盖<a class="headerlink" href="#23-kernel" title="Permanent link">&para;</a></h3>
-<p>量化收益只在"有对应 kernel 的层"兑现：</p>
-<p>W8A8 <span class="arithmatex">\(\to\)</span> INT8 GEMM kernel（Ampere+）</p>
-<p><span class="arithmatex">\(W4A16 \to INT4 weight-only kernel\)</span>（各家自定义）
-<span class="arithmatex">\(W4A8KV4 \to\)</span>专门的 4-bit GEMM + KV 4-bit attention（QServe）</p>
-<p>没有 kernel 的层退回 FP16，收益就漏掉一块。</p>
 <hr />
-<h2 id="3-qservew4a8kv4-">3. QServe：W4A8KV4 的算法-系统协同<a class="headerlink" href="#3-qservew4a8kv4-" title="Permanent link">&para;</a></h2>
-<h3 id="31-qoqw4a8kv4">3.1 QoQ：W4A8KV4 量化方案<a class="headerlink" href="#31-qoqw4a8kv4" title="Permanent link">&para;</a></h3>
-<p>QoQ（Quattuor-Octo-Quattuor，拉丁语 4-8-4）：</p>
-<p>权重：4-bit（group 128 或 per-channel），配合激活感知缩放（AWQ 式）做"渐进量化"
-激活：8-bit（INT8/FP8）</p>
-<p>KV cache：4-bit</p>
-<p>质量：WikiText-2 PPL 与 FP16 几乎无差（近无损）</p>
-<p>"渐进量化"（progressive quantization）是关键算法设计：让 W4A8 GEMM 能在 <strong>INT8 Tensor Core</strong> 上执行（把 4-bit 权重解包成两个 INT8 或直接按 INT8 对齐布局），避免 Blackwell 之前的硬件不支持。</p>
-<h3 id="32">3.2 两个"为什么"<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
-<p><strong>为什么 W4A8，而不是 W4A4？</strong></p>
-<p>W4A4 的 GEMM 主循环里，权重和激活都要解包/去量化，每步开销更大
-W4A8：激活 8-bit 可直接进 INT8 Tensor Core，只有权重需要解包<span class="arithmatex">\(\to\)</span>主循环更干净
-<span class="arithmatex">\(\to\)</span>端到端反而更快（QServe 论文专门分析了这个 tradeoff）</p>
-<p><strong>为什么 KV4？</strong></p>
-<p>大 batch 下 attention 占运行时 50%+（<span class="arithmatex">\(batch=64\)</span>时）
-KV 4-bit 让 attention 的峰值性能翻倍（相对 KV8）
-<span class="arithmatex">\(\to W4A8KV4\)</span>是"权重省带宽 + 激活保计算 + KV 救 attention"的组合</p>
-<h3 id="33">3.3 系统技术<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
-<ol>
-<li>compute-aware weight reordering：按 kernel 的访存模式重排权重布局</li>
-<li>register-level parallelism：把 dequant 摊进寄存器流水，隐藏开销</li>
-<li>专用 attention kernel：4-bit KV 读取 + 反量化 + FP16 计算</li>
-</ol>
-<h3 id="34">3.4 性能<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
-<p>相比当时工业界最强基线 TensorRT-LLM：
-  一般模型吞吐高 1.2–1.4x
-  Qwen1.5-72B 高 2.4–3.5x
-  L40S（低端卡）跑 QServe 的吞吐超过 A100 上 TensorRT-LLM（8 个模型里 6 个）</p>
-<p><strong>结论</strong>：量化方案的收益上限由"算法 × kernel × 调度"共同决定——这是"协同设计"的价值。</p>
+<h2 id="3">3. 形式化定义：缩放点积注意力<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>给定输入序列的表示矩阵，先通过三个投影得到查询、键、值：</p>
+<div class="arithmatex">\[
+\mathbf{Q} = X W_Q, \qquad \mathbf{K} = X W_K, \qquad \mathbf{V} = X W_V
+\]</div>
+<p>缩放点积注意力：</p>
+<div class="arithmatex">\[
+\mathrm{Att}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \mathrm{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_{\text{head}}}}\right)\mathbf{V}
+\]</div>
+<p>其中 <span class="arithmatex">\(\mathbf{Q}, \mathbf{K} \in \mathbb{R}^{L \times d_{\text{head}}}\)</span>、<span class="arithmatex">\(\mathbf{V} \in \mathbb{R}^{L \times d_{\text{head}}}\)</span>。逐位置写法：位置 <span class="arithmatex">\(i\)</span> 的输出是所有位置的值的加权平均，</p>
+<div class="arithmatex">\[
+o_i = \sum_{j=1}^{L} a_{ij}\, v_j, \qquad
+a_{ij} = \frac{\exp(s_{ij})}{\sum_{j'} \exp(s_{ij'})}, \qquad
+s_{ij} = \frac{q_i \cdot k_j}{\sqrt{d_{\text{head}}}}
+\]</div>
+<h3 id="31-sqrtd_texthead">3.1 为什么要除以 <span class="arithmatex">\(\sqrt{d_{\text{head}}}\)</span><a class="headerlink" href="#31-sqrtd_texthead" title="Permanent link">&para;</a></h3>
+<p>假设 <span class="arithmatex">\(q, k\)</span> 的各分量独立同分布、均值 0 方差 1，则点积的方差等于维度：</p>
+<div class="arithmatex">\[
+\mathrm{Var}(q \cdot k) = d_{\text{head}}
+\]</div>
+<p>除以 <span class="arithmatex">\(\sqrt{d_{\text{head}}}\)</span> 后方差回到 1。若不缩放，维度越大点积数值越极端，softmax 越容易饱和（一个接近 1，其余接近 0），梯度消失。缩放是让注意力"温度"与维度无关。</p>
 <hr />
-<h2 id="4">4. 注意力量化（前沿）<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
-<p>Inference Engineering 的默认建议：<strong>attention 留在原精度</strong>（softmax 太敏感）。但前沿工作在突破：</p>
+<h2 id="4-ol2">4. 复杂度分析：O(L²) 从哪来<a class="headerlink" href="#4-ol2" title="Permanent link">&para;</a></h2>
+<h3 id="41-flops">4.1 FLOPs 推导<a class="headerlink" href="#41-flops" title="Permanent link">&para;</a></h3>
+<p>标准实现（不缓存、不掩码优化）分三步：</p>
+<div class="arithmatex">\[
+\mathbf{S} = \mathbf{Q}\mathbf{K}^\top / \sqrt{d_{\text{head}}}, \qquad
+\mathbf{P} = \mathrm{softmax}(\mathbf{S}), \qquad
+\mathbf{O} = \mathbf{P}\mathbf{V}
+\]</div>
+<p>FLOPs：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>QK^T：L×d_head 与 d_head×L 相乘 → 2L²·d_head
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>softmax：L×L 行归一化 → O(L²)，常数项可忽略
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>PV：L×L 与 L×d_head 相乘 → 2L²·d_head
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>合计（每头）：≈ 4L²·d_head
+</code></pre></div>
+<p>全部 <span class="arithmatex">\(h\)</span> 头加起来：</p>
+<div class="arithmatex">\[
+\text{FLOPs}_{\text{attn}} = h \times 4L^2 d_{\text{head}} = 4L^2 (h\, d_{\text{head}}) = 4L^2 d
+\]</div>
+<p><strong>结论：注意力 FLOPs 只依赖 <span class="arithmatex">\(L\)</span> 和 <span class="arithmatex">\(d\)</span>，与切成多少个头无关</strong>（<span class="arithmatex">\(h\,d_{\text{head}} = d\)</span> 是不变量）。切头是为了并行和表示能力，不是为了省算力。</p>
+<h3 id="42-ffn">4.2 与 FFN 的比值：长上下文判据<a class="headerlink" href="#42-ffn" title="Permanent link">&para;</a></h3>
+<p>每层 FFN（两段线性，中间扩到 <span class="arithmatex">\(4d\)</span>）的 FLOPs：</p>
+<div class="arithmatex">\[
+\text{FLOPs}_{\text{FFN}} = 8L\,d^2
+\]</div>
+<p>（每个 token 两段各 <span class="arithmatex">\(2 \times d \times 4d = 8d^2\)</span> FLOPs，共 <span class="arithmatex">\(L\)</span> 个 token。）于是：</p>
+<div class="arithmatex">\[
+\frac{\text{FLOPs}_{\text{attn}}}{\text{FLOPs}_{\text{FFN}}}
+= \frac{4L^2 d}{8L d^2}
+= \frac{L}{2d}
+\]</div>
+<p><strong>判据：<span class="arithmatex">\(L = 2d\)</span> 时两者相等；<span class="arithmatex">\(L &gt; 2d\)</span> 时注意力反超 FFN，成为 prefill 的主要计算。</strong> 例如 <span class="arithmatex">\(d = 4096\)</span> 的 7B 级模型：<span class="arithmatex">\(L = 8192\)</span> 持平，<span class="arithmatex">\(L = 32K\)</span> 时注意力是 FFN 的 4 倍。这解释了为什么长上下文优化的主战场是注意力（02–04 章）。</p>
+<hr />
+<h2 id="5-kv-cache">5. 因果掩码与 KV Cache<a class="headerlink" href="#5-kv-cache" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 因果掩码<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>自回归模型只允许位置 <span class="arithmatex">\(i\)</span> 看 <span class="arithmatex">\(j \le i\)</span>。实现上把注意力分数加上掩码矩阵：</p>
+<div class="arithmatex">\[
+\mathbf{S} \leftarrow \mathbf{S} + \mathbf{M}, \qquad
+M_{ij} = \begin{cases} 0 &amp; j \le i \\ -\infty &amp; j &gt; i \end{cases}
+\]</div>
+<p>注意：<strong>naive 实现先算完整的 <span class="arithmatex">\(L \times L\)</span> 再掩码，上三角的 FLOPs 是白花的</strong>（约占一半）；02 章 FlashAttention 用因果块只算下三角。</p>
+<h3 id="52-kv-cachedecode">5.2 KV Cache：decode 为什么能省一半计算<a class="headerlink" href="#52-kv-cachedecode" title="Permanent link">&para;</a></h3>
+<p>解码第 <span class="arithmatex">\(t\)</span> 步时，注意力需要：</p>
+<div class="arithmatex">\[
+q_t \quad \text{与所有历史} \quad (k_1, v_1), \dots, (k_{t-1}, v_{t-1})
+\]</div>
+<p>关键观察：<strong><span class="arithmatex">\(k_j, v_j\)</span> 只依赖 <span class="arithmatex">\(x_1..x_j\)</span>，与未来的 query 无关</strong>——所以算过一次就缓存，decode 时直接读取，不用重新前向。这就是 KV cache。</p>
+<p>每步新算 <span class="arithmatex">\(k_t, v_t\)</span> 并追加进缓存。缓存大小：</p>
+<div class="arithmatex">\[
+\text{KV bytes} = 2 \times L \times n_{\text{layers}} \times d_{\text{kv}} \times b
+\]</div>
+<p>其中因子 2 是 K 和 V 各一份，<span class="arithmatex">\(b\)</span> 是精度字节数（BF16 为 2）。</p>
+<h3 id="53-7b-kv">5.3 算例：7B 模型的 KV 显存<a class="headerlink" href="#53-7b-kv" title="Permanent link">&para;</a></h3>
+<p>配置：<span class="arithmatex">\(d = 4096\)</span>、32 层、<span class="arithmatex">\(d_{\text{kv}} = 4096\)</span>（无 GQA）、BF16。</p>
+<div class="arithmatex">\[
+\text{每 token} = 2 \times 4096 \times 2 \times 32 = 524{,}288\ \text{B} = 512\ \text{KB}
+\]</div>
 <table>
 <thead>
 <tr>
-<th>方法</th>
-<th>做法</th>
-<th>状态</th>
+<th style="text-align: right;">上下文长度</th>
+<th style="text-align: right;">KV cache 总量</th>
+<th style="text-align: right;">相对 7B 权重（约 13GB BF16）</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>FlashAttention-3（2024）</td>
-<td>Hopper 上 FP8 attention + 异步拷贝</td>
-<td>生产化中</td>
+<td style="text-align: right;">4K</td>
+<td style="text-align: right;">2 GiB</td>
+<td style="text-align: right;">15%</td>
 </tr>
 <tr>
-<td>SageAttention（2024）</td>
-<td>8-bit 量化 Q/K/V，精度保持，图像/视频生成加速</td>
-<td>研究+落地中</td>
+<td style="text-align: right;">32K</td>
+<td style="text-align: right;">16 GiB</td>
+<td style="text-align: right;">1.2 倍</td>
+</tr>
+<tr>
+<td style="text-align: right;">128K</td>
+<td style="text-align: right;">64 GiB</td>
+<td style="text-align: right;">5 倍</td>
 </tr>
 </tbody>
 </table>
-<p>工程建议：</p>
-<p>默认：QK/softmax 用 FP16/FP32
-FP8 attention 只在：① 有专用 kernel ② 长序列 attention 占比高 ③ 评测通过</p>
+<p>结论：<strong>KV cache 是"上下文越长越贵"的显存项</strong>，这正是 03 章 MQA/GQA/MLA 和 05 章 PagedAttention 要解决的问题。</p>
 <hr />
-<h2 id="5">5. 推理引擎的量化支持地图<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h2 id="6-prefill-decode">6. Prefill 与 Decode：两种形态<a class="headerlink" href="#6-prefill-decode" title="Permanent link">&para;</a></h2>
+<p>同一个注意力，在两个阶段呈现完全不同的计算形态：</p>
 <table>
 <thead>
 <tr>
-<th>引擎</th>
-<th>支持的量化</th>
-<th>特点</th>
+<th></th>
+<th>Prefill（处理用户输入）</th>
+<th>Decode（逐 token 生成）</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM</a></td>
-<td>AWQ、GPTQ、FP8(E4M3/E5M2)、MXFP8、FP4(Blackwell)、KV cache 量化</td>
-<td>生态最广；PagedAttention；生产首选之一</td>
+<td>一次处理的 token 数</td>
+<td><span class="arithmatex">\(L\)</span>（整段输入）</td>
+<td>1（新 query）</td>
 </tr>
 <tr>
-<td><a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a></td>
-<td>FP8、INT4/FP4、SmoothQuant W8A8、AWQ、KV 量化</td>
-<td>NVIDIA 深度优化；部署灵活</td>
+<td>注意力矩阵</td>
+<td><span class="arithmatex">\(L \times L\)</span></td>
+<td><span class="arithmatex">\(1 \times L\)</span></td>
 </tr>
 <tr>
-<td><a href="https://github.com/sgl-project/sglang">SGLang</a></td>
-<td>同上（复用多种后端）</td>
-<td>高性能 + 结构化生成</td>
+<td>计算量</td>
+<td><span class="arithmatex">\(O(L^2)\)</span>，<strong>计算密集</strong></td>
+<td><span class="arithmatex">\(O(L)\)</span> 次乘加，但要读全部 KV</td>
 </tr>
 <tr>
-<td><a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></td>
-<td>GGUF：<span class="arithmatex">\(Q2_K\sim Q8_0\)</span>、IQ 系列、MXFP4</td>
-<td>本地/边缘；格式事实标准</td>
+<td>瓶颈</td>
+<td>计算（FLOPs）</td>
+<td>带宽（KV 读取 + 权重读取）</td>
 </tr>
 <tr>
-<td><a href="https://huggingface.co/docs/transformers/quantization">bitsandbytes / HF Transformers</a></td>
-<td>NF4/INT8（bitsandbytes）、GPTQ、AWQ、FP8</td>
-<td>研究/微调（QLoRA）</td>
-</tr>
-<tr>
-<td><a href="https://github.com/ml-explore/mlx">MLX（Apple）</a></td>
-<td>4-bit 量化（MLX 生态）</td>
-<td>Apple Silicon 本地部署</td>
+<td>优化主力</td>
+<td>FlashAttention（02 章）</td>
+<td>GQA/MLA（03 章）+ 分页（05 章）</td>
 </tr>
 </tbody>
 </table>
-<p>选引擎的检查清单：</p>
-<ol>
-<li>我要的量化格式有没有 kernel（不是"支持"而是"实测速度"）</li>
-<li>激活是否也量化（W8A8 还是只 W4A16）</li>
-<li>KV cache 量化是否可开关</li>
-<li>长上下文、GQA、MoE 是否适配</li>
-<li>是否支持我要的硬件（Hopper / Blackwell / 本地）</li>
-</ol>
+<p>decode 每步要读的 KV 字节数：</p>
+<div class="arithmatex">\[
+\text{每步 KV 读取} = 2 \times L \times n_{\text{layers}} \times d_{\text{kv}} \times b
+\]</div>
+<p>7B 模型算例：4K 上下文时每步读 <span class="arithmatex">\(2 \times 4096 \times 32 \times 4096 \times 2 = 2\ \text{GiB}\)</span>（约 1ms @ 2TB/s），与权重读取（13GB，约 6.5ms）相比约 15%；<strong>32K 上下文时每步读 16 GiB，超过权重读取</strong>——长上下文 decode 的带宽瓶颈从"权重"转移到了"KV"。</p>
 <hr />
-<h2 id="6">6. 组合优化栈：无损优先<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
-<p>Inference Engineering Ch5 的关键提示：<strong>除了量化，本章其他技术都是无损的</strong>。所以优化顺序：</p>
-<p>第一优先（无损）：
-  1. 前缀缓存 / KV 复用（相同前缀不算第二次）
-  2. 推测解码（draft 模型多 token 猜测）
-  3. PagedAttention 类显存管理</p>
-<p>第二优先（有损但收益大）：
-  4. W8A8 FP8（权重+激活，01 章带宽/FLOPS 账本）
-  5. KV cache 4-bit/FP8（长上下文显存）
-  6. W4A8KV4（激进，Blackwell/QServe 类系统）</p>
-<p>最后（按需）：
-  7. 模型并行 / 预填充-解码解耦（另一套工程）</p>
+<h2 id="7-max-subtraction">7. 数值稳定性：max-subtraction 与低精度<a class="headerlink" href="#7-max-subtraction" title="Permanent link">&para;</a></h2>
+<h3 id="71-softmax">7.1 朴素 softmax 的溢出问题<a class="headerlink" href="#71-softmax" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(\exp(x)\)</span> 在 <span class="arithmatex">\(x\)</span> 稍大时就溢出（FP16 最大约 65504，对应 <span class="arithmatex">\(x \approx 11\)</span>）。数值稳定写法：</p>
+<div class="arithmatex">\[
+\mathrm{softmax}(s)_i = \frac{\exp(s_i - m)}{\sum_j \exp(s_j - m)}, \qquad m = \max_j s_j
+\]</div>
+<p>减去行最大值后，指数里最大是 0，不会溢出。02 章 FlashAttention 的 online softmax 就是这个技巧的"分块版"。</p>
+<h3 id="72">7.2 低精度下的风险<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>BF16：动态范围大，softmax 数值安全，但精度低（尾数 8 位）
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>FP16：动态范围小，softmax 容易溢出，需要 max-subtraction 和钳制
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>FP8：尾数更少（E4M3），注意力分数与概率的量化误差放大
+</code></pre></div>
+<p>经验：<strong>注意力（尤其 softmax 区域）是量化最敏感的地方之一</strong>（量化系列 08 章的结论）。低精度注意力必须做数值与质量双重验收（07 章展开）。</p>
+<hr />
+<h2 id="8">8. 数值算例<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<p><span class="arithmatex">\(L = 3\)</span>、<span class="arithmatex">\(d_{\text{head}} = 2\)</span>：</p>
+<div class="arithmatex">\[
+\mathbf{Q} = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 1 \\ 1 &amp; 1 \end{pmatrix}, \quad
+\mathbf{K} = \begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1 \\ 1 &amp; 0 \end{pmatrix}, \quad
+\mathbf{V} = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 1 \\ 1 &amp; 1 \end{pmatrix}, \quad
+\sqrt{d_{\text{head}}} = \sqrt{2}
+\]</div>
+<p><strong>以第 3 个 query <span class="arithmatex">\(q_3 = (1,1)\)</span> 为例</strong>：</p>
+<div class="arithmatex">\[
+s = \frac{q_3 \cdot k_j}{\sqrt{2}} = \left(\frac{2}{\sqrt2}, \frac{1}{\sqrt2}, \frac{1}{\sqrt2}\right) = (1.414, 0.707, 0.707)
+\]</div>
+<p>max-subtraction：<span class="arithmatex">\(m = 1.414\)</span>，</p>
+<div class="arithmatex">\[
+s - m = (0,\ -0.707,\ -0.707), \qquad
+\exp = (1,\ 0.493,\ 0.493), \qquad
+\text{sum} = 1.986
+\]</div>
+<div class="arithmatex">\[
+a_3 = (0.504,\ 0.248,\ 0.248)
+\]</div>
+<p>输出：</p>
+<div class="arithmatex">\[
+o_3 = 0.504 \cdot (1,0) + 0.248 \cdot (0,1) + 0.248 \cdot (1,1) = (0.752,\ 0.497)
+\]</div>
+<p><strong>验证</strong>：位置 3 与位置 1 的相似度（<span class="arithmatex">\(q_3 \cdot k_1 = 2\)</span>）最高，所以 <span class="arithmatex">\(v_1 = (1,0)\)</span> 在输出里占比最大（0.504）——注意力是"按相关性加权求和"。</p>
+<p>完整三行输出（留给读者核对习题 2）：</p>
+<div class="arithmatex">\[
+o_1 \approx (0.802,\ 0.599), \qquad
+o_2 \approx (0.599,\ 0.599), \qquad
+o_3 \approx (0.752,\ 0.497)
+\]</div>
+<hr />
+<h2 id="9">9. 本章小结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>注意力是唯一 <span class="arithmatex">\(O(L^2)\)</span> 的组件</strong>：FLOPs <span class="arithmatex">\(= 4L^2d\)</span>，与头数无关；<span class="arithmatex">\(L/(2d)\)</span> 判据决定它何时反超 FFN。</li>
+<li><strong>KV cache 来自"键值只依赖历史"</strong>：大小 <span class="arithmatex">\(= 2Ln_{\text{layers}}d_{\text{kv}}b\)</span>，7B 模型 128K 上下文约 64 GiB。</li>
+<li><strong>prefill 计算密集、decode 访存密集</strong>：长上下文时 decode 的带宽瓶颈从权重转移到 KV。</li>
+<li><strong>softmax 需要 max-subtraction</strong>；低精度下注意力是质量风险最高的区域之一。</li>
+</ol>
 <blockquote>
-<p>记忆：<strong>"先白嫖（无损），再冒险（量化），最后上重型工程（并行/解耦）。"</strong></p>
+<p>一句话记忆：<strong>"注意力是 Transformer 里唯一会让 token 互相看的地方，也是唯一随序列长度平方变贵的地方——KV cache 是 decode 的账本，<span class="arithmatex">\(L^2\)</span> 是 prefill 的账单。"</strong></p>
 </blockquote>
 <hr />
-<h2 id="7">7. 部署决策树（含验收闭环）<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
-<p>① 有 GPU 与模型<span class="arithmatex">\(\to\)</span>先跑 FP16 基线（速度/质量双基线）
-② 质量必须无损<span class="arithmatex">\(\to\)</span>只用无损优化（缓存/推测解码）
-③ 可以接受"验证过的"风险<span class="arithmatex">\(\to\)</span>
-   默认配方：W8A8 FP8 + KV 4-bit/FP8，attention 留 FP16
-   激进：W4A8KV4（QServe）/ FP4（Blackwell）
-④ 每档都走 10 章的 Gate 1–4 验收
-⑤ 不达标<span class="arithmatex">\(\to\)</span>降档：更细粒度<span class="arithmatex">\(\to\)</span>更高位宽<span class="arithmatex">\(\to\)</span>换方法<span class="arithmatex">\(\to\)</span>局部 QAT
-⑥ 达标<span class="arithmatex">\(\to\)</span>灰度<span class="arithmatex">\(A/B \to\)</span>上线<span class="arithmatex">\(\to\)</span>监控长尾/长上下文</p>
-<hr />
-<h2 id="8">8. 本章小结<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>算法好 ≠ 系统快</strong>：dequant、内存布局、kernel 覆盖是三个隐形瓶颈。</li>
-<li><strong>QServe 示范了协同设计</strong>：W4A8KV4（渐进量化让 4-bit 权重跑在 INT8 Tensor Core）+ 权重重排 + 寄存器级 dequant + KV4 attention；vs TensorRT-LLM 高 1.2–1.4x（72B 上 2.4–3.5x）。</li>
-<li><strong>attention 默认不动</strong>，FP8 attention 是前沿选项（FA3/SageAttention）。</li>
-<li><strong>引擎选择看 kernel 实测</strong>，不是看支持列表。</li>
-<li><strong>无损优化优先</strong>：缓存/推测解码先上，量化后上，并行/解耦最后。</li>
-<li><strong>部署 = 量化 × 系统 × 验收闭环</strong>（接 10 章）。</li>
-</ol>
-<blockquote>
-<p>一句话记忆：<strong>"量化解决'数据太多'，系统解决'解包太慢'，验收解决'到底行不行'——三件事一起做，才是推理工程的量化。"</strong></p>
-</blockquote>
-<hr />
-<h2 id="9">9. 习题与解答<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
-<h3 id="1-4-bit">题 1（思考）：为什么 4-bit 不一定快<a class="headerlink" href="#1-4-bit" title="Permanent link">&para;</a></h3>
-<p>一个 naive 的 W4A16 kernel 比 W8A8 慢，可能的原因有哪些？</p>
+<h2 id="10">10. 习题与解答<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="1flops">题 1（推导）：FLOPs 与头数无关<a class="headerlink" href="#1flops" title="Permanent link">&para;</a></h3>
+<p>从每头 <span class="arithmatex">\(4L^2 d_{\text{head}}\)</span> 出发，推导多头注意力总 FLOPs <span class="arithmatex">\(= 4L^2 d\)</span>，并说明为什么切头不省算力。</p>
 <details>
 <summary>题 1 解答</summary>
 
-① 4-bit 解包/去量化开销大（无原生 INT4 Tensor Core）；② 内存布局碎片化导致访存效率低；③ 激活 16-bit 让计算量不变，只是省了权重带宽，而带宽收益被 kernel 开销抵消；④ scale 折叠没做好，多了一轮乘法。
+多头 = $h$ 个独立的 $d_{\text{head}}$ 维注意力并行，总 FLOPs $= h \times 4L^2 d_{\text{head}} = 4L^2 (h d_{\text{head}}) = 4L^2 d$。$h\,d_{\text{head}} = d$ 是投影后的总维度不变式，所以切头只改并行方式，不改 FLOPs。
 </details>
 
-<h3 id="2-70b">题 2（设计）：给 70B 部署选型<a class="headerlink" href="#2-70b" title="Permanent link">&para;</a></h3>
-<p>场景：H200（单卡 141GB）、70B 模型、32K 上下文、要求 PPL 无损 + 尽量快。给出方案组合与理由。</p>
+<h3 id="2">题 2（计算）：手算完整一行<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p>用第 8 节的 <span class="arithmatex">\(\mathbf{Q}, \mathbf{K}, \mathbf{V}\)</span>，完整手算 <span class="arithmatex">\(o_1\)</span>（含 max-subtraction），核对 <span class="arithmatex">\(o_1 \approx (0.802, 0.599)\)</span>。</p>
 <details>
-<summary>题 2 解答要点</summary>
+<summary>题 2 解答</summary>
 
-无损优先：前缀缓存 + PagedAttention。量化：W8A8 FP8（权重+激活近无损、FLOPS 翻倍）+ KV 4-bit（32K 上下文显存大头，08 章算过≈$10.7GB\to 2.7GB$）。attention 留 FP16。引擎：vLLM 或 TensorRT-LLM（FP8 kernel 成熟）。验收：10 章 Gate 1–4。
+$q_1=(1,0)$：$s = (1/\sqrt2,\ 0,\ 1/\sqrt2) = (0.707, 0, 0.707)$；max $= 0.707$；$s-m = (0, -0.707, 0)$（注意第三个位置 $0.707-0.707=0$）；$\exp = (1, 0.493, 1)$；和 $= 2.493$；$a_1 = (0.401, 0.198, 0.401)$。$o_1 = 0.401(1,0) + 0.198(0,1) + 0.401(1,1) = (0.802, 0.599)$ ✓ 与第 8 节一致。
 </details>
 
-<h3 id="3w4a16-vs-w4a8kv4">题 3（对比）：W4A16 vs W4A8KV4<a class="headerlink" href="#3w4a16-vs-w4a8kv4" title="Permanent link">&para;</a></h3>
-<p>两者权重都是 4-bit，为什么端到端收益不同？</p>
+<h3 id="3_1">题 3（推导）：长上下文判据<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<p>证明注意力与 FFN 的 FLOPs 比为 <span class="arithmatex">\(L/(2d)\)</span>；给定 <span class="arithmatex">\(d = 8192\)</span>，求两者持平的 <span class="arithmatex">\(L^*\)</span>，并说明 <span class="arithmatex">\(L = 64K\)</span> 时注意力占比。</p>
 <details>
 <summary>题 3 解答</summary>
 
-W4A16 只省权重带宽（decode 受益，prefill 计算仍是 16-bit）；W4A8KV4 的激活 8-bit 让 prefill 也用上低精度 Tensor Core（2x FLOPS），KV4 让 attention 带宽减半——三段（权重、激活、KV）都受益，端到端收益更高，但系统复杂度也更高。
+比值 $= 4L^2d / 8Ld^2 = L/(2d)$。$L^* = 2d = 16384$。$L=64K$ 时比值 $= 65536/16384 = 4$，即注意力 FLOPs 是 FFN 的 4 倍、占总计算（attention + FFN）的 $4/5 = 80\%$。
 </details>
 
-<h3 id="4_1">题 4（排错）：量化后速度没提升<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
-<p>W8A8 量化部署后 TPS 没变，排查思路（至少 4 条）。</p>
+<h3 id="4kv-cache">题 4（计算）：KV cache 账本<a class="headerlink" href="#4kv-cache" title="Permanent link">&para;</a></h3>
+<p>配置：<span class="arithmatex">\(d = 5120\)</span>、48 层、<span class="arithmatex">\(d_{\text{kv}} = 5120\)</span>、FP8（1 字节）。求：① 每 token KV 字节数；② <span class="arithmatex">\(L = 128K\)</span> 的总显存；③ 若改用 GQA 使 <span class="arithmatex">\(d_{\text{kv}} = 640\)</span>，同样长度下省多少。</p>
 <details>
-<summary>题 4 解答要点</summary>
+<summary>题 4 解答</summary>
 
-① kernel 是否真的生效（profile 看算子的数据类型）；② 是否只有权重量化、激活还是 FP16（退化成 W8A16）；③ 是否被注意力/非量化算子占比掩盖（短序列时 attention 占比高）；④ 是否 batch 太小（带宽没打满）；⑤ 是否 KV/前缀缓存把瓶颈移到别处。
+① $2 \times 5120 \times 48 \times 1 = 491{,}520\ \text{B} = 480\ \text{KB/token}$。② $480\ \text{KB} \times 131072 = 60\ \text{GiB}$。③ $d_{\text{kv}}=640$ 时 $2 \times 640 \times 48 = 61{,}440\ \text{B} = 60\ \text{KB/token}$，总量 7.5 GiB——**GQA 把 KV 显存降到原来的 1/8**（03 章详述）。
 </details>
 
-<h3 id="5_1">题 5（开放）：量化 × 推测解码<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
-<p>推测解码（无损）和量化（有损）叠加时，验收要注意什么？</p>
+<h3 id="5-decode">题 5（思考）：为什么 decode 是访存密集<a class="headerlink" href="#5-decode" title="Permanent link">&para;</a></h3>
+<p>结合量化系列 03 章的带宽模型，解释 decode 每步"读权重 + 读全部 KV"为什么是瓶颈；长上下文下 KV 读取为何会反超权重读取。</p>
 <details>
 <summary>题 5 解答要点</summary>
 
-两者独立验收后再做联合验收：① draft 模型与 target 量化是否引入接受率下降（量化误差影响 draft 一致性）；② 联合后的端到端质量仍要走 Gate 1–4；③ 速度收益要分别归因（量化省带宽、推测省步数），避免把噪声当收益。
+decode 每步只产出 1 个 token，但必须搬全部权重（固定 13GB）和全部 KV（随 $L$ 线性增长：7B 在 4K 是 2GB、32K 是 16GB）。GPU 的 FLOPs 远用不满，瓶颈在 HBM 带宽。$L$ 增大到 KV 读取 ≥ 权重读取时，优化重点从"省权重带宽"（量化）转向"省 KV 带宽/显存"（GQA、分页、稀疏）。
+</details>
+
+<h3 id="6causal-attention">题 6（编程）：causal attention 实现<a class="headerlink" href="#6causal-attention" title="Permanent link">&para;</a></h3>
+<p>实现：① naive 全矩阵 + 掩码；② 只算下三角的因果版；③ 数值稳定 softmax（max-subtraction）。验证两种实现在随机输入下输出一致，并统计 <span class="arithmatex">\(L = 256, 1024, 4096\)</span> 时 FLOPs/显存/时间的增长是否近似 <span class="arithmatex">\(O(L^2)\)</span>。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+① 先算 $\mathbf{S}$，加 $\mathbf{M}$（上三角 $-\infty$），再 softmax、乘 V。② 循环逐行或块状只算 $j \le i$。③ 每行减行最大。三者对因果输出一致。计时/显存随 $L$ 增长约 4 倍（$L$ 翻倍）即 $O(L^2)$；到很大 $L$ 时显存先爆——这正是 02 章 FlashAttention 的动机。
 </details>
 
 <hr />
-<h2 id="10">10. 延伸阅读<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h2 id="11">11. 延伸阅读<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="https://arxiv.org/abs/2405.04532">QServe / QoQ（arXiv:2405.04532）</a>；<a href="https://github.com/mit-han-lab/qserve">代码</a></li>
-<li><a href="https://arxiv.org/abs/2407.08691">FlashAttention-3（arXiv:2407.08691）</a></li>
-<li><a href="https://arxiv.org/abs/2410.02367">SageAttention（arXiv:2410.02367）</a></li>
-<li><a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM 量化文档</a>；<a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a>；<a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></li>
-<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">10 质量评估方法论</a>；本系列完结，回到 <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">00 总览</a>。</li>
+<li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need（arXiv:1706.03762）</a>：本章公式出处（缩放点积注意力、多头、因果掩码）。</li>
+<li><a href="https://arxiv.org/abs/2205.14135">FlashAttention（arXiv:2205.14135）</a>：下一篇的主角——为什么 <span class="arithmatex">\(O(L^2)\)</span> 的中间矩阵可以不落显存。</li>
+<li><a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">量化系列 03 章（数值格式与硬件）</a>：带宽模型与本系列 decode 分析互相印证。</li>
+<li><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch5</a>：教材正文（Attention 与系统部分）。</li>
+<li>下一篇：<strong>02 FlashAttention：IO 感知的精确注意力</strong>——把 max-subtraction 变成 online softmax，把 <span class="arithmatex">\(L^2\)</span> 矩阵留在片上。</li>
 </ol>
 
 
@@ -1994,7 +2115,7 @@ W4A16 只省权重带宽（decode 受益，prefill 计算仍是 16-bit）；W4A8
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 10 质量评估方法论">
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 00 总览与学习地图">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2004,27 +2125,11 @@ W4A16 只省权重带宽（decode 受益，prefill 计算仍是 16-bit）；W4A8
                 上一页
               </span>
               <div class="md-ellipsis">
-                10 质量评估方法论
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-footer__link md-footer__link--next" aria-label="下一页: 00 总览与学习地图">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                下一页
-              </span>
-              <div class="md-ellipsis">
                 00 总览与学习地图
               </div>
             </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
           </a>
+        
         
       </nav>
     
