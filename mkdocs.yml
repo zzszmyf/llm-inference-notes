@@ -52,20 +52,7 @@ extra_javascript:
 
 nav:
   - 首页: index.md
-  - 速览笔记: LLM推理优化-Quantization量化学习笔记.md
-  - 00 总览与学习地图: LLM量化精读笔记-00-总览与学习地图.md
-  - 01 数值编码与计算机表示基础: LLM量化精读笔记-01-数值编码与计算机表示基础.md
-  - 02 量化问题形式化与均匀量化理论: LLM量化精读笔记-02-量化问题形式化与均匀量化理论.md
-  - 03 数值格式与硬件: LLM量化精读笔记-03-数值格式与硬件.md
-  - 04 量化粒度、校准与离群值: LLM量化精读笔记-04-量化粒度校准与离群值.md
-  - 05 权重量化 I（RTN 与 GPTQ）: LLM量化精读笔记-05-权重量化I-RTN与GPTQ.md
-  - 06 权重量化 II（AWQ、SqueezeLLM、QuIP#）: LLM量化精读笔记-06-权重量化II-AWQ-SqueezeLLM-QuIP.md
-  - 07 激活量化（LLM.int8 与 SmoothQuant）: LLM量化精读笔记-07-激活量化-LLM-int8与SmoothQuant.md
-  - 08 KV Cache 量化（KIVI）: LLM量化精读笔记-08-KV-Cache量化与KIVI.md
-  - 09 QAT 与训练内量化: LLM量化精读笔记-09-QAT与训练内量化-STE-QLoRA-BitNet.md
-  - 10 质量评估方法论: LLM量化精读笔记-10-质量评估方法论.md
-  - 11 系统协同与部署: LLM量化精读笔记-11-系统协同与部署.md
-  - 推测解码精读笔记:
+  - 推测解码:
       - 00 总览与学习地图: LLM推测解码精读笔记-00-总览与学习地图.md
       - 01 问题形式化与接受率数学: LLM推测解码精读笔记-01-问题形式化与接受率数学.md
       - 02 原始推测解码（草稿模型与拒绝采样）: LLM推测解码精读笔记-02-原始推测解码-草稿模型与拒绝采样.md
@@ -73,3 +60,17 @@ nav:
       - 04 EAGLE（特征空间草稿）: LLM推测解码精读笔记-04-EAGLE-特征空间草稿.md
       - 05 n-gram/检索式与无模型路线: LLM推测解码精读笔记-05-n-gram检索式与无模型路线.md
       - 06 系统集成与生产验收: LLM推测解码精读笔记-06-系统集成与生产验收.md
+  - 量化:
+      - 速览笔记: LLM推理优化-Quantization量化学习笔记.md
+      - 00 总览与学习地图: LLM量化精读笔记-00-总览与学习地图.md
+      - 01 数值编码与计算机表示基础: LLM量化精读笔记-01-数值编码与计算机表示基础.md
+      - 02 量化问题形式化与均匀量化理论: LLM量化精读笔记-02-量化问题形式化与均匀量化理论.md
+      - 03 数值格式与硬件: LLM量化精读笔记-03-数值格式与硬件.md
+      - 04 量化粒度、校准与离群值: LLM量化精读笔记-04-量化粒度校准与离群值.md
+      - 05 权重量化 I（RTN 与 GPTQ）: LLM量化精读笔记-05-权重量化I-RTN与GPTQ.md
+      - 06 权重量化 II（AWQ、SqueezeLLM、QuIP#）: LLM量化精读笔记-06-权重量化II-AWQ-SqueezeLLM-QuIP.md
+      - 07 激活量化（LLM.int8 与 SmoothQuant）: LLM量化精读笔记-07-激活量化-LLM-int8与SmoothQuant.md
+      - 08 KV Cache 量化（KIVI）: LLM量化精读笔记-08-KV-Cache量化与KIVI.md
+      - 09 QAT 与训练内量化: LLM量化精读笔记-09-QAT与训练内量化-STE-QLoRA-BitNet.md
+      - 10 质量评估方法论: LLM量化精读笔记-10-质量评估方法论.md
+      - 11 系统协同与部署: LLM量化精读笔记-11-系统协同与部署.md
