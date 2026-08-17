@@ -43,7 +43,7 @@
 |---|---|---|
 | [00 总览与学习地图](./LLM注意力内核精读笔记-00-总览与学习地图.md) | 章节结构、符号约定、与量化/推测解码系列的关系 | ✅ |
 | [01 注意力机制基础与复杂度分析](./LLM注意力内核精读笔记-01-注意力机制基础与复杂度分析.md) | softmax attention 定义、O(L²) 复杂度、KV cache 角色、prefill/decode 形态 | ✅ |
-| 02 FlashAttention（IO 感知的精确注意力） | online softmax、tiling、重计算、FA2/FA3 | 写作中 |
+| [02 FlashAttention（IO 感知的精确注意力）](./LLM注意力内核精读笔记-02-FlashAttention-IO感知的精确注意力.md) | IO 复杂度、tiling、online softmax、重计算、FA2/FA3 | ✅ |
 | 03 注意力头变体（MQA/GQA/MLA） | KV 头共享、低秩压缩、DeepSeek MLA | 写作中 |
 | 04 稀疏、滑动窗口与线性注意力 | StreamingLLM、滑动窗口、H2O、Mamba | 写作中 |
 | 05 PagedAttention 与 KV 显存管理 | 分页 KV、vLLM 块管理、与批处理组合 | 写作中 |
