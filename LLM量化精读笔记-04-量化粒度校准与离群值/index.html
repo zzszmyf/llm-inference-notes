@@ -1576,17 +1576,17 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-从-02-章到本章范围利用率是主线">从 02 章到本章：范围利用率是主线</a></li>
-<li><a href="#3-粒度光谱per-tensor--per-channel--per-group">粒度光谱：per-tensor / per-channel / per-group</a></li>
-<li><a href="#4-有效位宽与存储开销动手算">有效位宽与存储开销：动手算</a></li>
-<li><a href="#5-校准calibration">校准（Calibration）</a></li>
-<li><a href="#6-离群值问题outliers">离群值问题（Outliers）</a></li>
-<li><a href="#7-敏感性分析谁更怕量化">敏感性分析：谁更怕量化</a></li>
-<li><a href="#8-决策表什么时候用哪种组合">决策表：什么时候用哪种组合</a></li>
-<li><a href="#9-本章小结">本章小结</a></li>
-<li><a href="#10-习题与解答">习题与解答</a></li>
-<li><a href="#11-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>从 02 章到本章：范围利用率是主线</li>
+<li>粒度光谱：per-tensor / per-channel / per-group</li>
+<li>有效位宽与存储开销：动手算</li>
+<li>校准（Calibration）</li>
+<li>离群值问题（Outliers）</li>
+<li>敏感性分析：谁更怕量化</li>
+<li>决策表：什么时候用哪种组合</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1743,10 +1743,10 @@ b_{\text{eff}} = b + \text{scale\_bits} / G
 <p>"4-bit 模型 = 正好 4 倍压缩"是错的。真实的模型文件大小要看<strong>有效位宽</strong>：</p>
 <p>70B 模型：
   纯<span class="arithmatex">\(FP16 = 140 GB\)</span>
-<span class="arithmatex">\(INT4 group=128 = 70e9 \times 4.125/8 \approx 36.1 GB\)</span>（不是 35 GB）
-$$
+<span class="arithmatex">\(INT4 group=128 = 70e9 \times 4.125/8 \approx 36.1 GB\)</span>（不是 35 GB）</p>
+<div class="arithmatex">\[
 INT4 group=32 = 70e9 \times 4.5/8 \approx 39.4 GB
-$$</p>
+\]</div>
 <p>这也是为什么估算器/模型卡片的"<span class="arithmatex">\(4-bit = 75\%\)</span>节省"是理想值，实际要加 scale 开销。</p>
 <hr />
 <h2 id="5-calibration">5. 校准（Calibration）<a class="headerlink" href="#5-calibration" title="Permanent link">&para;</a></h2>

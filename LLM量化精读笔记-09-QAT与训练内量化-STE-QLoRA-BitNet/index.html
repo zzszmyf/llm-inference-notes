@@ -1454,16 +1454,16 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-为什么需要训练侧参与">为什么需要训练侧参与</a></li>
-<li><a href="#3-ste让量化可训练">STE：让量化可训练</a></li>
-<li><a href="#4-qat-的标准流程与代价">QAT 的标准流程与代价</a></li>
-<li><a href="#5-qlora量化--微调">QLoRA：量化 × 微调</a></li>
-<li><a href="#6-bitnet-b158为-1-bit-而生的架构">BitNet b1.58：为 1-bit 而生的架构</a></li>
-<li><a href="#7-四条路线对比">四条路线对比</a></li>
-<li><a href="#8-本章小结">本章小结</a></li>
-<li><a href="#9-习题与解答">习题与解答</a></li>
-<li><a href="#10-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>为什么需要训练侧参与</li>
+<li>STE：让量化可训练</li>
+<li>QAT 的标准流程与代价</li>
+<li>QLoRA：量化 × 微调</li>
+<li>BitNet b1.58：为 1-bit 而生的架构</li>
+<li>四条路线对比</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1592,10 +1592,10 @@ LoRA：低秩适配器（A、B 两个小矩阵），BF16 可训练
 <h2 id="6-bitnet-b158-1-bit">6. BitNet b1.58：为 1-bit 而生的架构<a class="headerlink" href="#6-bitnet-b158-1-bit" title="Permanent link">&para;</a></h2>
 <h3 id="61">6.1 三值权重<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
 <p>BitNet b1.58 把<strong>每个权重</strong>限制为三个值：</p>
-<p>$$
-w \in {-1, 0, +1}
-$$
-每个权重 1.58 bit（= <span class="arithmatex">\(\log_2(3)\)</span>）</p>
+<div class="arithmatex">\[
+w \in \{-1, 0, +1\}
+\]</div>
+<p>每个权重 1.58 bit（= <span class="arithmatex">\(\log_2(3)\)</span>）</p>
 <p>与 BitNet b1（二值 {-1,+1}）相比，<strong>多了 0</strong>：</p>
 <p>0 的价值：
 1. 更接近真实权重分布（很多权重本来就接近 0）
@@ -1603,10 +1603,10 @@ $$
 3. 相同模型大小下质量显著提升，达到与 FP16 相当</p>
 <h3 id="62">6.2 无乘法矩阵乘<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
 <p>三值权重与激活相乘：</p>
-<p>$$
-y = \sum w_{i} \cdot x_{i}，w_{i} \in {-1, 0, +1}
-$$
-<span class="arithmatex">\(\to\)</span>只需要加法和减法，不需要乘法！</p>
+<div class="arithmatex">\[
+y = \sum w_{i} \cdot x_{i}, w_{i} \in \{-1, 0, +1\}
+\]</div>
+<p><span class="arithmatex">\(\to\)</span>只需要加法和减法，不需要乘法！</p>
 <p>实现（BitNet.cpp 等）：激活先量化为 8-bit，再用三值权重的符号决定加/减。论文估算（7nm）：矩阵乘算术能耗约为 FP16 的 <strong>1/71.4</strong>。</p>
 <h3 id="63-qat">6.3 训练：从头 QAT<a class="headerlink" href="#63-qat" title="Permanent link">&para;</a></h3>
 <p>BitNet 不能从 FP16 模型"转换"而来，必须<strong>从零训练</strong>：</p>

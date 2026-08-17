@@ -1274,16 +1274,16 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-从算法到系统三个隐形瓶颈">从算法到系统：三个隐形瓶颈</a></li>
-<li><a href="#3-qservew4a8kv4-的算法-系统协同">QServe：W4A8KV4 的算法-系统协同</a></li>
-<li><a href="#4-注意力量化前沿">注意力量化（前沿）</a></li>
-<li><a href="#5-推理引擎的量化支持地图">推理引擎的量化支持地图</a></li>
-<li><a href="#6-组合优化栈无损优先">组合优化栈：无损优先</a></li>
-<li><a href="#7-部署决策树含验收闭环">部署决策树（含验收闭环）</a></li>
-<li><a href="#8-本章小结">本章小结</a></li>
-<li><a href="#9-习题与解答">习题与解答</a></li>
-<li><a href="#10-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>从算法到系统：三个隐形瓶颈</li>
+<li>QServe：W4A8KV4 的算法-系统协同</li>
+<li>注意力量化（前沿）</li>
+<li>推理引擎的量化支持地图</li>
+<li>组合优化栈：无损优先</li>
+<li>部署决策树（含验收闭环）</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1307,10 +1307,8 @@
 <p>4-bit 不是字节对齐的（2 个<span class="arithmatex">\(4-bit = 1\)</span>字节）。怎么把 4-bit 值塞进寄存器、怎么按 group 排列 scale，决定 kernel 效率。差的布局会让访存模式碎裂。</p>
 <h3 id="23-kernel">2.3 kernel 覆盖<a class="headerlink" href="#23-kernel" title="Permanent link">&para;</a></h3>
 <p>量化收益只在"有对应 kernel 的层"兑现：</p>
-<p>$$
-W8A8 \to INT8 GEMM kernel（Ampere+）
-$$
-<span class="arithmatex">\(W4A16 \to INT4 weight-only kernel\)</span>（各家自定义）
+<p>W8A8 <span class="arithmatex">\(\to\)</span> INT8 GEMM kernel（Ampere+）</p>
+<p><span class="arithmatex">\(W4A16 \to INT4 weight-only kernel\)</span>（各家自定义）
 <span class="arithmatex">\(W4A8KV4 \to\)</span>专门的 4-bit GEMM + KV 4-bit attention（QServe）</p>
 <p>没有 kernel 的层退回 FP16，收益就漏掉一块。</p>
 <hr />
@@ -1318,11 +1316,9 @@ $$
 <h3 id="31-qoqw4a8kv4">3.1 QoQ：W4A8KV4 量化方案<a class="headerlink" href="#31-qoqw4a8kv4" title="Permanent link">&para;</a></h3>
 <p>QoQ（Quattuor-Octo-Quattuor，拉丁语 4-8-4）：</p>
 <p>权重：4-bit（group 128 或 per-channel），配合激活感知缩放（AWQ 式）做"渐进量化"
-激活：8-bit（INT8/FP8）
-$$
-KV cache：4-bit
-$$
-质量：WikiText-2 PPL 与 FP16 几乎无差（近无损）</p>
+激活：8-bit（INT8/FP8）</p>
+<p>KV cache：4-bit</p>
+<p>质量：WikiText-2 PPL 与 FP16 几乎无差（近无损）</p>
 <p>"渐进量化"（progressive quantization）是关键算法设计：让 W4A8 GEMM 能在 <strong>INT8 Tensor Core</strong> 上执行（把 4-bit 权重解包成两个 INT8 或直接按 INT8 对齐布局），避免 Blackwell 之前的硬件不支持。</p>
 <h3 id="32">3.2 两个"为什么"<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
 <p><strong>为什么 W4A8，而不是 W4A4？</strong></p>

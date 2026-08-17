@@ -1432,18 +1432,18 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-问题设定weight-only-量化">问题设定：weight-only 量化</a></li>
-<li><a href="#3-rtn最朴素的基线">RTN：最朴素的基线</a></li>
-<li><a href="#4-目标函数升级从逐元素误差到输出误差">目标函数升级：从逐元素误差到输出误差</a></li>
-<li><a href="#5-obs删除一个权重的代价">OBS：删除一个权重的代价</a></li>
-<li><a href="#6-obq把删除换成量化">OBQ：把"删除"换成"量化"</a></li>
-<li><a href="#7-gptq把-obq-规模化">GPTQ：把 OBQ 规模化</a></li>
-<li><a href="#8-手算例补偿是怎么发生的">手算例：补偿是怎么发生的</a></li>
-<li><a href="#9-gptq-的局限与后续">GPTQ 的局限与后续</a></li>
-<li><a href="#10-本章小结">本章小结</a></li>
-<li><a href="#11-习题与解答">习题与解答</a></li>
-<li><a href="#12-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>问题设定：weight-only 量化</li>
+<li>RTN：最朴素的基线</li>
+<li>目标函数升级：从逐元素误差到输出误差</li>
+<li>OBS：删除一个权重的代价</li>
+<li>OBQ：把"删除"换成"量化"</li>
+<li>GPTQ：把 OBQ 规模化</li>
+<li>手算例：补偿是怎么发生的</li>
+<li>GPTQ 的局限与后续</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1461,10 +1461,10 @@
 <p>这也是推理服务最常见的起点：<strong>先量化权重，因为权重最不敏感、收益最大、风险最小</strong>。</p>
 <h3 id="22">2.2 形式化<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
 <p>设一层权重<span class="arithmatex">\(W \in \mathbb{R}^{d_{\text{row}} \times d_{\text{col}}}\)</span>，输入激活<span class="arithmatex">\(X \in \mathbb{R}^{d_{\text{col}} \times N}\)</span>（N 个校准样本），量化后 <span class="arithmatex">\(\hat{W}\)</span>。目标：</p>
-<p>$$
-\min |WX - \hat{W}X|^{2}_F
-$$
-约束：<span class="arithmatex">\(\hat{W}\)</span> 的每个元素属于量化网格（如 INT4 + group scale）</p>
+<div class="arithmatex">\[
+\min \|WX - \hat{W}X\|^{2}_F
+\]</div>
+<p>约束：<span class="arithmatex">\(\hat{W}\)</span> 的每个元素属于量化网格（如 INT4 + group scale）</p>
 <p>注意目标函数里<strong>没有单独惩罚逐元素误差</strong>——我们关心的是层输出（进而整个模型）的误差。</p>
 <hr />
 <h2 id="3-rtn">3. RTN：最朴素的基线<a class="headerlink" href="#3-rtn" title="Permanent link">&para;</a></h2>
@@ -1519,9 +1519,9 @@ s.t. e_{q}^{T} \delta w &amp;= \hat{w}_q - w_{q}
 L &amp;= \frac{1}{2} \delta w^{T} H \delta w + \lambda (e_{q}^{T} \delta w - (\hat{w}_q - w_{q}))
 \partial L/\partial \delta w &amp;= H \delta w + \lambda e_{q} = 0 \to \delta w = -\lambda H^{-1} e_{q}
 \end{aligned}
-$$
-代入约束：$e_{q}^{T} \delta w = -\lambda [H^{-1}]_{qq} = \hat{w}_q - w_{q}$
-$$
+\]</div>
+<p>代入约束：<span class="arithmatex">\(e_{q}^{T} \delta w = -\lambda [H^{-1}]_{qq} = \hat{w}_q - w_{q}\)</span></p>
+<div class="arithmatex">\[
 \to \lambda = -(\hat{w}_q - w_{q}) / [H^{-1}]_{qq}
 \]</div>
 <p>于是最优调整：</p>
@@ -1566,11 +1566,11 @@ $$
 <p>补偿公式<span class="arithmatex">\(\delta F = -\text{err}_q/[H^{-1}]_{qq} \times H^{-1}_{:,q}\)</span>里，<strong>H 和<span class="arithmatex">\(H^{-1}\)</span>只依赖输入 X，不依赖权重行</strong>。所以 W 的<span class="arithmatex">\(d_{\text{row}}\)</span>行共享同一套<span class="arithmatex">\(H^{-1}\)</span>，各行独立量化、独立补偿，可以并行。</p>
 <h3 id="73-cholesky">7.3 观察三：Cholesky 一次性分解<a class="headerlink" href="#73-cholesky" title="Permanent link">&para;</a></h3>
 <p><span class="arithmatex">\(H^{-1}\)</span>只需要<strong>算一次</strong>，并且用 Cholesky 分解<span class="arithmatex">\(H^{-1} = LL^{T}\)</span>缓存起来；量化时按 <strong>128 列一块</strong>批量更新，避免逐列更新<span class="arithmatex">\(H^{-1}\)</span>：</p>
-<p>复杂度：<span class="arithmatex">\(O(d_{\text{col}}^{3})\)</span>（一次 Cholesky）<span class="arithmatex">\(+ O(d_{\text{row}} \cdot d_{\text{col}}^{2})\)</span>（批量补偿）
-$$
+<p>复杂度：<span class="arithmatex">\(O(d_{\text{col}}^{3})\)</span>（一次 Cholesky）<span class="arithmatex">\(+ O(d_{\text{row}} \cdot d_{\text{col}}^{2})\)</span>（批量补偿）</p>
+<div class="arithmatex">\[
 \approx O(d_{\text{row}} \cdot d_{\text{col}}^{2})
-$$
-对比 OBQ：<span class="arithmatex">\(O(d_{\text{row}} \cdot d_{\text{col}}^{3})\)</span></p>
+\]</div>
+<p>对比 OBQ：<span class="arithmatex">\(O(d_{\text{row}} \cdot d_{\text{col}}^{3})\)</span></p>
 <h3 id="74-gptq">7.4 GPTQ 伪代码（逐层）<a class="headerlink" href="#74-gptq" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>输入：权重 W（d_row × d_col），校准激活 X（d_col × N），位宽 b，分组大小 G
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -1601,10 +1601,11 @@ $$
 <hr />
 <h2 id="8">8. 手算例：补偿是怎么发生的<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
 <p>设一层只有一行权重<span class="arithmatex">\(W = [2.0, 1.0]\)</span>（<span class="arithmatex">\(d_{\text{row}}=1\)</span>，<span class="arithmatex">\(d_{\text{col}}=2\)</span>），校准激活：</p>
-<p>$$
+<div class="arithmatex">\[
 X = [[1.0, 0.5],
-$$
-     [0.5, 1.0]]        # 两个样本、两个输入通道，正相关</p>
+\]</div>
+<div class="highlight"><pre><span></span><code> [0.5, 1.0]]        # 两个样本、两个输入通道，正相关
+</code></pre></div>
 <p>计算 H（用 GPTQ 的记法，忽略<span class="arithmatex">\(\frac{1}{2}\)</span>）：</p>
 <div class="arithmatex">\[
 \begin{aligned}

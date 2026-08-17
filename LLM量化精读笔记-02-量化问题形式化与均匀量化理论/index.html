@@ -1598,16 +1598,16 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-量化问题的一般形式">量化问题的一般形式</a></li>
-<li><a href="#3-均匀线性量化">均匀（线性）量化</a></li>
-<li><a href="#4-量化误差理论">量化误差理论</a></li>
-<li><a href="#5-量化器设计的四个旋钮">量化器设计的四个旋钮</a></li>
-<li><a href="#6-为什么神经网络能容忍量化">为什么神经网络能容忍量化</a></li>
-<li><a href="#7-ptq-与-qat两条路线的雏形">PTQ 与 QAT：两条路线的雏形</a></li>
-<li><a href="#8-本章小结与一句话记忆">本章小结与"一句话记忆"</a></li>
-<li><a href="#9-习题与解答">习题与解答</a></li>
-<li><a href="#10-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>量化问题的一般形式</li>
+<li>均匀（线性）量化</li>
+<li>量化误差理论</li>
+<li>量化器设计的四个旋钮</li>
+<li>为什么神经网络能容忍量化</li>
+<li>PTQ 与 QAT：两条路线的雏形</li>
+<li>本章小结与"一句话记忆"</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1626,10 +1626,10 @@
 <h3 id="22">2.2 在神经网络里的具体化<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
 <p>一个线性层<span class="arithmatex">\(y = Wx\)</span>在量化后变成：</p>
 <p>原始<span class="arithmatex">\(: y = W x\)</span>
-量化<span class="arithmatex">\(: \hat{y} \approx dequant(\operatorname{quant}(W)) \cdot dequant(\operatorname{quant}(x))\)</span>
-$$
+量化<span class="arithmatex">\(: \hat{y} \approx dequant(\operatorname{quant}(W)) \cdot dequant(\operatorname{quant}(x))\)</span></p>
+<div class="arithmatex">\[
 = \hat{W} \cdot \hat{x}
-$$</p>
+\]</div>
 <p>于是每一层的输出都携带了上一层权重和激活的量化误差。误差会沿网络传播（第 07/08 章会分析传播方式）。<strong>量化的目标不是让<span class="arithmatex">\(\hat{W} = W\)</span>，而是让整个模型的任务指标（perplexity、MMLU 分数……）退化到统计上与噪声不可区分。</strong></p>
 <h3 id="23-vs">2.3 两种量化对象：数据分布 vs 计算<a class="headerlink" href="#23-vs" title="Permanent link">&para;</a></h3>
 <p>论文里经常出现两组说法，容易混淆：</p>
@@ -1666,13 +1666,13 @@ $$</p>
 <p><strong>均匀量化（uniform / linear quantization）</strong>：所有量化层级等距排列，相邻两层间距恒为<span class="arithmatex">\(\Delta\)</span>（称为步长 step size）。</p>
 <p>两种最常用的形式：</p>
 <p><strong>（a）对称量化（symmetric）</strong>：零点<span class="arithmatex">\(z = 0\)</span>，量化值域对称：</p>
-<p>$$
+<div class="arithmatex">\[
 \begin{aligned}
 q &amp;= \operatorname{clamp}(\operatorname{round}(r / s), q_{\min}, q_{\max})
 \hat{r} &amp;= q \cdot s
 \end{aligned}
-$$
-其中<span class="arithmatex">\(s = \max|r| / (2^{b-1} - 1)\)</span>（常用，值域对称，0 有精确表示）
+\]</div>
+<p>其中<span class="arithmatex">\(s = \max|r| / (2^{b-1} - 1)\)</span>（常用，值域对称，0 有精确表示）
 或<span class="arithmatex">\(s = \max|r| / 2^{b-1}\)</span>（个别 kernel 用，把<span class="arithmatex">\(\pm 2^{b-1}\)</span>都利用上）</p>
 <p>对 INT8：<span class="arithmatex">\(q_{\min} = -128\)</span>，<span class="arithmatex">\(q_{\max} = 127\)</span>；若用 <span class="arithmatex">\(s = \max|r| / 127\)</span>，则<span class="arithmatex">\(q \in [-127, 127]\)</span>，−128 不用。</p>
 <p><strong>（b）非对称量化（affine / asymmetric）</strong>：零点<span class="arithmatex">\(z \ne 0\)</span>：</p>
@@ -1770,8 +1770,8 @@ q &amp;= [32, -81, 127, -54]
 \]</div>
 <p>最大误差<span class="arithmatex">\(|\varepsilon |\max \approx 0.0035 &lt; \Delta /2 = s/2 \approx 0.00807 ✓\)</span>（满足舍入误差上界，因为所有值都在量化范围内，没有截断）。</p>
 <h3 id="36-24-bit">3.6 数值算例 2：4-bit 对称量化（同样的数据）<a class="headerlink" href="#36-24-bit" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(b = 4, q_{\max} = 7\)</span>（对称时<span class="arithmatex">\(2^{4-1}-1 = 7\)</span>）
-$$
+<p><span class="arithmatex">\(b = 4, q_{\max} = 7\)</span>（对称时<span class="arithmatex">\(2^{4-1}-1 = 7\)</span>）</p>
+<div class="arithmatex">\[
 \begin{aligned}
 s &amp;= 2.05 / 7 \approx 0.2929
 r/s &amp;= [1.78, -4.47, 7.00, -2.97]
@@ -1779,7 +1779,7 @@ q &amp;= [2, -4, 7, -3]
 \hat{r} &amp;= [0.5857, -1.1714, 2.0500, -0.8786]
 \varepsilon &amp;= [-0.0657, -0.1386, 0, 0.0086]
 \end{aligned}
-$$</p>
+\]</div>
 <p>最大误差<span class="arithmatex">\(|\varepsilon |\max \approx 0.1386\)</span>，仍是<span class="arithmatex">\(\Delta /2 = s/2 \approx 0.1464\)</span>以内。<strong>位宽从 8 降到 4，误差上限扩大了约 16 倍（<span class="arithmatex">\(\Delta\)</span>放大了 16 倍：<span class="arithmatex">\(0.01614 \to 0.2929\)</span>）。</strong> 注意：噪声功率理论上是<span class="arithmatex">\(4^{4} = 256\)</span>倍（−24 dB），但这里样本只有 4 个数，均匀噪声假设不成立，实际比值会偏离——这正是"统计模型需要足够多样本"的例子（见 4.2）。</p>
 <h3 id="37-3">3.7 数值算例 3：非对称量化"省位"<a class="headerlink" href="#37-3" title="Permanent link">&para;</a></h3>
 <p>考虑 ReLU 之后的激活，全部非负：</p>

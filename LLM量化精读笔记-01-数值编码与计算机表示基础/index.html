@@ -1799,17 +1799,17 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-信息论三件套bit熵率失真">信息论三件套：bit、熵、率失真</a></li>
-<li><a href="#3-整数表示">整数表示</a></li>
-<li><a href="#4-定点数与-scale-的世界">定点数与 scale 的世界</a></li>
-<li><a href="#5-ieee-754-浮点数">IEEE 754 浮点数</a></li>
-<li><a href="#6-舍入rounding">舍入（Rounding）</a></li>
-<li><a href="#7-截断truncation与饱和clamp">截断（Truncation）与饱和（Clamp）</a></li>
-<li><a href="#8-计算机组成视角为什么-bit-少就快">计算机组成视角：为什么 bit 少就快</a></li>
-<li><a href="#9-预备知识--量化概念映射表">预备知识<span class="arithmatex">\(\to\)</span>量化概念映射表</a></li>
-<li><a href="#10-习题与解答">习题与解答</a></li>
-<li><a href="#11-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>信息论三件套：bit、熵、率失真</li>
+<li>整数表示</li>
+<li>定点数与 scale 的世界</li>
+<li>IEEE 754 浮点数</li>
+<li>舍入（Rounding）</li>
+<li>截断（Truncation）与饱和（Clamp）</li>
+<li>计算机组成视角：为什么 bit 少就快</li>
+<li>预备知识<span class="arithmatex">\(\to\)</span>量化概念映射表</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -2077,14 +2077,14 @@ q = \operatorname{round}(r / s), \hat{r} = q \cdot s
 </table>
 <p><strong>次正规数</strong>（denormal）存在的意义：让数值在接近 0 时"平滑下溢"而不是直接跳成 0（避免除以接近 0 的数时出现空洞）。代价是精度和速度都差一些。</p>
 <p><strong>machine epsilon</strong>：1 与下一个可表示的浮点数之间的距离：</p>
-<p><span class="arithmatex">\(\varepsilon = 2^{-M}\)</span>，M 为尾数位数
-$$
+<p><span class="arithmatex">\(\varepsilon = 2^{-M}\)</span>，M 为尾数位数</p>
+<div class="arithmatex">\[
 \begin{aligned}
 FP32: \varepsilon &amp;= 2^{-23} \approx 1.19e-7
 FP16: \varepsilon &amp;= 2^{-10} \approx 9.77e-4
 BF16: \varepsilon &amp;= 2^{-7} \approx 7.81e-3
 \end{aligned}
-$$</p>
+\]</div>
 <p>浮点数的相对精度≈ <span class="arithmatex">\(\varepsilon /1\)</span>的量级：<strong>尾数每少 1 bit，相对精度减半</strong>。</p>
 <h3 id="54-fp16-bf16-16-bit">5.4 FP16 与 BF16：同一个 16 bit 预算，两种分配<a class="headerlink" href="#54-fp16-bf16-16-bit" title="Permanent link">&para;</a></h3>
 <table>
@@ -2197,10 +2197,10 @@ BF16：指数<span class="arithmatex">\(8 bit \to\)</span>范围同 FP32，尾�
 </table>
 <h3 id="63-ieee-754-round-half-even">6.3 为什么 IEEE 754 默认 round-half-even<a class="headerlink" href="#63-ieee-754-round-half-even" title="Permanent link">&para;</a></h3>
 <p>round-half-even 的规则：恰好落在两个整数正中间时，取<strong>偶数的那个</strong>。</p>
-<p><span class="arithmatex">\(2.5 \to 2\)</span>（2 是偶数）<span class="arithmatex">\(3.5 \to 4\)</span>（4 是偶数）
-$$
+<p><span class="arithmatex">\(2.5 \to 2\)</span>（2 是偶数）<span class="arithmatex">\(3.5 \to 4\)</span>（4 是偶数）</p>
+<div class="arithmatex">\[
 -2.5 \to -2 -3.5 \to -4
-$$</p>
+\]</div>
 <p>为什么不用更"直觉"的 half-away-from-zero？</p>
 <ol>
 <li><strong>无偏性</strong>：half-away 对 +2.5 向上、−2.5 向下，在大数据量下误差会系统性偏向一侧（均值不为 0）；half-even 正负对称、期望误差为 0。</li>
@@ -2217,7 +2217,7 @@ $$</p>
 \]</div>
 <p>且假设误差在<span class="arithmatex">\([-\Delta /2, \Delta /2]\)</span>均匀分布时：</p>
 <div class="arithmatex">\[
-E[\varepsilon ] = 0，Var[\varepsilon ] = \Delta ^{2}/12
+E[\varepsilon ] = 0, Var[\varepsilon ] = \Delta ^{2}/12
 \]</div>
 <p>这是 02 章 6 dB/bit 推导的出发点。<strong>舍入 = 无偏 + 最小噪声</strong>，所以量化默认舍入而不是截断。</p>
 <hr />

@@ -1476,15 +1476,15 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-为什么激活量化更难">为什么激活量化更难</a></li>
-<li><a href="#3-llmint8outlier-分离的-int8-推理">LLM.int8()：outlier 分离的 INT8 推理</a></li>
-<li><a href="#4-smoothquant把量化难度迁移到权重">SmoothQuant：把量化难度迁移到权重</a></li>
-<li><a href="#5-w8a8-的工程细节">W8A8 的工程细节</a></li>
-<li><a href="#6-从-int8-到-fp8激活量化的现代形态">从 INT8 到 FP8：激活量化的现代形态</a></li>
-<li><a href="#7-本章小结">本章小结</a></li>
-<li><a href="#8-习题与解答">习题与解答</a></li>
-<li><a href="#9-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>为什么激活量化更难</li>
+<li>LLM.int8()：outlier 分离的 INT8 推理</li>
+<li>SmoothQuant：把量化难度迁移到权重</li>
+<li>W8A8 的工程细节</li>
+<li>从 INT8 到 FP8：激活量化的现代形态</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1548,21 +1548,21 @@
 <p><strong>关键洞察</strong>：outlier 不是随机散落在各个位置，而是<strong>集中在少数特征维度</strong>（hidden dimension），并且这些维度对所有 token 一致。这给"把 outlier 列抽出来单独算"提供了依据。</p>
 <h3 id="34-mixed-precision-decomposition">3.4 设计三：混合精度分解（Mixed-Precision Decomposition）<a class="headerlink" href="#34-mixed-precision-decomposition" title="Permanent link">&para;</a></h3>
 <p>对每一层的矩阵乘：</p>
-<p>$$
+<div class="arithmatex">\[
 Y = WX
-$$
-= <span class="arithmatex">\(W [X_{\text{low}} ; X_{\text{outlier}}]\)</span>（按列拆开激活）
+\]</div>
+<p>= <span class="arithmatex">\(W [X_{\text{low}} ; X_{\text{outlier}}]\)</span>（按列拆开激活）
 = <span class="arithmatex">\([W_{\text{low}} \cdot X_{\text{low}}]\)</span>（INT8 矩阵乘，大部分计算）
 <span class="arithmatex">\(+ [W_{\text{outlier}} \cdot X_{\text{outlier}}]\)</span>（FP16 矩阵乘，outlier 列）</p>
 <p>流程：</p>
 <ol>
-<li>前向时统计该层激活 X，找出 |x| &gt; 6.0 的列（outlier 维度）
-$$
-\begin{aligned}</li>
-<li>X_{\text{low}}、W_{\text{low}} \to INT8 GEMM（vector-wise scale）</li>
-<li>X_{\text{outlier}}、W_{\text{outlier}} \to FP16 GEMM
-\end{aligned}
-$$</li>
+<li>前向时统计该层激活 X，找出 |x| &gt; 6.0 的列（outlier 维度）</li>
+</ol>
+<div class="arithmatex">\[\begin{aligned}
+2. X_{\text{low}}、W_{\text{low}} $\to$ INT8 GEMM（vector-wise scale）
+3. X_{\text{outlier}}、W_{\text{outlier}} $\to$ FP16 GEMM
+\end{aligned}\]</div>
+<ol>
 <li>两部分结果相加<span class="arithmatex">\(\to\)</span>输出</li>
 </ol>
 <p>由于 outlier 维度≤ <span class="arithmatex">\(7\)</span>（13B 以下），FP16 路径只占<span class="arithmatex">\(\sim 0.1\%\)</span>的计算和内存。</p>

@@ -1388,17 +1388,17 @@
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-本章目标">本章目标</a></li>
-<li><a href="#2-为什么-kv-cache-是下一个量化对象">为什么 KV cache 是下一个量化对象</a></li>
-<li><a href="#3-kv-误差为什么滚雪球">KV 误差为什么"滚雪球"</a></li>
-<li><a href="#4-设计空间量化什么用什么粒度">设计空间：量化什么、用什么粒度</a></li>
-<li><a href="#5-分布分析k-稳定v-多变">分布分析：K 稳定、V 多变</a></li>
-<li><a href="#6-kivi-算法">KIVI 算法</a></li>
-<li><a href="#7-结果与边界">结果与边界</a></li>
-<li><a href="#8-与-kv-优化的其他手段的关系">与 KV 优化的其他手段的关系</a></li>
-<li><a href="#9-本章小结">本章小结</a></li>
-<li><a href="#10-习题与解答">习题与解答</a></li>
-<li><a href="#11-延伸阅读">延伸阅读</a></li>
+<li>本章目标</li>
+<li>为什么 KV cache 是下一个量化对象</li>
+<li>KV 误差为什么"滚雪球"</li>
+<li>设计空间：量化什么、用什么粒度</li>
+<li>分布分析：K 稳定、V 多变</li>
+<li>KIVI 算法</li>
+<li>结果与边界</li>
+<li>与 KV 优化的其他手段的关系</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
 </ol>
 <hr />
 <h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1414,9 +1414,7 @@
 Bytes = 2 \times n_{\text{layers}} \times n_{kv_heads} \times \text{head\_dim} \times \text{seq\_len} \times 2
 \]</div>
 <h3 id="22-llama-2-70b">2.2 实例：Llama-2-70B<a class="headerlink" href="#22-llama-2-70b" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-n_{\text{layers}} = 80，n_{kv_heads} = 8（GQA），\text{head\_dim} = 128，FP16
-\]</div>
+<p>n_{\text{layers}} = 80，n_{kv_heads} = 8（GQA），\text{head_dim} = 128，FP16</p>
 <p>每 token：<span class="arithmatex">\(2 \times 80 \times 8 \times 128 \times 2 B = 327,680 B \approx 0.31 MB\)</span></p>
 <p>32K 上下文<span class="arithmatex">\(\to \approx 10.7 GB\)</span>
 128K 上下文<span class="arithmatex">\(\to \approx 43 GB\)</span></p>
