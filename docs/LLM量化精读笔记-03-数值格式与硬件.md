@@ -120,9 +120,8 @@ $bias = 15$，指数域$e \in [0, 31]$
   最小正常值= $2^{1-15} = 2^{-14} \approx 6.1e-5$
   最大值= $(2 - 2^{-2}) \times 2^{30-15} = 1.75 \times 32768 = 57,344$
 
-$$
-e = 31：m = 0 \to \pm \infty ；m \ne 0 \to NaN
-$$
+e = 31：m = 0 $\to$ $\pm$ $\infty$ ；m $\ne$ 0 $\to$ NaN
+
 相对精度：$2^{-2} = 25\%$
 
 ### 4.4 E4M3 vs E5M2 怎么选
@@ -238,17 +237,16 @@ MXFP8：每块一个$E8M0 \to$局部数量级自动对齐$\to$有效精度接近
 ### 7.1 Tensor Core 简史：精度下降的驱动力
 
 Pascal (2016)：FP16 Tensor Core 登场（推理默认 FP16 的硬件起点）
-$$
+
 Ampere (2020)：TF32 / BF16 / INT8
-$$
+
 Hopper (2022)：FP8（E4M3/E5M2），FLOPS 翻倍
 Blackwell (2024)：FP4 / MXFP8 / MXFP4 原生
 
 关键事实：**Tensor Core 的吞吐随位宽近似线性翻倍**：
 
-$$
-H100 SXM：FP16 \approx 989 TFLOPS（dense），FP8 \approx 1979 TFLOPS
-$$
+H100 SXM：FP16 $\approx$ 989 TFLOPS（dense），FP8 $\approx$ 1979 TFLOPS
+
 B200：$FP8 \approx 4.5 PFLOPS$，$FP4 \approx 9 PFLOPS$（约 2 倍 FP8）
 
 这就是"prefill 阶段量化降一级、FLOPS 翻倍"的出处。
@@ -275,13 +273,12 @@ decode 阶段每个 token 都要把权重从 HBM 搬一遍。设模型参数量 
 推理 forward 每 token 的$FLOPs \approx 2N$（N 为参数量；乘法 + 加法各一次）：
 
 70B 模型、2048 token 的 prefill：
-$$
+
 \begin{aligned}
- FLOPs \approx 2 \times 70e9 \times 2048 \approx 287 TFLOP
- H100 FP16（989 TFLOPS）：\approx 0.29 s
- H100 FP8 （1979 TFLOPS）：\approx 0.145 s
+ FLOPs $\approx$ 2 $\times$ 70e9 $\times$ 2048 $\approx$ 287 TFLOP
+ H100 FP16（989 TFLOPS）：$\approx$ 0.29 s
+ H100 FP8 （1979 TFLOPS）：$\approx$ 0.145 s
 \end{aligned}
-$$
 
 这就是"prefill 是计算密集、量化降一级 FLOPS 翻倍、TTFT 减半"的出处。
 

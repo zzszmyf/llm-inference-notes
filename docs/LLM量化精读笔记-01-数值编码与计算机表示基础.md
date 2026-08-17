@@ -254,6 +254,7 @@ FP32 指数全 0 / 全 1 时进入特殊状态：
 **machine epsilon**：1 与下一个可表示的浮点数之间的距离：
 
 $\varepsilon = 2^{-M}$，M 为尾数位数
+
 $$
 \begin{aligned}
 FP32: \varepsilon &= 2^{-23} \approx 1.19e-7
@@ -315,6 +316,7 @@ BF16：指数$8 bit \to$范围同 FP32，尾数$8 bit \to$精度低（约 3 位�
 round-half-even 的规则：恰好落在两个整数正中间时，取**偶数的那个**。
 
 $2.5 \to 2$（2 是偶数）$3.5 \to 4$（4 是偶数）
+
 $$
 -2.5 \to -2 -3.5 \to -4
 $$
@@ -339,7 +341,7 @@ $$
 且假设误差在$[-\Delta /2, \Delta /2]$均匀分布时：
 
 $$
-E[\varepsilon ] = 0，Var[\varepsilon ] = \Delta ^{2}/12
+E[\varepsilon ] = 0, Var[\varepsilon ] = \Delta ^{2}/12
 $$
 
 这是 02 章 6 dB/bit 推导的出发点。**舍入 = 无偏 + 最小噪声**，所以量化默认舍入而不是截断。

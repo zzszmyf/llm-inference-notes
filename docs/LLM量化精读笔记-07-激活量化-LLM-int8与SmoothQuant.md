@@ -87,6 +87,7 @@ outlier 定义：|激活$| \ge 6.0$，且出现在≥$25\%$的层、≥$6\%$的�
 $$
 Y = WX
 $$
+
 = $W [X_{\text{low}} ; X_{\text{outlier}}]$（按列拆开激活）
 = $[W_{\text{low}} \cdot X_{\text{low}}]$（INT8 矩阵乘，大部分计算）
 $+ [W_{\text{outlier}} \cdot X_{\text{outlier}}]$（FP16 矩阵乘，outlier 列）
@@ -94,12 +95,12 @@ $+ [W_{\text{outlier}} \cdot X_{\text{outlier}}]$（FP16 矩阵乘，outlier 列
 流程：
 
 1. 前向时统计该层激活 X，找出 |x| > 6.0 的列（outlier 维度）
-$$
+
 \begin{aligned}
-2. X_{\text{low}}、W_{\text{low}} \to INT8 GEMM（vector-wise scale）
-3. X_{\text{outlier}}、W_{\text{outlier}} \to FP16 GEMM
+2. X_{\text{low}}、W_{\text{low}} $\to$ INT8 GEMM（vector-wise scale）
+3. X_{\text{outlier}}、W_{\text{outlier}} $\to$ FP16 GEMM
 \end{aligned}
-$$
+
 4. 两部分结果相加$\to$输出
 
 由于 outlier 维度≤ $7$（13B 以下），FP16 路径只占$\sim 0.1\%$的计算和内存。

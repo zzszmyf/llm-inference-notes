@@ -38,7 +38,6 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: true
-      slugify: !!python/object/apply:site_slug.github_slugify
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.highlight:

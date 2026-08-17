@@ -239,4 +239,3 @@ Gate 1：长序列 PPL（WikiText-2 用 2048/8192 长度）；Gate 2：长上下
 3. [MMLU（GitHub）](https://github.com/hendrycks/test)：57 学科知识基准
 4. [RULER](https://arxiv.org/abs/2404.06654)：长上下文基准（KV 量化必测）
 5. 上一篇：[09 QAT 与训练内量化](./LLM量化精读笔记-09-QAT与训练内量化-STE-QLoRA-BitNet.md)；下一篇：**[11 系统协同与部署]**——把量化装进真正的推理引擎。
-

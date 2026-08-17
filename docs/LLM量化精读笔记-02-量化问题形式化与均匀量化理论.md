@@ -47,6 +47,7 @@
 
 原始$: y = W x$
 量化$: \hat{y} \approx dequant(\operatorname{quant}(W)) \cdot dequant(\operatorname{quant}(x))$
+
 $$
 = \hat{W} \cdot \hat{x}
 $$
@@ -84,6 +85,7 @@ q &= \operatorname{clamp}(\operatorname{round}(r / s), q_{\min}, q_{\max})
 \hat{r} &= q \cdot s
 \end{aligned}
 $$
+
 其中$s = \max|r| / (2^{b-1} - 1)$（常用，值域对称，0 有精确表示）
 或$s = \max|r| / 2^{b-1}$（个别 kernel 用，把$\pm 2^{b-1}$都利用上）
 
@@ -184,6 +186,7 @@ $$
 ### 3.6 数值算例 2：4-bit 对称量化（同样的数据）
 
 $b = 4, q_{\max} = 7$（对称时$2^{4-1}-1 = 7$）
+
 $$
 \begin{aligned}
 s &= 2.05 / 7 \approx 0.2929

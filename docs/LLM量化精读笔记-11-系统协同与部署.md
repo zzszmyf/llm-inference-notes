@@ -51,9 +51,8 @@
 
 量化收益只在"有对应 kernel 的层"兑现：
 
-$$
-W8A8 \to INT8 GEMM kernel（Ampere+）
-$$
+W8A8 $\to$ INT8 GEMM kernel（Ampere+）
+
 $W4A16 \to INT4 weight-only kernel$（各家自定义）
 $W4A8KV4 \to$专门的 4-bit GEMM + KV 4-bit attention（QServe）
 
@@ -69,9 +68,9 @@ QoQ（Quattuor-Octo-Quattuor，拉丁语 4-8-4）：
 
 权重：4-bit（group 128 或 per-channel），配合激活感知缩放（AWQ 式）做"渐进量化"
 激活：8-bit（INT8/FP8）
-$$
+
 KV cache：4-bit
-$$
+
 质量：WikiText-2 PPL 与 FP16 几乎无差（近无损）
 
 "渐进量化"（progressive quantization）是关键算法设计：让 W4A8 GEMM 能在 **INT8 Tensor Core** 上执行（把 4-bit 权重解包成两个 INT8 或直接按 INT8 对齐布局），避免 Blackwell 之前的硬件不支持。
@@ -252,4 +251,3 @@ W8A8 量化部署后 TPS 没变，排查思路（至少 4 条）。
 3. [SageAttention（arXiv:2410.02367）](https://arxiv.org/abs/2410.02367)
 4. [vLLM 量化文档](https://docs.vllm.ai/en/latest/features/quantization/)；[TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM)；[llama.cpp](https://github.com/ggml-org/llama.cpp)
 5. 上一篇：[10 质量评估方法论](./LLM量化精读笔记-10-质量评估方法论.md)；本系列完结，回到 [00 总览](./LLM量化精读笔记-00-总览与学习地图.md)。
-

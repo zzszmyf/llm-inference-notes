@@ -125,6 +125,7 @@ $$
 70B 模型：
   纯$FP16 = 140 GB$
 $INT4 group=128 = 70e9 \times 4.125/8 \approx 36.1 GB$（不是 35 GB）
+
 $$
 INT4 group=32 = 70e9 \times 4.5/8 \approx 39.4 GB
 $$

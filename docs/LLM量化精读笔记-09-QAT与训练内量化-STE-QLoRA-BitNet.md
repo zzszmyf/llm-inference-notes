@@ -173,6 +173,7 @@ BitNet b1.58 把**每个权重**限制为三个值：
 $$
 w \in \{-1, 0, +1\}
 $$
+
 每个权重 1.58 bit（= $\log_2(3)$）
 
 与 BitNet b1（二值 {-1,+1}）相比，**多了 0**：
@@ -187,8 +188,9 @@ $$
 三值权重与激活相乘：
 
 $$
-y = \sum w_{i} \cdot x_{i}，w_{i} \in \{-1, 0, +1\}
+y = \sum w_{i} \cdot x_{i}, w_{i} \in \{-1, 0, +1\}
 $$
+
 $\to$只需要加法和减法，不需要乘法！
 
 实现（BitNet.cpp 等）：激活先量化为 8-bit，再用三值权重的符号决定加/减。论文估算（7nm）：矩阵乘算术能耗约为 FP16 的 **1/71.4**。
@@ -309,4 +311,3 @@ BitNet 推理时，矩阵乘的乘法器可以完全去掉吗？还有哪些地�
 3. [BitNet.cpp](https://github.com/microsoft/BitNet)：三值权重的 CPU 推理实现（加/减内核）
 4. Bengio et al., *Estimating or Propagating Gradients Through Stochastic Neurons*（2013）：STE 的源头
 5. 上一篇：[08 KV Cache 量化](./LLM量化精读笔记-08-KV-Cache量化与KIVI.md)；下一篇：**[10 质量评估方法论]**——学完所有方法，怎么科学地判断"量化有没有搞砸"。
-

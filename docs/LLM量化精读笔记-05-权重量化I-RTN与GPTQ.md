@@ -50,6 +50,7 @@
 $$
 \min \|WX - \hat{W}X\|^{2}_F
 $$
+
 约束：$\hat{W}$ 的每个元素属于量化网格（如 INT4 + group scale）
 
 注意目标函数里**没有单独惩罚逐元素误差**——我们关心的是层输出（进而整个模型）的误差。
@@ -133,7 +134,9 @@ L &= \frac{1}{2} \delta w^{T} H \delta w + \lambda (e_{q}^{T} \delta w - (\hat{w
 \partial L/\partial \delta w &= H \delta w + \lambda e_{q} = 0 \to \delta w = -\lambda H^{-1} e_{q}
 \end{aligned}
 $$
+
 代入约束：$e_{q}^{T} \delta w = -\lambda [H^{-1}]_{qq} = \hat{w}_q - w_{q}$
+
 $$
 \to \lambda = -(\hat{w}_q - w_{q}) / [H^{-1}]_{qq}
 $$
@@ -203,9 +206,11 @@ GPTQ（Frantar et al. 2023）基于三个观察把 OBQ 变成可落地的算法�
 $H^{-1}$只需要**算一次**，并且用 Cholesky 分解$H^{-1} = LL^{T}$缓存起来；量化时按 **128 列一块**批量更新，避免逐列更新$H^{-1}$：
 
 复杂度：$O(d_{\text{col}}^{3})$（一次 Cholesky）$+ O(d_{\text{row}} \cdot d_{\text{col}}^{2})$（批量补偿）
+
 $$
 \approx O(d_{\text{row}} \cdot d_{\text{col}}^{2})
 $$
+
 对比 OBQ：$O(d_{\text{row}} \cdot d_{\text{col}}^{3})$
 
 ### 7.4 GPTQ 伪代码（逐层）
@@ -248,6 +253,7 @@ for layer in model:
 $$
 X = [[1.0, 0.5],
 $$
+
      [0.5, 1.0]]        # 两个样本、两个输入通道，正相关
 
 计算 H（用 GPTQ 的记法，忽略$\frac{1}{2}$）：

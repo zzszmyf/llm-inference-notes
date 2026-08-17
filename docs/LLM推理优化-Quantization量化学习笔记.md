@@ -356,4 +356,3 @@ Transformer 各组件对量化的敏感度从低到高（章节原表）：
 4. MIT 6.5940 EfficientML.ai（Han Song）— https://hanlab.mit.edu/courses/2026-fall-65940
 5. HAN Lab 论文主页（SmoothQuant / AWQ / QServe / BitNet）— https://hanlab.mit.edu
 6. 本笔记对应的论文（见第 12 节表格，均为 arXiv 原文链接）
-

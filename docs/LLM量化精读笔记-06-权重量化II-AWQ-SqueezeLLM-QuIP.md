@@ -298,4 +298,3 @@ AWQ 按**输入通道**（激活幅度大 = 通道重要），整体缩放该通
 3. [QuIP#（arXiv:2402.04396）](https://arxiv.org/abs/2402.04396)；QuIP 原版（NeurIPS 2023）
 4. [AWQ 深度解读（GeneralCompute）](https://www.generalcompute.com/blog/activation-aware-quantization-awq-deep-dive)：公式与实现的对照
 5. 上一篇：[05 权重量化 I：RTN 与 GPTQ](./LLM量化精读笔记-05-权重量化I-RTN与GPTQ.md)；下一篇：**[07 激活量化：LLM.int8() 与 SmoothQuant]**——把战场从权重扩展到激活（W8A8）。
-
