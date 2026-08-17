@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/">
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E7%A8%80%E7%96%8F%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%BA%BF%E6%80%A7%E6%B3%A8%E6%84%8F%E5%8A%9B/">
       
       
-        <link rel="prev" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">
+        <link rel="prev" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%A4%B4%E5%8F%98%E4%BD%93-MQA-GQA-MLA/">
       
       
-        <link rel="next" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-FlashAttention-IO%E6%84%9F%E7%9F%A5%E7%9A%84%E7%B2%BE%E7%A1%AE%E6%B3%A8%E6%84%8F%E5%8A%9B/">
+        <link rel="next" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-PagedAttention%E4%B8%8EKV%E6%98%BE%E5%AD%98%E7%AE%A1%E7%90%86/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>01 注意力机制基础与复杂度分析 - LLM 推理优化精读笔记</title>
+        <title>04 稀疏、滑动窗口与线性注意力 - LLM 推理优化精读笔记</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#llm-01" class="md-skip">
+        <a href="#llm-04" class="md-skip">
           跳转至
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              01 注意力机制基础与复杂度分析
+              04 稀疏、滑动窗口与线性注意力
             
           </span>
         </div>
@@ -1050,37 +1050,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    01 注意力机制基础与复杂度分析
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/" class="md-nav__link">
         
   
   
@@ -1096,331 +1069,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目录（本章）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-transformer-token" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. 注意力的位置：Transformer 里唯一的 token 交互通道
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. 形式化定义：缩放点积注意力
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. 形式化定义：缩放点积注意力">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-sqrtd_texthead" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.1 为什么要除以 \(\sqrt{d_{\text{head}}}\)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-ol2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. 复杂度分析：O(L²) 从哪来
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. 复杂度分析：O(L²) 从哪来">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-flops" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4.1 FLOPs 推导
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-ffn" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4.2 与 FFN 的比值：长上下文判据
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-kv-cache" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. 因果掩码与 KV Cache
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. 因果掩码与 KV Cache">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.1 因果掩码
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-kv-cachedecode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.2 KV Cache：decode 为什么能省一半计算
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53-7b-kv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.3 算例：7B 模型的 KV 显存
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-prefill-decode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Prefill 与 Decode：两种形态
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-max-subtraction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. 数值稳定性：max-subtraction 与低精度
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="7. 数值稳定性：max-subtraction 与低精度">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#71-softmax" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.1 朴素 softmax 的溢出问题
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.2 低精度下的风险
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. 数值算例
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. 本章小结
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. 习题与解答
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="10. 习题与解答">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1flops" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 1（推导）：FLOPs 与头数无关
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 2（计算）：手算完整一行
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 3（推导）：长上下文判据
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4kv-cache" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 4（计算）：KV cache 账本
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-decode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 5（思考）：为什么 decode 是访存密集
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6causal-attention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 6（编程）：causal attention 实现
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#11" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        11. 延伸阅读
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1486,10 +1134,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E7%A8%80%E7%96%8F%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%BA%BF%E6%80%A7%E6%B3%A8%E6%84%8F%E5%8A%9B/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 稀疏、滑动窗口与线性注意力
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1505,6 +1180,436 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-l2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 三条路线：对抗 \(L^2\) 的三种策略
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-swa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 滑动窗口注意力（SWA）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 滑动窗口注意力（SWA）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-mistral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Mistral 的做法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 代价
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-attention-sink-streamingllm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Attention Sink 与 StreamingLLM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Attention Sink 与 StreamingLLM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 窗口注意力为什么会崩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-attention-sink" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Attention Sink 现象
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-streamingllm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 StreamingLLM 方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-h2o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 驱逐类方法：H2O
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 驱逐类方法：H2O">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 观察
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-h2o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 H2O 驱逐策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 线性注意力：把 softmax 换成核
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 线性注意力：把 softmax 换成核">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-l2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 结合律：\(L^2\) 从哪来、怎么消失
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 代价
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-performers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Performers：随机特征近似
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-mamba" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Mamba：选择性状态空间模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Mamba：选择性状态空间模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-ssm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 从线性注意力到 SSM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-selectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 关键：选择性（Selectivity）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 统一视角：稀疏 vs 线性
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 复杂度对照与数值算例
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 实验数据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：线性注意力的结合律
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：滑窗 vs 标准
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3attention-sink" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（思考）：attention sink 为什么存在
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4h2o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（设计）：H2O 的驱逐策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-vs-mamba" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（对比）：线性注意力 vs Mamba
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-sink" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：窗口 + sink 模拟
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1639,10 +1744,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-transformer-token" class="md-nav__link">
+  <a href="#2-l2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. 注意力的位置：Transformer 里唯一的 token 交互通道
+        2. 三条路线：对抗 \(L^2\) 的三种策略
       
     </span>
   </a>
@@ -1650,22 +1755,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3" class="md-nav__link">
+  <a href="#3-swa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. 形式化定义：缩放点积注意力
+        3. 滑动窗口注意力（SWA）
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. 形式化定义：缩放点积注意力">
+    <nav class="md-nav" aria-label="3. 滑动窗口注意力（SWA）">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-sqrtd_texthead" class="md-nav__link">
+  <a href="#31" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.1 为什么要除以 \(\sqrt{d_{\text{head}}}\)
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-mistral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Mistral 的做法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 代价
       
     </span>
   </a>
@@ -1678,22 +1805,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-ol2" class="md-nav__link">
+  <a href="#4-attention-sink-streamingllm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. 复杂度分析：O(L²) 从哪来
+        4. Attention Sink 与 StreamingLLM
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="4. 复杂度分析：O(L²) 从哪来">
+    <nav class="md-nav" aria-label="4. Attention Sink 与 StreamingLLM">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#41-flops" class="md-nav__link">
+  <a href="#41" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.1 FLOPs 推导
+        4.1 窗口注意力为什么会崩
       
     </span>
   </a>
@@ -1701,10 +1828,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#42-ffn" class="md-nav__link">
+  <a href="#42-attention-sink" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.2 与 FFN 的比值：长上下文判据
+        4.2 Attention Sink 现象
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-streamingllm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 StreamingLLM 方案
       
     </span>
   </a>
@@ -1717,22 +1855,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-kv-cache" class="md-nav__link">
+  <a href="#5-h2o" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. 因果掩码与 KV Cache
+        5. 驱逐类方法：H2O
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. 因果掩码与 KV Cache">
+    <nav class="md-nav" aria-label="5. 驱逐类方法：H2O">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#51" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.1 因果掩码
+        5.1 观察
       
     </span>
   </a>
@@ -1740,10 +1878,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#52-kv-cachedecode" class="md-nav__link">
+  <a href="#52-h2o" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.2 KV Cache：decode 为什么能省一半计算
+        5.2 H2O 驱逐策略
       
     </span>
   </a>
@@ -1751,10 +1889,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#53-7b-kv" class="md-nav__link">
+  <a href="#53" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.3 算例：7B 模型的 KV 显存
+        5.3 数据
       
     </span>
   </a>
@@ -1767,33 +1905,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-prefill-decode" class="md-nav__link">
+  <a href="#6-softmax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Prefill 与 Decode：两种形态
+        6. 线性注意力：把 softmax 换成核
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-max-subtraction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. 数值稳定性：max-subtraction 与低精度
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="7. 数值稳定性：max-subtraction 与低精度">
+    <nav class="md-nav" aria-label="6. 线性注意力：把 softmax 换成核">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71-softmax" class="md-nav__link">
+  <a href="#61-l2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.1 朴素 softmax 的溢出问题
+        6.1 结合律：\(L^2\) 从哪来、怎么消失
       
     </span>
   </a>
@@ -1801,10 +1928,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#72" class="md-nav__link">
+  <a href="#62" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.2 低精度下的风险
+        6.2 代价
       
     </span>
   </a>
@@ -1817,10 +1944,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8" class="md-nav__link">
+  <a href="#7-performers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. 数值算例
+        7. Performers：随机特征近似
       
     </span>
   </a>
@@ -1828,10 +1955,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9" class="md-nav__link">
+  <a href="#8-mamba" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. 本章小结
+        8. Mamba：选择性状态空间模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Mamba：选择性状态空间模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-ssm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 从线性注意力到 SSM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-selectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 关键：选择性（Selectivity）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 统一视角：稀疏 vs 线性
       
     </span>
   </a>
@@ -1842,19 +2019,52 @@
   <a href="#10" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. 习题与解答
+        10. 复杂度对照与数值算例
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="10. 习题与解答">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 实验数据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. 习题与解答">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1flops" class="md-nav__link">
+  <a href="#1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 1（推导）：FLOPs 与头数无关
+        题 1（推导）：线性注意力的结合律
       
     </span>
   </a>
@@ -1862,10 +2072,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
+  <a href="#2-vs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 2（计算）：手算完整一行
+        题 2（计算）：滑窗 vs 标准
       
     </span>
   </a>
@@ -1873,10 +2083,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3_1" class="md-nav__link">
+  <a href="#3attention-sink" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 3（推导）：长上下文判据
+        题 3（思考）：attention sink 为什么存在
       
     </span>
   </a>
@@ -1884,10 +2094,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4kv-cache" class="md-nav__link">
+  <a href="#4h2o" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 4（计算）：KV cache 账本
+        题 4（设计）：H2O 的驱逐策略
       
     </span>
   </a>
@@ -1895,10 +2105,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-decode" class="md-nav__link">
+  <a href="#5-vs-mamba" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 5（思考）：为什么 decode 是访存密集
+        题 5（对比）：线性注意力 vs Mamba
       
     </span>
   </a>
@@ -1906,10 +2116,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#6causal-attention" class="md-nav__link">
+  <a href="#6-sink" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 6（编程）：causal attention 实现
+        题 6（编程）：窗口 + sink 模拟
       
     </span>
   </a>
@@ -1922,10 +2132,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11" class="md-nav__link">
+  <a href="#14" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. 延伸阅读
+        14. 延伸阅读
       
     </span>
   </a>
@@ -1952,303 +2162,339 @@
   
 
 
-<h1 id="llm-01">LLM 注意力与计算内核精读笔记 · 01 注意力机制基础与复杂度分析<a class="headerlink" href="#llm-01" title="Permanent link">&para;</a></h1>
+<h1 id="llm-04">LLM 注意力与计算内核精读笔记 · 04 稀疏、滑动窗口与线性注意力<a class="headerlink" href="#llm-04" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>对应：Vaswani et al., <em>Attention Is All You Need</em>（2017）；Inference Engineering Ch5 的 Attention 部分。
-前置：量化系列 03 章（带宽模型）、推测解码系列 01 章（解码过程）。学完本章你应该能：① 写出缩放点积注意力的完整定义并解释 <span class="arithmatex">\(\sqrt{d_{\text{head}}}\)</span> 的作用；② 推导注意力的 FLOPs 公式 <span class="arithmatex">\(4L^2 d\)</span>，并说明为什么与头数无关；③ 用 <span class="arithmatex">\(L/(2d)\)</span> 判据判断"长到什么程度注意力反超 FFN"；④ 推导 KV cache 的大小公式，手算 7B 模型 128K 上下文的显存；⑤ 说清 prefill 与 decode 两种注意力形态（计算密集 vs 访存密集）；⑥ 解释 softmax 为什么要做 max-subtraction，以及低精度下的风险。</p>
+<p>对应：Xiao et al., <em>Efficient Streaming Language Models with Attention Sinks</em>（StreamingLLM，arXiv:2309.17453，2023）；Zhang et al., <em>H2O: Heavy-Hitter Oracle for Efficient Generative Inference of Large Language Models</em>（arXiv:2306.14048，NeurIPS 2023）；Katharopoulos et al., <em>Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention</em>（arXiv:2006.16236，ICML 2020）；Choromanski et al., <em>Rethinking Attention with Performers</em>（arXiv:2009.14794，ICLR 2021）；Gu &amp; Dao, <em>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</em>（arXiv:2312.00752，2023）；Mistral AI, <em>Mistral 7B</em>（arXiv:2310.06825，2023）。
+前置：01 章（<span class="arithmatex">\(O(L^2)\)</span> 复杂度）、02 章（FlashAttention 的精确路线）。学完本章你应该能：① 说出对抗 <span class="arithmatex">\(L^2\)</span> 的三条路线（少看位置/少存 KV/换计算范式）与代表方法；② 解释滑动窗口注意力的局部性假设与 StreamingLLM 的 attention sink 修复；③ 写出线性注意力的结合律推导（<span class="arithmatex">\(O(L d^2)\)</span>）与 Performers 的核近似思路；④ 说清 Mamba 的选择性 SSM 与线性注意力的本质区别；⑤ 用复杂度表格判断"什么场景该上哪条路线"。</p>
 </blockquote>
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
 <li>本章目标</li>
-<li>注意力的位置：Transformer 里唯一的 token 交互通道</li>
-<li>形式化定义：缩放点积注意力</li>
-<li>复杂度分析：O(L²) 从哪来</li>
-<li>因果掩码与 KV Cache</li>
-<li>Prefill 与 Decode：两种形态</li>
-<li>数值稳定性：max-subtraction 与低精度</li>
-<li>数值算例</li>
+<li>三条路线：对抗 <span class="arithmatex">\(L^2\)</span> 的三种策略</li>
+<li>滑动窗口注意力（SWA）</li>
+<li>Attention Sink 与 StreamingLLM</li>
+<li>驱逐类方法：H2O</li>
+<li>线性注意力：把 softmax 换成核</li>
+<li>Performers：随机特征近似</li>
+<li>Mamba：选择性状态空间模型</li>
+<li>统一视角：稀疏 vs 线性</li>
+<li>复杂度对照与数值算例</li>
+<li>实验数据</li>
 <li>本章小结</li>
 <li>习题与解答</li>
 <li>延伸阅读</li>
 </ol>
 <hr />
-<h2 id="2-transformer-token">2. 注意力的位置：Transformer 里唯一的 token 交互通道<a class="headerlink" href="#2-transformer-token" title="Permanent link">&para;</a></h2>
-<p>Transformer 的每一层由两类子层组成：</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>token-wise 子层（MLP、LayerNorm、激活）：每个 token 独立处理，互不通信
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>注意力子层：唯一让 token 之间交换信息的通道
+<h2 id="2-l2">2. 三条路线：对抗 <span class="arithmatex">\(L^2\)</span> 的三种策略<a class="headerlink" href="#2-l2" title="Permanent link">&para;</a></h2>
+<p>01 章说注意力 FLOPs <span class="arithmatex">\(= 4L^2d\)</span>、KV 显存 <span class="arithmatex">\(= O(L)\)</span>。02/03 章把"计算怎么快、KV 怎么小"做到了极致，但 <strong><span class="arithmatex">\(L^2\)</span> 的平方本质没动</strong>。本章的三种策略从三个方向绕开它：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>路线 A：少看位置（稀疏）
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  每个 query 只看一部分 key（窗口、top-k、检索）
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  → 复杂度 O(L·W)，W ≪ L
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>路线 B：少存 KV（驱逐）
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  显存预算固定，动态决定哪些 token 值得留
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  → KV 显存 O(预算)，与 L 解耦
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>路线 C：换计算范式（线性/状态空间）
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  用结合律或循环把 L² 换成 d²
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  → 复杂度 O(L·d²)，d ≪ L 时线性
 </code></pre></div>
-<p>这个结构决定了两个重要事实：</p>
-<ol>
-<li><strong>序列长度 <span class="arithmatex">\(L\)</span> 只会让注意力变贵</strong>：MLP 的 FLOPs 对 <span class="arithmatex">\(L\)</span> 是线性的，注意力的 FLOPs 是 <span class="arithmatex">\(L^2\)</span>——长上下文的计算瓶颈一定先在注意力出现；</li>
-<li><strong>token 的"记忆"都压在注意力上</strong>：第 <span class="arithmatex">\(t\)</span> 个 token 要知道前面的任何信息，只能通过注意力去"看"前面 token 的表示。KV cache 之所以存在，正是为了省掉 decode 阶段重复计算这些"看"的键值。</li>
-</ol>
+<p>注意路线 C 通常是<strong>近似</strong>的（softmax 被替换）；02 章 FlashAttention 是精确路线，两类互补。</p>
 <hr />
-<h2 id="3">3. 形式化定义：缩放点积注意力<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
-<p>给定输入序列的表示矩阵，先通过三个投影得到查询、键、值：</p>
+<h2 id="3-swa">3. 滑动窗口注意力（SWA）<a class="headerlink" href="#3-swa" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 定义<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>假设"远距离 token 对当前 token 的贡献可忽略"，每个 query 只看最近 <span class="arithmatex">\(W\)</span> 个 key：</p>
 <div class="arithmatex">\[
-\mathbf{Q} = X W_Q, \qquad \mathbf{K} = X W_K, \qquad \mathbf{V} = X W_V
+o_i = \sum_{j = i-W+1}^{i} a_{ij}\, v_j
 \]</div>
-<p>缩放点积注意力：</p>
-<div class="arithmatex">\[
-\mathrm{Att}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \mathrm{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_{\text{head}}}}\right)\mathbf{V}
-\]</div>
-<p>其中 <span class="arithmatex">\(\mathbf{Q}, \mathbf{K} \in \mathbb{R}^{L \times d_{\text{head}}}\)</span>、<span class="arithmatex">\(\mathbf{V} \in \mathbb{R}^{L \times d_{\text{head}}}\)</span>。逐位置写法：位置 <span class="arithmatex">\(i\)</span> 的输出是所有位置的值的加权平均，</p>
-<div class="arithmatex">\[
-o_i = \sum_{j=1}^{L} a_{ij}\, v_j, \qquad
-a_{ij} = \frac{\exp(s_{ij})}{\sum_{j'} \exp(s_{ij'})}, \qquad
-s_{ij} = \frac{q_i \cdot k_j}{\sqrt{d_{\text{head}}}}
-\]</div>
-<h3 id="31-sqrtd_texthead">3.1 为什么要除以 <span class="arithmatex">\(\sqrt{d_{\text{head}}}\)</span><a class="headerlink" href="#31-sqrtd_texthead" title="Permanent link">&para;</a></h3>
-<p>假设 <span class="arithmatex">\(q, k\)</span> 的各分量独立同分布、均值 0 方差 1，则点积的方差等于维度：</p>
-<div class="arithmatex">\[
-\mathrm{Var}(q \cdot k) = d_{\text{head}}
-\]</div>
-<p>除以 <span class="arithmatex">\(\sqrt{d_{\text{head}}}\)</span> 后方差回到 1。若不缩放，维度越大点积数值越极端，softmax 越容易饱和（一个接近 1，其余接近 0），梯度消失。缩放是让注意力"温度"与维度无关。</p>
-<hr />
-<h2 id="4-ol2">4. 复杂度分析：O(L²) 从哪来<a class="headerlink" href="#4-ol2" title="Permanent link">&para;</a></h2>
-<h3 id="41-flops">4.1 FLOPs 推导<a class="headerlink" href="#41-flops" title="Permanent link">&para;</a></h3>
-<p>标准实现（不缓存、不掩码优化）分三步：</p>
-<div class="arithmatex">\[
-\mathbf{S} = \mathbf{Q}\mathbf{K}^\top / \sqrt{d_{\text{head}}}, \qquad
-\mathbf{P} = \mathrm{softmax}(\mathbf{S}), \qquad
-\mathbf{O} = \mathbf{P}\mathbf{V}
-\]</div>
-<p>FLOPs：</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>QK^T：L×d_head 与 d_head×L 相乘 → 2L²·d_head
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>softmax：L×L 行归一化 → O(L²)，常数项可忽略
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>PV：L×L 与 L×d_head 相乘 → 2L²·d_head
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>合计（每头）：≈ 4L²·d_head
+<p>FLOPs 从 <span class="arithmatex">\(4L^2d\)</span> 降到 <span class="arithmatex">\(4LWd\)</span>（<span class="arithmatex">\(W \ll L\)</span>），KV cache 也只需存窗口 <span class="arithmatex">\(W\)</span>。代表：Longformer（Beltagy et al. 2020）、Mistral 7B。</p>
+<h3 id="32-mistral">3.2 Mistral 的做法<a class="headerlink" href="#32-mistral" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>窗口 W = 4096；GQA 8 个 KV 头（03 章）
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>每一层的"有效感受野" = 层数 × W（多层叠加后远处信息能间接到达）
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>论文结论：SWA 让"任意长度序列 + 降低推理成本"兼得
 </code></pre></div>
-<p>全部 <span class="arithmatex">\(h\)</span> 头加起来：</p>
-<div class="arithmatex">\[
-\text{FLOPs}_{\text{attn}} = h \times 4L^2 d_{\text{head}} = 4L^2 (h\, d_{\text{head}}) = 4L^2 d
-\]</div>
-<p><strong>结论：注意力 FLOPs 只依赖 <span class="arithmatex">\(L\)</span> 和 <span class="arithmatex">\(d\)</span>，与切成多少个头无关</strong>（<span class="arithmatex">\(h\,d_{\text{head}} = d\)</span> 是不变量）。切头是为了并行和表示能力，不是为了省算力。</p>
-<h3 id="42-ffn">4.2 与 FFN 的比值：长上下文判据<a class="headerlink" href="#42-ffn" title="Permanent link">&para;</a></h3>
-<p>每层 FFN（两段线性，中间扩到 <span class="arithmatex">\(4d\)</span>）的 FLOPs：</p>
-<div class="arithmatex">\[
-\text{FLOPs}_{\text{FFN}} = 8L\,d^2
-\]</div>
-<p>（每个 token 两段各 <span class="arithmatex">\(2 \times d \times 4d = 8d^2\)</span> FLOPs，共 <span class="arithmatex">\(L\)</span> 个 token。）于是：</p>
-<div class="arithmatex">\[
-\frac{\text{FLOPs}_{\text{attn}}}{\text{FLOPs}_{\text{FFN}}}
-= \frac{4L^2 d}{8L d^2}
-= \frac{L}{2d}
-\]</div>
-<p><strong>判据：<span class="arithmatex">\(L = 2d\)</span> 时两者相等；<span class="arithmatex">\(L &gt; 2d\)</span> 时注意力反超 FFN，成为 prefill 的主要计算。</strong> 例如 <span class="arithmatex">\(d = 4096\)</span> 的 7B 级模型：<span class="arithmatex">\(L = 8192\)</span> 持平，<span class="arithmatex">\(L = 32K\)</span> 时注意力是 FFN 的 4 倍。这解释了为什么长上下文优化的主战场是注意力（02–04 章）。</p>
+<h3 id="33">3.3 代价<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>优点：复杂度与 KV 显存都只跟 W 有关
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>缺点：局部性假设对"需要远距离精确引用"的任务（长文档检索式问答）不友好；
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>     训练窗口有限 → 推理超过训练长度时质量崩（下一节的痛点）
+</code></pre></div>
 <hr />
-<h2 id="5-kv-cache">5. 因果掩码与 KV Cache<a class="headerlink" href="#5-kv-cache" title="Permanent link">&para;</a></h2>
-<h3 id="51">5.1 因果掩码<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
-<p>自回归模型只允许位置 <span class="arithmatex">\(i\)</span> 看 <span class="arithmatex">\(j \le i\)</span>。实现上把注意力分数加上掩码矩阵：</p>
+<h2 id="4-attention-sink-streamingllm">4. Attention Sink 与 StreamingLLM<a class="headerlink" href="#4-attention-sink-streamingllm" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 窗口注意力为什么会崩<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>把窗口直接用于"流式长对话"（文本长度超过训练长度、超过缓存）：只保留最近 <span class="arithmatex">\(W\)</span> 个 KV，初始 token 被踢出。论文发现<strong>质量崩坏</strong>——不是语义问题，而是 softmax 的"垃圾收集"失效。</p>
+<h3 id="42-attention-sink">4.2 Attention Sink 现象<a class="headerlink" href="#42-attention-sink" title="Permanent link">&para;</a></h3>
+<p>观察：模型给初始 token（尤其第一个 token）分配<strong>异常高的注意力分数</strong>，即使它与当前内容无关。这些 token 像"下水道"一样吸走多余的注意力质量——所以叫 <strong>attention sink</strong>。证据：保留初始 token 的 KV，窗口注意力的性能基本恢复。</p>
+<h3 id="43-streamingllm">4.3 StreamingLLM 方案<a class="headerlink" href="#43-streamingllm" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
-\mathbf{S} \leftarrow \mathbf{S} + \mathbf{M}, \qquad
-M_{ij} = \begin{cases} 0 &amp; j \le i \\ -\infty &amp; j &gt; i \end{cases}
+\text{KV cache} = \underbrace{\text{前 } S \text{ 个 sink token}}_{\text{固定保留}} + \underbrace{\text{最近 } W \text{ 个 token}}_{\text{窗口}}
 \]</div>
-<p>注意：<strong>naive 实现先算完整的 <span class="arithmatex">\(L \times L\)</span> 再掩码，上三角的 FLOPs 是白花的</strong>（约占一半）；02 章 FlashAttention 用因果块只算下三角。</p>
-<h3 id="52-kv-cachedecode">5.2 KV Cache：decode 为什么能省一半计算<a class="headerlink" href="#52-kv-cachedecode" title="Permanent link">&para;</a></h3>
-<p>解码第 <span class="arithmatex">\(t\)</span> 步时，注意力需要：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>要点：
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>① 不需要微调，直接用现成模型（Llama-2、MPT、Falcon、Pythia）
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>② 稳定流式到 400 万 token 以上
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>③ 比"窗口 + 重算"基线快最多 22.2 倍
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>④ 预训练时加一个占位 token 当专用 sink，效果更好
+</code></pre></div>
+<p>代价：这是<strong>近似</strong>——它丢掉了窗口外的历史信息，但实验表明 sink + 窗口已经足够稳定。</p>
+<hr />
+<h2 id="5-h2o">5. 驱逐类方法：H2O<a class="headerlink" href="#5-h2o" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 观察<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>论文统计发现：<strong>一小部分 token 贡献了注意力分数的绝大部分</strong>——"重击手"（Heavy Hitters, <span class="arithmatex">\(H_2\)</span>）。它们与文本中的高频共现词强相关；删掉它们性能显著下降。</p>
+<h3 id="52-h2o">5.2 H2O 驱逐策略<a class="headerlink" href="#52-h2o" title="Permanent link">&para;</a></h3>
+<p>KV 预算固定（如 20% 的 token），动态维护两类：</p>
 <div class="arithmatex">\[
-q_t \quad \text{与所有历史} \quad (k_1, v_1), \dots, (k_{t-1}, v_{t-1})
+\text{保留} = \underbrace{\text{最近 } R \text{ 个 token}}_{\text{局部性}} + \underbrace{\text{累计注意力分数最高的 } H_2 \text{ token}}_{\text{重要性}}
 \]</div>
-<p>关键观察：<strong><span class="arithmatex">\(k_j, v_j\)</span> 只依赖 <span class="arithmatex">\(x_1..x_j\)</span>，与未来的 query 无关</strong>——所以算过一次就缓存，decode 时直接读取，不用重新前向。这就是 KV cache。</p>
-<p>每步新算 <span class="arithmatex">\(k_t, v_t\)</span> 并追加进缓存。缓存大小：</p>
+<p>驱逐被建模为<strong>动态子模最大化</strong>问题，论文给出近似保证。注意驱逐后 KV 不再完整，注意力是近似的（且驱逐不可逆）。</p>
+<h3 id="53">5.3 数据<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>20% 预算下：吞吐比 DeepSpeed-Zero-Inference / HF Accelerate 高 29 倍，
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>          比 FlexGen 高 3 倍（OPT-6.7B/30B）；同 batch 延迟降 1.9 倍
+</code></pre></div>
+<hr />
+<h2 id="6-softmax">6. 线性注意力：把 softmax 换成核<a class="headerlink" href="#6-softmax" title="Permanent link">&para;</a></h2>
+<h3 id="61-l2">6.1 结合律：<span class="arithmatex">\(L^2\)</span> 从哪来、怎么消失<a class="headerlink" href="#61-l2" title="Permanent link">&para;</a></h3>
+<p>标准注意力的 <span class="arithmatex">\(\mathbf{P}\mathbf{V}\)</span> 不能交换顺序（softmax 的归一化依赖整行）。若把注意力分数换成<strong>可分解核</strong>：</p>
 <div class="arithmatex">\[
-\text{KV bytes} = 2 \times L \times n_{\text{layers}} \times d_{\text{kv}} \times b
+\mathrm{Att}(q_i, k_j) = \frac{\varphi(q_i)^\top \varphi(k_j)}{\sum_{j'} \varphi(q_i)^\top \varphi(k_{j'})}
 \]</div>
-<p>其中因子 2 是 K 和 V 各一份，<span class="arithmatex">\(b\)</span> 是精度字节数（BF16 为 2）。</p>
-<h3 id="53-7b-kv">5.3 算例：7B 模型的 KV 显存<a class="headerlink" href="#53-7b-kv" title="Permanent link">&para;</a></h3>
-<p>配置：<span class="arithmatex">\(d = 4096\)</span>、32 层、<span class="arithmatex">\(d_{\text{kv}} = 4096\)</span>（无 GQA）、BF16。</p>
+<p>则输出可写成：</p>
 <div class="arithmatex">\[
-\text{每 token} = 2 \times 4096 \times 2 \times 32 = 524{,}288\ \text{B} = 512\ \text{KB}
+o_i = \frac{\varphi(q_i)^\top \sum_{j \le i} \varphi(k_j) v_j^\top}{\varphi(q_i)^\top \sum_{j \le i} \varphi(k_j)}
 \]</div>
+<p>关键在于<strong>结合律</strong>（Katharopoulos et al. 2020）：</p>
+<div class="arithmatex">\[
+\varphi(\mathbf{Q})\,\big(\varphi(\mathbf{K})^\top \mathbf{V}\big)
+= \big(\varphi(\mathbf{Q})\,\varphi(\mathbf{K})^\top\big)\,\mathbf{V}
+\]</div>
+<p>先算 <span class="arithmatex">\(\varphi(\mathbf{K})^\top \mathbf{V} \in \mathbb{R}^{d \times d}\)</span>（与 <span class="arithmatex">\(L\)</span> 无关！），再左乘 <span class="arithmatex">\(\varphi(\mathbf{Q})\)</span>。复杂度：</p>
+<div class="arithmatex">\[
+O(L^2 d) \;\to\; O(L d^2)
+\]</div>
+<p>推理时变成<strong>循环更新</strong>：维护状态 <span class="arithmatex">\(\mathbf{S}_i = \mathbf{S}_{i-1} + \varphi(k_i) v_i^\top\)</span>（<span class="arithmatex">\(d \times d\)</span>）与归一化向量 <span class="arithmatex">\(\mathbf{z}_i\)</span>——这正是"Transformer 是 RNN"的含义。</p>
+<h3 id="62">6.2 代价<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>优点：训练 O(L d²)、推理 O(d²)/步，长序列友好
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>缺点：softmax 被替换 → 不再是精确 softmax 注意力；
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>     无界核的数值稳定性需要额外处理
+</code></pre></div>
+<hr />
+<h2 id="7-performers">7. Performers：随机特征近似<a class="headerlink" href="#7-performers" title="Permanent link">&para;</a></h2>
+<p>要"线性"又要"接近 softmax"，可以用<strong>核技巧</strong>：softmax 的核 <span class="arithmatex">\(e^{q^\top k}\)</span> 可以用随机特征近似：</p>
+<div class="arithmatex">\[
+e^{q^\top k} \approx \mathbb{E}\left[\varphi(q)^\top \varphi(k)\right], \qquad
+\varphi(x) = \frac{1}{\sqrt{m}}\, f(x)\, \odot\, \text{random cos/sin features}
+\]</div>
+<p>Performers（FAVOR+）用<strong>正随机特征</strong>保证方差小，能在 <span class="arithmatex">\(O(L d^2)\)</span> 内近似 softmax 注意力，误差有界。后续大量"线性 Transformer"（Performer、Linear Transformer、Random Features Attention 等）都走这条路线。</p>
+<hr />
+<h2 id="8-mamba">8. Mamba：选择性状态空间模型<a class="headerlink" href="#8-mamba" title="Permanent link">&para;</a></h2>
+<h3 id="81-ssm">8.1 从线性注意力到 SSM<a class="headerlink" href="#81-ssm" title="Permanent link">&para;</a></h3>
+<p>线性注意力的循环形式是"无状态选择"的：<span class="arithmatex">\(\mathbf{S}_i\)</span> 的更新对所有 token 一视同仁。状态空间模型（SSM）把状态更新写成：</p>
+<div class="arithmatex">\[
+h_t = \bar{A}_t h_{t-1} + \bar{B}_t x_t, \qquad
+y_t = C_t h_t
+\]</div>
+<h3 id="82-selectivity">8.2 关键：选择性（Selectivity）<a class="headerlink" href="#82-selectivity" title="Permanent link">&para;</a></h3>
+<p>前人 SSM 的 <span class="arithmatex">\(\bar{A}, \bar{B}, C\)</span> 是<strong>输入无关</strong>的常数，导致无法做"基于内容的推理"（该记住的记不住、该忘的忘不掉）。Mamba 的贡献：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>让 A, B, C 都依赖当前输入 x_t（选择性）
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>→ 模型可以按内容决定"传播还是遗忘"
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>→ 代价：不能再高效用卷积，需要专门的硬件感知并行扫描算法
+</code></pre></div>
+<h3 id="83">8.3 数据<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Mamba-3B 在语言建模上超过同尺寸 Transformer、打平两倍尺寸的 Transformer
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>推理吞吐比同尺寸 Transformer 高 5 倍；序列长度线性扩展，实测到百万级
+</code></pre></div>
+<hr />
+<h2 id="9-vs">9. 统一视角：稀疏 vs 线性<a class="headerlink" href="#9-vs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>稀疏（路线 A/B）：保留 softmax 注意力，但"看得少 / 存得少"
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  → 语义可解释、与 FlashAttention 兼容、质量接近精确
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  → 但信息被硬性截断（窗口外/被驱逐的永远看不到）
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>线性（路线 C）：换核 / 换状态模型，复杂度真正线性
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  → 任意位置都能"影响"当前输出（无硬截断）
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  → 但近似了 softmax，长程精确引用能力存疑
+</code></pre></div>
+<p>工程经验：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>长上下文但需要精确引用 → FlashAttention + 稀疏/驱逐（StreamingLLM、H2O）
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>极致吞吐、可接受近似 → 线性注意力 / Mamba
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>当前主流 LLM 服务 → 仍是"精确注意力 + KV 优化"（02/03/05 章），
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>                    稀疏/线性更多是研究前沿与端侧选择
+</code></pre></div>
+<hr />
+<h2 id="10">10. 复杂度对照与数值算例<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th style="text-align: right;">上下文长度</th>
-<th style="text-align: right;">KV cache 总量</th>
-<th style="text-align: right;">相对 7B 权重（约 13GB BF16）</th>
+<th>方法</th>
+<th>每层 FLOPs</th>
+<th>KV 显存/token</th>
+<th>精确性</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: right;">4K</td>
-<td style="text-align: right;">2 GiB</td>
-<td style="text-align: right;">15%</td>
+<td>标准注意力</td>
+<td><span class="arithmatex">\(4L^2 d\)</span></td>
+<td><span class="arithmatex">\(2 d_{\text{kv}}\)</span></td>
+<td>精确</td>
 </tr>
 <tr>
-<td style="text-align: right;">32K</td>
-<td style="text-align: right;">16 GiB</td>
-<td style="text-align: right;">1.2 倍</td>
+<td>FlashAttention</td>
+<td><span class="arithmatex">\(4L^2 d\)</span>（省 HBM 访问）</td>
+<td><span class="arithmatex">\(2 d_{\text{kv}}\)</span></td>
+<td>精确</td>
 </tr>
 <tr>
-<td style="text-align: right;">128K</td>
-<td style="text-align: right;">64 GiB</td>
-<td style="text-align: right;">5 倍</td>
+<td>滑动窗口</td>
+<td><span class="arithmatex">\(4LWd\)</span></td>
+<td><span class="arithmatex">\(2 d_{\text{kv}}\)</span>（窗口内）</td>
+<td>近似（截断）</td>
+</tr>
+<tr>
+<td>StreamingLLM</td>
+<td><span class="arithmatex">\(4L(W+S)d\)</span></td>
+<td><span class="arithmatex">\(2(W+S)d_{\text{kv}}\)</span></td>
+<td>近似</td>
+</tr>
+<tr>
+<td>H2O</td>
+<td><span class="arithmatex">\(4L^2d\)</span>（计算不变，省显存）</td>
+<td>预算固定</td>
+<td>近似（驱逐）</td>
+</tr>
+<tr>
+<td>线性注意力</td>
+<td><span class="arithmatex">\(4Ld^2\)</span></td>
+<td><span class="arithmatex">\(d^2\)</span>（状态）</td>
+<td>近似（换核）</td>
+</tr>
+<tr>
+<td>Mamba</td>
+<td><span class="arithmatex">\(O(L d N)\)</span></td>
+<td><span class="arithmatex">\(O(dN)\)</span>（状态）</td>
+<td>架构不同</td>
 </tr>
 </tbody>
 </table>
-<p>结论：<strong>KV cache 是"上下文越长越贵"的显存项</strong>，这正是 03 章 MQA/GQA/MLA 和 05 章 PagedAttention 要解决的问题。</p>
+<p>数值例（<span class="arithmatex">\(d=64\)</span>、<span class="arithmatex">\(L=32K\)</span>、<span class="arithmatex">\(W=4K\)</span>，单头）：</p>
+<div class="arithmatex">\[
+\text{标准： } 4 \times 32768^2 \times 64 \approx 275\ \text{GFLOP}
+\]</div>
+<div class="arithmatex">\[
+\text{滑窗： } 4 \times 32768 \times 4096 \times 64 \approx 34\ \text{GFLOP} \quad(\times 8\ \text{省})
+\]</div>
+<div class="arithmatex">\[
+\text{线性： } 4 \times 32768 \times 64^2 \approx 0.54\ \text{GFLOP} \quad(\times 500\ \text{省})
+\]</div>
+<p>数字差距巨大，但<strong>别忘了精确性</strong>：线性路线省的是"近似后的注意力"。</p>
 <hr />
-<h2 id="6-prefill-decode">6. Prefill 与 Decode：两种形态<a class="headerlink" href="#6-prefill-decode" title="Permanent link">&para;</a></h2>
-<p>同一个注意力，在两个阶段呈现完全不同的计算形态：</p>
+<h2 id="11">11. 实验数据<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th></th>
-<th>Prefill（处理用户输入）</th>
-<th>Decode（逐 token 生成）</th>
+<th>方法</th>
+<th>已核实数据</th>
+<th>出处</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>一次处理的 token 数</td>
-<td><span class="arithmatex">\(L\)</span>（整段输入）</td>
-<td>1（新 query）</td>
+<td>StreamingLLM</td>
+<td>稳定流式 4M+ token；比滑窗重算基线快 22.2x；无需微调</td>
+<td>摘要/§4</td>
 </tr>
 <tr>
-<td>注意力矩阵</td>
-<td><span class="arithmatex">\(L \times L\)</span></td>
-<td><span class="arithmatex">\(1 \times L\)</span></td>
+<td>H2O</td>
+<td>20% 预算：吞吐比 Zero-Inference/HF-Accelerate 高 29x、比 FlexGen 高 3x；延迟降 1.9x</td>
+<td>摘要</td>
 </tr>
 <tr>
-<td>计算量</td>
-<td><span class="arithmatex">\(O(L^2)\)</span>，<strong>计算密集</strong></td>
-<td><span class="arithmatex">\(O(L)\)</span> 次乘加，但要读全部 KV</td>
+<td>Mistral SWA</td>
+<td>窗口 4096 + GQA；超 Llama 2 13B 且推理成本更低</td>
+<td>摘要</td>
 </tr>
 <tr>
-<td>瓶颈</td>
-<td>计算（FLOPs）</td>
-<td>带宽（KV 读取 + 权重读取）</td>
+<td>Mamba</td>
+<td>吞吐比 Transformer 高 5x；线性扩展；Mamba-3B 打平 2 倍尺寸 Transformer</td>
+<td>摘要</td>
 </tr>
 <tr>
-<td>优化主力</td>
-<td>FlashAttention（02 章）</td>
-<td>GQA/MLA（03 章）+ 分页（05 章）</td>
+<td>Katharopoulos 线性注意力</td>
+<td><span class="arithmatex">\(O(L d^2)\)</span> 训练、<span class="arithmatex">\(O(d^2)\)</span>/步推理；等价 RNN 形式</td>
+<td>论文 §3</td>
 </tr>
 </tbody>
 </table>
-<p>decode 每步要读的 KV 字节数：</p>
-<div class="arithmatex">\[
-\text{每步 KV 读取} = 2 \times L \times n_{\text{layers}} \times d_{\text{kv}} \times b
-\]</div>
-<p>7B 模型算例：4K 上下文时每步读 <span class="arithmatex">\(2 \times 4096 \times 32 \times 4096 \times 2 = 2\ \text{GiB}\)</span>（约 1ms @ 2TB/s），与权重读取（13GB，约 6.5ms）相比约 15%；<strong>32K 上下文时每步读 16 GiB，超过权重读取</strong>——长上下文 decode 的带宽瓶颈从"权重"转移到了"KV"。</p>
 <hr />
-<h2 id="7-max-subtraction">7. 数值稳定性：max-subtraction 与低精度<a class="headerlink" href="#7-max-subtraction" title="Permanent link">&para;</a></h2>
-<h3 id="71-softmax">7.1 朴素 softmax 的溢出问题<a class="headerlink" href="#71-softmax" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(\exp(x)\)</span> 在 <span class="arithmatex">\(x\)</span> 稍大时就溢出（FP16 最大约 65504，对应 <span class="arithmatex">\(x \approx 11\)</span>）。数值稳定写法：</p>
-<div class="arithmatex">\[
-\mathrm{softmax}(s)_i = \frac{\exp(s_i - m)}{\sum_j \exp(s_j - m)}, \qquad m = \max_j s_j
-\]</div>
-<p>减去行最大值后，指数里最大是 0，不会溢出。02 章 FlashAttention 的 online softmax 就是这个技巧的"分块版"。</p>
-<h3 id="72">7.2 低精度下的风险<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>BF16：动态范围大，softmax 数值安全，但精度低（尾数 8 位）
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>FP16：动态范围小，softmax 容易溢出，需要 max-subtraction 和钳制
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>FP8：尾数更少（E4M3），注意力分数与概率的量化误差放大
-</code></pre></div>
-<p>经验：<strong>注意力（尤其 softmax 区域）是量化最敏感的地方之一</strong>（量化系列 08 章的结论）。低精度注意力必须做数值与质量双重验收（07 章展开）。</p>
-<hr />
-<h2 id="8">8. 数值算例<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
-<p><span class="arithmatex">\(L = 3\)</span>、<span class="arithmatex">\(d_{\text{head}} = 2\)</span>：</p>
-<div class="arithmatex">\[
-\mathbf{Q} = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 1 \\ 1 &amp; 1 \end{pmatrix}, \quad
-\mathbf{K} = \begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1 \\ 1 &amp; 0 \end{pmatrix}, \quad
-\mathbf{V} = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 1 \\ 1 &amp; 1 \end{pmatrix}, \quad
-\sqrt{d_{\text{head}}} = \sqrt{2}
-\]</div>
-<p><strong>以第 3 个 query <span class="arithmatex">\(q_3 = (1,1)\)</span> 为例</strong>：</p>
-<div class="arithmatex">\[
-s = \frac{q_3 \cdot k_j}{\sqrt{2}} = \left(\frac{2}{\sqrt2}, \frac{1}{\sqrt2}, \frac{1}{\sqrt2}\right) = (1.414, 0.707, 0.707)
-\]</div>
-<p>max-subtraction：<span class="arithmatex">\(m = 1.414\)</span>，</p>
-<div class="arithmatex">\[
-s - m = (0,\ -0.707,\ -0.707), \qquad
-\exp = (1,\ 0.493,\ 0.493), \qquad
-\text{sum} = 1.986
-\]</div>
-<div class="arithmatex">\[
-a_3 = (0.504,\ 0.248,\ 0.248)
-\]</div>
-<p>输出：</p>
-<div class="arithmatex">\[
-o_3 = 0.504 \cdot (1,0) + 0.248 \cdot (0,1) + 0.248 \cdot (1,1) = (0.752,\ 0.497)
-\]</div>
-<p><strong>验证</strong>：位置 3 与位置 1 的相似度（<span class="arithmatex">\(q_3 \cdot k_1 = 2\)</span>）最高，所以 <span class="arithmatex">\(v_1 = (1,0)\)</span> 在输出里占比最大（0.504）——注意力是"按相关性加权求和"。</p>
-<p>完整三行输出（留给读者核对习题 2）：</p>
-<div class="arithmatex">\[
-o_1 \approx (0.802,\ 0.599), \qquad
-o_2 \approx (0.599,\ 0.599), \qquad
-o_3 \approx (0.752,\ 0.497)
-\]</div>
-<hr />
-<h2 id="9">9. 本章小结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h2 id="12">12. 本章小结<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>注意力是唯一 <span class="arithmatex">\(O(L^2)\)</span> 的组件</strong>：FLOPs <span class="arithmatex">\(= 4L^2d\)</span>，与头数无关；<span class="arithmatex">\(L/(2d)\)</span> 判据决定它何时反超 FFN。</li>
-<li><strong>KV cache 来自"键值只依赖历史"</strong>：大小 <span class="arithmatex">\(= 2Ln_{\text{layers}}d_{\text{kv}}b\)</span>，7B 模型 128K 上下文约 64 GiB。</li>
-<li><strong>prefill 计算密集、decode 访存密集</strong>：长上下文时 decode 的带宽瓶颈从权重转移到 KV。</li>
-<li><strong>softmax 需要 max-subtraction</strong>；低精度下注意力是质量风险最高的区域之一。</li>
+<li><strong>三条路线</strong>：少看（稀疏/滑窗）、少存（驱逐）、换范式（线性/SSM）。</li>
+<li><strong>Attention Sink</strong>：初始 token 是 softmax 的"垃圾收集器"，窗口注意力踢掉它就会崩；保留 sink + 窗口即可流式 4M token。</li>
+<li><strong>H2O</strong>：按"累计注意力分数"驱逐，20% 预算带来 29x 吞吐提升。</li>
+<li><strong>线性注意力</strong>：<span class="arithmatex">\(\varphi(Q)(\varphi(K)^\top V)\)</span> 的结合律把 <span class="arithmatex">\(L^2\)</span> 换成 <span class="arithmatex">\(d^2\)</span>；Performer 用随机特征近似 softmax。</li>
+<li><strong>Mamba</strong>：选择性 SSM 让状态按内容决定记忆/遗忘，吞吐 5x、线性扩展。</li>
+<li><strong>工程提醒</strong>：这些大多是近似；精确注意力 + KV 优化仍是主流服务的选择。</li>
 </ol>
 <blockquote>
-<p>一句话记忆：<strong>"注意力是 Transformer 里唯一会让 token 互相看的地方，也是唯一随序列长度平方变贵的地方——KV cache 是 decode 的账本，<span class="arithmatex">\(L^2\)</span> 是 prefill 的账单。"</strong></p>
+<p>一句话记忆：<strong>"想让注意力跑赢平方，要么看得少（窗口/驱逐），要么换个算法（核/状态空间）——前者保留 softmax 的味道，后者把 softmax 换掉，省下来的都是时间，付出去的是精确性。"</strong></p>
 </blockquote>
 <hr />
-<h2 id="10">10. 习题与解答<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
-<h3 id="1flops">题 1（推导）：FLOPs 与头数无关<a class="headerlink" href="#1flops" title="Permanent link">&para;</a></h3>
-<p>从每头 <span class="arithmatex">\(4L^2 d_{\text{head}}\)</span> 出发，推导多头注意力总 FLOPs <span class="arithmatex">\(= 4L^2 d\)</span>，并说明为什么切头不省算力。</p>
+<h2 id="13">13. 习题与解答<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<h3 id="1">题 1（推导）：线性注意力的结合律<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p>写出 <span class="arithmatex">\(\varphi(\mathbf{Q})(\varphi(\mathbf{K})^\top \mathbf{V})\)</span> 与 <span class="arithmatex">\((\varphi(\mathbf{Q})\varphi(\mathbf{K})^\top)\mathbf{V}\)</span> 的维度，说明为什么前者只需 <span class="arithmatex">\(O(L d^2)\)</span>，并推导逐位置循环更新式。</p>
 <details>
 <summary>题 1 解答</summary>
 
-多头 = $h$ 个独立的 $d_{\text{head}}$ 维注意力并行，总 FLOPs $= h \times 4L^2 d_{\text{head}} = 4L^2 (h d_{\text{head}}) = 4L^2 d$。$h\,d_{\text{head}} = d$ 是投影后的总维度不变式，所以切头只改并行方式，不改 FLOPs。
+$\varphi(\mathbf{K})^\top \mathbf{V}$ 是 $d \times d$；$\varphi(\mathbf{Q})$ 是 $L \times d$，左乘得 $L \times d$。先算 $d\times d$ 矩阵（$O(L d^2)$），再乘 $L\times d$（$O(L d^2)$），总 $O(L d^2)$；而右侧先算 $L\times L$ 是 $O(L^2 d)$。循环形式：$\mathbf{S}_i = \mathbf{S}_{i-1} + \varphi(k_i)v_i^\top$，$\mathbf{z}_i = \mathbf{z}_{i-1} + \varphi(k_i)$，$o_i = \varphi(q_i)^\top \mathbf{S}_i / \varphi(q_i)^\top \mathbf{z}_i$。
 </details>
 
-<h3 id="2">题 2（计算）：手算完整一行<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
-<p>用第 8 节的 <span class="arithmatex">\(\mathbf{Q}, \mathbf{K}, \mathbf{V}\)</span>，完整手算 <span class="arithmatex">\(o_1\)</span>（含 max-subtraction），核对 <span class="arithmatex">\(o_1 \approx (0.802, 0.599)\)</span>。</p>
+<h3 id="2-vs">题 2（计算）：滑窗 vs 标准<a class="headerlink" href="#2-vs" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(L=32K\)</span>、<span class="arithmatex">\(W=4K\)</span>、<span class="arithmatex">\(d=64\)</span>：算标准与滑窗的单头 FLOPs 并给比值；若 <span class="arithmatex">\(W=512\)</span> 呢？</p>
 <details>
 <summary>题 2 解答</summary>
 
-$q_1=(1,0)$：$s = (1/\sqrt2,\ 0,\ 1/\sqrt2) = (0.707, 0, 0.707)$；max $= 0.707$；$s-m = (0, -0.707, 0)$（注意第三个位置 $0.707-0.707=0$）；$\exp = (1, 0.493, 1)$；和 $= 2.493$；$a_1 = (0.401, 0.198, 0.401)$。$o_1 = 0.401(1,0) + 0.198(0,1) + 0.401(1,1) = (0.802, 0.599)$ ✓ 与第 8 节一致。
+标准 $4\times32768^2\times64 \approx 275$ GFLOP；$W=4K$ 时 $4\times32768\times4096\times64 \approx 34.4$ GFLOP，省 8 倍；$W=512$ 时 $\approx 4.3$ GFLOP，省 64 倍。注意 KV 显存同样只跟 $W$ 相关。
 </details>
 
-<h3 id="3_1">题 3（推导）：长上下文判据<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
-<p>证明注意力与 FFN 的 FLOPs 比为 <span class="arithmatex">\(L/(2d)\)</span>；给定 <span class="arithmatex">\(d = 8192\)</span>，求两者持平的 <span class="arithmatex">\(L^*\)</span>，并说明 <span class="arithmatex">\(L = 64K\)</span> 时注意力占比。</p>
+<h3 id="3attention-sink">题 3（思考）：attention sink 为什么存在<a class="headerlink" href="#3attention-sink" title="Permanent link">&para;</a></h3>
+<p>从 softmax 的归一化性质解释"初始 token 吸收注意力质量"这一现象，并说明 StreamingLLM 为什么"踢掉 sink 就崩、留两个 token 就恢复"。</p>
 <details>
-<summary>题 3 解答</summary>
+<summary>题 3 解答要点</summary>
 
-比值 $= 4L^2d / 8Ld^2 = L/(2d)$。$L^* = 2d = 16384$。$L=64K$ 时比值 $= 65536/16384 = 4$，即注意力 FLOPs 是 FFN 的 4 倍、占总计算（attention + FFN）的 $4/5 = 80\%$。
+softmax 把注意力质量归一化到 1；当窗口内没有"稳定的高分 token"时，分布被迫把质量分散到任意位置，数值上不稳定。初始 token 在训练里长期充当"兜底的高分目标"，模型学会了把多余质量倾泻到它身上（sink）。流式时若窗口不含 sink，归一化失去锚点；保留前几个 token 即恢复。这也是为什么预训练加专用占位 sink token 能进一步稳定。
 </details>
 
-<h3 id="4kv-cache">题 4（计算）：KV cache 账本<a class="headerlink" href="#4kv-cache" title="Permanent link">&para;</a></h3>
-<p>配置：<span class="arithmatex">\(d = 5120\)</span>、48 层、<span class="arithmatex">\(d_{\text{kv}} = 5120\)</span>、FP8（1 字节）。求：① 每 token KV 字节数；② <span class="arithmatex">\(L = 128K\)</span> 的总显存；③ 若改用 GQA 使 <span class="arithmatex">\(d_{\text{kv}} = 640\)</span>，同样长度下省多少。</p>
+<h3 id="4h2o">题 4（设计）：H2O 的驱逐策略<a class="headerlink" href="#4h2o" title="Permanent link">&para;</a></h3>
+<p>设计一个"累计注意力分数"的在线度量（如何增量维护、如何防止早期 token 永远占优），并说明为什么"最近 token + Heavy Hitters"的组合优于纯最近/纯高频。</p>
 <details>
-<summary>题 4 解答</summary>
+<summary>题 4 解答要点</summary>
 
-① $2 \times 5120 \times 48 \times 1 = 491{,}520\ \text{B} = 480\ \text{KB/token}$。② $480\ \text{KB} \times 131072 = 60\ \text{GiB}$。③ $d_{\text{kv}}=640$ 时 $2 \times 640 \times 48 = 61{,}440\ \text{B} = 60\ \text{KB/token}$，总量 7.5 GiB——**GQA 把 KV 显存降到原来的 1/8**（03 章详述）。
+每个 token 维护"被作为 key 时收到的注意力分数之和"（可在每步并行累加，代价可摊销）。要防早期占优：用滑动窗口内的累计值或分数归一化。纯最近丢长程、纯高频丢局部上下文；混合保留兼顾两者，且驱逐可建模为动态子模问题近似最优。
 </details>
 
-<h3 id="5-decode">题 5（思考）：为什么 decode 是访存密集<a class="headerlink" href="#5-decode" title="Permanent link">&para;</a></h3>
-<p>结合量化系列 03 章的带宽模型，解释 decode 每步"读权重 + 读全部 KV"为什么是瓶颈；长上下文下 KV 读取为何会反超权重读取。</p>
+<h3 id="5-vs-mamba">题 5（对比）：线性注意力 vs Mamba<a class="headerlink" href="#5-vs-mamba" title="Permanent link">&para;</a></h3>
+<p>列出线性注意力（Katharopoulos）与 Mamba 在"状态形式、选择性、训练并行性、精确性"四个维度上的差异。</p>
 <details>
 <summary>题 5 解答要点</summary>
 
-decode 每步只产出 1 个 token，但必须搬全部权重（固定 13GB）和全部 KV（随 $L$ 线性增长：7B 在 4K 是 2GB、32K 是 16GB）。GPU 的 FLOPs 远用不满，瓶颈在 HBM 带宽。$L$ 增大到 KV 读取 ≥ 权重读取时，优化重点从"省权重带宽"（量化）转向"省 KV 带宽/显存"（GQA、分页、稀疏）。
+线性注意力：状态 $\mathbf{S}$（$d\times d$）无选择性，训练可并行（矩阵乘法），是 softmax 的核近似；Mamba：状态 $h$（$dN$）有选择性（A/B/C 依赖输入），训练需硬件感知并行扫描，是全新架构而非注意力近似。选择性让 Mamba 能做内容相关记忆，代价是失去纯卷积式并行。
 </details>
 
-<h3 id="6causal-attention">题 6（编程）：causal attention 实现<a class="headerlink" href="#6causal-attention" title="Permanent link">&para;</a></h3>
-<p>实现：① naive 全矩阵 + 掩码；② 只算下三角的因果版；③ 数值稳定 softmax（max-subtraction）。验证两种实现在随机输入下输出一致，并统计 <span class="arithmatex">\(L = 256, 1024, 4096\)</span> 时 FLOPs/显存/时间的增长是否近似 <span class="arithmatex">\(O(L^2)\)</span>。</p>
+<h3 id="6-sink">题 6（编程）：窗口 + sink 模拟<a class="headerlink" href="#6-sink" title="Permanent link">&para;</a></h3>
+<p>实现一个 toy：给定注意力分数序列，比较 ① 全注意力、② 纯窗口、③ 窗口 + sink（保留前 2 个 token）三种方案的"有效归一化质量"，并画出长度增长时的困惑度趋势，复现 StreamingLLM 的核心结论。</p>
 <details>
 <summary>题 6 解答要点</summary>
 
-① 先算 $\mathbf{S}$，加 $\mathbf{M}$（上三角 $-\infty$），再 softmax、乘 V。② 循环逐行或块状只算 $j \le i$。③ 每行减行最大。三者对因果输出一致。计时/显存随 $L$ 增长约 4 倍（$L$ 翻倍）即 $O(L^2)$；到很大 $L$ 时显存先爆——这正是 02 章 FlashAttention 的动机。
+用 toy 分数分布模拟：纯窗口在长度超过窗口后，softmax 分母失去 sink 锚点，输出分布漂移；加 sink 后分母稳定。困惑度（或分布 KL）趋势应呈现"纯窗口骤升、sink+窗口平缓"——这就是 StreamingLLM 论文 Fig. 2 的 toy 版。
 </details>
 
 <hr />
-<h2 id="11">11. 延伸阅读<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<h2 id="14">14. 延伸阅读<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need（arXiv:1706.03762）</a>：本章公式出处（缩放点积注意力、多头、因果掩码）。</li>
-<li><a href="https://arxiv.org/abs/2205.14135">FlashAttention（arXiv:2205.14135）</a>：下一篇的主角——为什么 <span class="arithmatex">\(O(L^2)\)</span> 的中间矩阵可以不落显存。</li>
-<li><a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">量化系列 03 章（数值格式与硬件）</a>：带宽模型与本系列 decode 分析互相印证。</li>
-<li><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch5</a>：教材正文（Attention 与系统部分）。</li>
-<li>下一篇：<strong>02 FlashAttention：IO 感知的精确注意力</strong>——把 max-subtraction 变成 online softmax，把 <span class="arithmatex">\(L^2\)</span> 矩阵留在片上。</li>
+<li><a href="https://arxiv.org/abs/2309.17453">Efficient Streaming Language Models with Attention Sinks（arXiv:2309.17453）</a>：StreamingLLM 与 attention sink 的出处。</li>
+<li><a href="https://arxiv.org/abs/2306.14048">H2O: Heavy-Hitter Oracle（arXiv:2306.14048）</a>：KV 驱逐策略与吞吐数据。</li>
+<li><a href="https://arxiv.org/abs/2006.16236">Transformers are RNNs: Linear Attention（arXiv:2006.16236）</a>：线性注意力与循环等价形式。</li>
+<li><a href="https://arxiv.org/abs/2009.14794">Rethinking Attention with Performers（arXiv:2009.14794）</a>：随机特征近似 softmax。</li>
+<li><a href="https://arxiv.org/abs/2312.00752">Mamba（arXiv:2312.00752）</a>：选择性 SSM 与硬件感知算法。</li>
+<li>上一篇：<a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%A4%B4%E5%8F%98%E4%BD%93-MQA-GQA-MLA/">03 注意力头变体：MQA/GQA/MLA</a>；下一篇：<strong>05 PagedAttention 与 KV 显存管理</strong>——不砍 KV 内容，而是把 KV 从"连续大块内存"变成"分页小片"，让显存利用率接近 100%。</li>
 </ol>
 
 
@@ -2285,7 +2531,7 @@ decode 每步只产出 1 个 token，但必须搬全部权重（固定 13GB）�
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 00 总览与学习地图">
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%A4%B4%E5%8F%98%E4%BD%93-MQA-GQA-MLA/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 03 注意力头变体（MQA/GQA/MLA）">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2295,20 +2541,20 @@ decode 每步只产出 1 个 token，但必须搬全部权重（固定 13GB）�
                 上一页
               </span>
               <div class="md-ellipsis">
-                00 总览与学习地图
+                03 注意力头变体（MQA/GQA/MLA）
               </div>
             </div>
           </a>
         
         
           
-          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-FlashAttention-IO%E6%84%9F%E7%9F%A5%E7%9A%84%E7%B2%BE%E7%A1%AE%E6%B3%A8%E6%84%8F%E5%8A%9B/" class="md-footer__link md-footer__link--next" aria-label="下一页: 02 FlashAttention（IO 感知的精确注意力）">
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-PagedAttention%E4%B8%8EKV%E6%98%BE%E5%AD%98%E7%AE%A1%E7%90%86/" class="md-footer__link md-footer__link--next" aria-label="下一页: 05 PagedAttention 与 KV 显存管理">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                02 FlashAttention（IO 感知的精确注意力）
+                05 PagedAttention 与 KV 显存管理
               </div>
             </div>
             <div class="md-footer__button md-icon">

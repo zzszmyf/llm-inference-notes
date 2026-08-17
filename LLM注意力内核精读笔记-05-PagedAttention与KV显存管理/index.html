@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/">
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-PagedAttention%E4%B8%8EKV%E6%98%BE%E5%AD%98%E7%AE%A1%E7%90%86/">
       
       
-        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">
+        <link rel="prev" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E7%A8%80%E7%96%8F%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%BA%BF%E6%80%A7%E6%B3%A8%E6%84%8F%E5%8A%9B/">
       
       
-        <link rel="next" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">
+        <link rel="next" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E5%86%85%E6%A0%B8%E4%BC%98%E5%8C%96%E4%B8%8E%E7%AE%97%E5%AD%90%E8%9E%8D%E5%90%88/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>11 系统协同与部署 - LLM 推理优化精读笔记</title>
+        <title>05 PagedAttention 与 KV 显存管理 - LLM 推理优化精读笔记</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#llm-11-qservefp8-attention" class="md-skip">
+        <a href="#llm-05-pagedattention-kv" class="md-skip">
           跳转至
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              11 系统协同与部署
+              05 PagedAttention 与 KV 显存管理
             
           </span>
         </div>
@@ -543,8 +543,6 @@
       
   
   
-    
-  
   
   
     
@@ -557,11 +555,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -582,7 +582,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -933,37 +933,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    11 系统协同与部署
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
         
   
   
@@ -979,297 +952,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目录（本章）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. 本章目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. 从算法到系统：三个隐形瓶颈
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. 从算法到系统：三个隐形瓶颈">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-dequantization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1 反量化（dequantization）开销
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.2 内存布局与打包
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#23-kernel" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3 kernel 覆盖
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-qservew4a8kv4-" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. QServe：W4A8KV4 的算法-系统协同
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. QServe：W4A8KV4 的算法-系统协同">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-qoqw4a8kv4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.1 QoQ：W4A8KV4 量化方案
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.2 两个"为什么"
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.3 系统技术
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 性能
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. 注意力量化（前沿）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. 推理引擎的量化支持地图
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. 组合优化栈：无损优先
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. 部署决策树（含验收闭环）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. 本章小结
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. 习题与解答
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. 习题与解答">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-4-bit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 1（思考）：为什么 4-bit 不一定快
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-70b" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 2（设计）：给 70B 部署选型
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3w4a16-vs-w4a8kv4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 3（对比）：W4A16 vs W4A8KV4
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 4（排错）：量化后速度没提升
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 5（开放）：量化 × 推测解码
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. 延伸阅读
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1286,8 +968,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1298,13 +982,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -1325,7 +1007,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1480,10 +1162,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-PagedAttention%E4%B8%8EKV%E6%98%BE%E5%AD%98%E7%AE%A1%E7%90%86/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 PagedAttention 与 KV 显存管理
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1499,6 +1208,297 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 问题：KV 显存管理为什么低效
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 核心思想：像操作系统一样分页
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-pagedattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. PagedAttention：分块注意力计算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-vllm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. vLLM：块管理、按需分配与抢占调度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-copy-on-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 共享：Copy-on-Write 与解码算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 共享：Copy-on-Write 与解码算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 并行采样
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-beam-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Beam Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 块大小权衡
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. KV 优化全景：维度、内容、布局
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 数值算例
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 数值算例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-opt-13b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 OPT-13B 账本（论文原例）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 分页示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 实验数据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：KV 账本与分块
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（推导）：为什么"等大块 + 按需分配"同时消两种碎片
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3pagedattention-vs-flashattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（思考）：PagedAttention vs FlashAttention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4cow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（设计）：COW 引用计数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（对比）：三种"省 KV"的层次
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：分块分配模拟器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1605,10 +1605,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
+  <a href="#2-kv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. 本章目标
+        2. 问题：KV 显存管理为什么低效
       
     </span>
   </a>
@@ -1616,22 +1616,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
+  <a href="#3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. 从算法到系统：三个隐形瓶颈
+        3. 核心思想：像操作系统一样分页
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. 从算法到系统：三个隐形瓶颈">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-pagedattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. PagedAttention：分块注意力计算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-vllm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. vLLM：块管理、按需分配与抢占调度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-copy-on-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 共享：Copy-on-Write 与解码算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 共享：Copy-on-Write 与解码算法">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-dequantization" class="md-nav__link">
+  <a href="#61" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1 反量化（dequantization）开销
+        6.1 并行采样
       
     </span>
   </a>
@@ -1639,21 +1672,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22" class="md-nav__link">
+  <a href="#62-beam-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 内存布局与打包
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#23-kernel" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3 kernel 覆盖
+        6.2 Beam Search
       
     </span>
   </a>
@@ -1662,100 +1684,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-qservew4a8kv4-" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. QServe：W4A8KV4 的算法-系统协同
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. QServe：W4A8KV4 的算法-系统协同">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-qoqw4a8kv4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.1 QoQ：W4A8KV4 量化方案
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.2 两个"为什么"
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.3 系统技术
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 性能
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. 注意力量化（前沿）
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. 推理引擎的量化支持地图
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. 组合优化栈：无损优先
-      
-    </span>
-  </a>
   
 </li>
       
@@ -1763,7 +1691,7 @@
   <a href="#7" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. 部署决策树（含验收闭环）
+        7. 块大小权衡
       
     </span>
   </a>
@@ -1771,10 +1699,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8" class="md-nav__link">
+  <a href="#8-kv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. 本章小结
+        8. KV 优化全景：维度、内容、布局
       
     </span>
   </a>
@@ -1785,19 +1713,19 @@
   <a href="#9" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. 习题与解答
+        9. 数值算例
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="9. 习题与解答">
+    <nav class="md-nav" aria-label="9. 数值算例">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-4-bit" class="md-nav__link">
+  <a href="#91-opt-13b" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 1（思考）：为什么 4-bit 不一定快
+        9.1 OPT-13B 账本（论文原例）
       
     </span>
   </a>
@@ -1805,43 +1733,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-70b" class="md-nav__link">
+  <a href="#92" class="md-nav__link">
     <span class="md-ellipsis">
       
-        题 2（设计）：给 70B 部署选型
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3w4a16-vs-w4a8kv4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 3（对比）：W4A16 vs W4A8KV4
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 4（排错）：量化后速度没提升
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        题 5（开放）：量化 × 推测解码
+        9.2 分页示例
       
     </span>
   </a>
@@ -1857,7 +1752,112 @@
   <a href="#10" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. 延伸阅读
+        10. 实验数据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：KV 账本与分块
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（推导）：为什么"等大块 + 按需分配"同时消两种碎片
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3pagedattention-vs-flashattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（思考）：PagedAttention vs FlashAttention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4cow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（设计）：COW 引用计数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（对比）：三种"省 KV"的层次
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：分块分配模拟器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 延伸阅读
       
     </span>
   </a>
@@ -1884,248 +1884,237 @@
   
 
 
-<h1 id="llm-11-qservefp8-attention">LLM 量化精读笔记 · 11 系统协同与部署：QServe、FP8 Attention 与工程工具<a class="headerlink" href="#llm-11-qservefp8-attention" title="Permanent link">&para;</a></h1>
+<h1 id="llm-05-pagedattention-kv">LLM 注意力与计算内核精读笔记 · 05 PagedAttention 与 KV 显存管理<a class="headerlink" href="#llm-05-pagedattention-kv" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>对应：QServe / QoQ（arXiv:2405.04532，MLSys 2025）；FlashAttention-3（arXiv:2407.08691）；SageAttention（arXiv:2410.02367）；vLLM / TensorRT-LLM / llama.cpp。
-学完本章你应该能：① 解释"量化算法好 ≠ 端到端快"的系统瓶颈（dequant、内存布局、kernel）；② 讲清 QServe 的 W4A8KV4 协同设计（为什么 W4A8 而不是 W4A4、KV4 为什么重要）；③ 说出主流引擎的量化支持地图；④ 给出"无损优先"的组合优化栈与部署决策树。</p>
+<p>对应：Kwon et al., <em>Efficient Memory Management for Large Language Model Serving with PagedAttention</em>（arXiv:2309.06180，SOSP 2023），vLLM 论文。
+前置：01 章（KV cache 大小公式）、02 章（FlashAttention 的分块）、03 章（<span class="arithmatex">\(d_{\text{kv}}\)</span> 压缩）。学完本章你应该能：① 说出 KV 显存管理的三种浪费（预留、内部碎片、外部碎片）与论文实测的有效利用率（20.4%–38.2%）；② 解释 PagedAttention 的"逻辑块→物理块"分页思想与 block table；③ 说明 PagedAttention 与 FlashAttention 的关系与区别；④ 解释 copy-on-write 如何让并行采样/beam search 共享 KV；⑤ 手算 KV 每 token 字节数与分块账本。</p>
 </blockquote>
 <hr />
 <h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
 <li>本章目标</li>
-<li>从算法到系统：三个隐形瓶颈</li>
-<li>QServe：W4A8KV4 的算法-系统协同</li>
-<li>注意力量化（前沿）</li>
-<li>推理引擎的量化支持地图</li>
-<li>组合优化栈：无损优先</li>
-<li>部署决策树（含验收闭环）</li>
+<li>问题：KV 显存管理为什么低效</li>
+<li>核心思想：像操作系统一样分页</li>
+<li>PagedAttention：分块注意力计算</li>
+<li>vLLM：块管理、按需分配与抢占调度</li>
+<li>共享：Copy-on-Write 与解码算法</li>
+<li>块大小权衡</li>
+<li>KV 优化全景：维度、内容、布局</li>
+<li>数值算例</li>
+<li>实验数据</li>
 <li>本章小结</li>
 <li>习题与解答</li>
 <li>延伸阅读</li>
 </ol>
 <hr />
-<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
-<p>前面各章证明了"某种量化<strong>算法</strong>质量好"。本章回答最后一个问题：</p>
-<blockquote>
-<p>同一套量化方案，为什么在不同引擎里速度差几倍？怎么把量化装进生产系统，和其他优化组合？</p>
-</blockquote>
-<p>核心转变：从"量化权重"到"<strong>为量化重新设计系统</strong>"。</p>
+<h2 id="2-kv">2. 问题：KV 显存管理为什么低效<a class="headerlink" href="#2-kv" title="Permanent link">&para;</a></h2>
+<p>01 章算过 KV 账本：7B 模型 512KB/token。vLLM 论文给了一个更直观的例子——<strong>OPT-13B</strong>：</p>
+<div class="arithmatex">\[
+2 \times 5120 \times 40 \times 2 = 800\ \text{KB/token}
+\]</div>
+<p>一条最多 2048 token 的请求，KV cache 高达 <strong>1.6GB</strong>。更糟的是，现有 serving 系统里这些显存<strong>大部分是浪费的</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>浪费 1（预留 reserved）：为"可能达到的最大长度"提前占位，
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                         占着茅坑不拉屎，别的请求进不来
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>浪费 2（内部碎片）：请求实际长度 &lt;&lt; 最大长度，预分配的槽位用不满
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>浪费 3（外部碎片）：buddy allocator 等分配器产生的不连续空洞
+</code></pre></div>
+<p>论文实测（Fig. 2）：现有系统的 KV 显存<strong>只有 20.4%–38.2% 真正存了 token</strong>——约六到八成被浪费。同时 GPU 趋势是"算力翻倍、显存不涨"（A100→H100：FLOPS 翻倍，80GB 不变），显存会越来越是瓶颈。</p>
 <hr />
-<h2 id="2">2. 从算法到系统：三个隐形瓶颈<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
-<h3 id="21-dequantization">2.1 反量化（dequantization）开销<a class="headerlink" href="#21-dequantization" title="Permanent link">&para;</a></h3>
-<p>低比特权重在 GPU 上<strong>不能直接算矩阵乘</strong>（Tensor Core 没有 INT4 指令，FP4 只在 Blackwell 有），通常要：</p>
-<ol>
-<li>读入打包的 4-bit 权重</li>
-<li>解包成 INT8/FP16 格式</li>
-<li>乘 scale（dequant）</li>
-<li>才能喂给 Tensor Core</li>
-</ol>
-<p>如果第 2–3 步在寄存器/内存里反复做，省下的带宽可能被计算开销吃回去。<strong>"4-bit 权重= <span class="arithmatex">\(2\)</span>倍速度"只在 kernel 把 dequant 做进流水线时才成立。</strong></p>
-<h3 id="22">2.2 内存布局与打包<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
-<p>4-bit 不是字节对齐的（2 个<span class="arithmatex">\(4-bit = 1\)</span>字节）。怎么把 4-bit 值塞进寄存器、怎么按 group 排列 scale，决定 kernel 效率。差的布局会让访存模式碎裂。</p>
-<h3 id="23-kernel">2.3 kernel 覆盖<a class="headerlink" href="#23-kernel" title="Permanent link">&para;</a></h3>
-<p>量化收益只在"有对应 kernel 的层"兑现：</p>
-<p>W8A8 <span class="arithmatex">\(\to\)</span> INT8 GEMM kernel（Ampere+）</p>
-<p><span class="arithmatex">\(W4A16 \to INT4 weight-only kernel\)</span>（各家自定义）
-<span class="arithmatex">\(W4A8KV4 \to\)</span>专门的 4-bit GEMM + KV 4-bit attention（QServe）</p>
-<p>没有 kernel 的层退回 FP16，收益就漏掉一块。</p>
+<h2 id="3">3. 核心思想：像操作系统一样分页<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>操作系统解决"内存碎片 + 共享"的经典方案是<strong>虚拟内存分页</strong>。PagedAttention 把它搬进 GPU：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>把每个请求的 KV cache 切成固定大小的"逻辑块"（默认 16 token/块）
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>物理块：GPU DRAM 里预先划好的等大内存片
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>block table：记录"逻辑块 → 物理块"的映射 + 每块已填充位置数
+</code></pre></div>
+<p>为什么这样能治病：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>按需分配（要多少块给多少块）→ 消除预留与内部碎片
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>所有物理块等大、可任意排列 → 消除外部碎片
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>块是共享/复用的最小单位 → 支持跨请求共享（第 6 节）
+</code></pre></div>
 <hr />
-<h2 id="3-qservew4a8kv4-">3. QServe：W4A8KV4 的算法-系统协同<a class="headerlink" href="#3-qservew4a8kv4-" title="Permanent link">&para;</a></h2>
-<h3 id="31-qoqw4a8kv4">3.1 QoQ：W4A8KV4 量化方案<a class="headerlink" href="#31-qoqw4a8kv4" title="Permanent link">&para;</a></h3>
-<p>QoQ（Quattuor-Octo-Quattuor，拉丁语 4-8-4）：</p>
-<p>权重：4-bit（group 128 或 per-channel），配合激活感知缩放（AWQ 式）做"渐进量化"
-激活：8-bit（INT8/FP8）</p>
-<p>KV cache：4-bit</p>
-<p>质量：WikiText-2 PPL 与 FP16 几乎无差（近无损）</p>
-<p>"渐进量化"（progressive quantization）是关键算法设计：让 W4A8 GEMM 能在 <strong>INT8 Tensor Core</strong> 上执行（把 4-bit 权重解包成两个 INT8 或直接按 INT8 对齐布局），避免 Blackwell 之前的硬件不支持。</p>
-<h3 id="32">3.2 两个"为什么"<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
-<p><strong>为什么 W4A8，而不是 W4A4？</strong></p>
-<p>W4A4 的 GEMM 主循环里，权重和激活都要解包/去量化，每步开销更大
-W4A8：激活 8-bit 可直接进 INT8 Tensor Core，只有权重需要解包<span class="arithmatex">\(\to\)</span>主循环更干净
-<span class="arithmatex">\(\to\)</span>端到端反而更快（QServe 论文专门分析了这个 tradeoff）</p>
-<p><strong>为什么 KV4？</strong></p>
-<p>大 batch 下 attention 占运行时 50%+（<span class="arithmatex">\(batch=64\)</span>时）
-KV 4-bit 让 attention 的峰值性能翻倍（相对 KV8）
-<span class="arithmatex">\(\to W4A8KV4\)</span>是"权重省带宽 + 激活保计算 + KV 救 attention"的组合</p>
-<h3 id="33">3.3 系统技术<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
-<ol>
-<li>compute-aware weight reordering：按 kernel 的访存模式重排权重布局</li>
-<li>register-level parallelism：把 dequant 摊进寄存器流水，隐藏开销</li>
-<li>专用 attention kernel：4-bit KV 读取 + 反量化 + FP16 计算</li>
-</ol>
-<h3 id="34">3.4 性能<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
-<p>相比当时工业界最强基线 TensorRT-LLM：
-  一般模型吞吐高 1.2–1.4x
-  Qwen1.5-72B 高 2.4–3.5x
-  L40S（低端卡）跑 QServe 的吞吐超过 A100 上 TensorRT-LLM（8 个模型里 6 个）</p>
-<p><strong>结论</strong>：量化方案的收益上限由"算法 × kernel × 调度"共同决定——这是"协同设计"的价值。</p>
+<h2 id="4-pagedattention">4. PagedAttention：分块注意力计算<a class="headerlink" href="#4-pagedattention" title="Permanent link">&para;</a></h2>
+<p>KV 不再连续存放，注意力计算也要改成<strong>块级</strong>。设块大小 <span class="arithmatex">\(B\)</span>，第 <span class="arithmatex">\(j\)</span> 个 key 块：</p>
+<div class="arithmatex">\[
+K_j = (k_{(j-1)B+1}, \dots, k_{jB}), \qquad
+V_j = (v_{(j-1)B+1}, \dots, v_{jB})
+\]</div>
+<p>注意力输出按块累加：</p>
+<div class="arithmatex">\[
+\mathbf{O}_i = \sum_j \mathbf{P}_{ij} \mathbf{V}_j, \qquad
+\mathbf{S}_{ij} = \mathbf{Q}_i \mathbf{K}_j^\top
+\]</div>
+<p>softmax 的归一化跨块进行——<strong>用的正是 02 章 online softmax 的机制</strong>（运行 max/ℓ 逐块合并）。所以：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>FlashAttention 解决"怎么在 SRAM 里高效算"
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>PagedAttention 解决"KV 在 HBM 里怎么放"（非连续、可共享）
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>两者正交，工程上同时使用
+</code></pre></div>
+<p>PagedAttention 的额外挑战：一个 batch 里各请求长度不同、块位置不同，注意力 kernel 要按 block table <strong>动态取块</strong>并处理变长序列。</p>
 <hr />
-<h2 id="4">4. 注意力量化（前沿）<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
-<p>Inference Engineering 的默认建议：<strong>attention 留在原精度</strong>（softmax 太敏感）。但前沿工作在突破：</p>
+<h2 id="5-vllm">5. vLLM：块管理、按需分配与抢占调度<a class="headerlink" href="#5-vllm" title="Permanent link">&para;</a></h2>
+<p>vLLM 把 PagedAttention 做成完整 serving 引擎：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>① 块引擎：GPU DRAM 划成物理块池；每个请求一张 block table
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>② 按需分配：token 只进已填满块之后的下一个空位，满块才申请新物理块
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>   → 请求级浪费被压到"一个块以内"
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>③ 抢占调度：显存不足时挂起请求、释放其块（或换到 CPU RAM），
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>   再按 block table 恢复——类似 OS 的换页
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>④ 连续批处理：每次迭代把"能算的请求"打包，与块管理协同
+</code></pre></div>
+<p>结果：<strong>KV cache 接近零浪费</strong>，batch 可以显著加大，吞吐随之提升。</p>
+<hr />
+<h2 id="6-copy-on-write">6. 共享：Copy-on-Write 与解码算法<a class="headerlink" href="#6-copy-on-write" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 并行采样<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>一个 prompt 生成多个输出时，<strong>prompt 部分的 KV 完全相同</strong>，可以让多条输出共享同一批物理块。只有各自新生成的 token 需要独占空间；如果新 token 要写进一个被共享的旧块，就用 <strong>copy-on-write（COW）</strong>：复制该块、改引用计数，不污染其他输出。</p>
+<h3 id="62-beam-search">6.2 Beam Search<a class="headerlink" href="#62-beam-search" title="Permanent link">&para;</a></h3>
+<p>beam search 的多个候选不仅共享 prompt，还会在解码过程中动态分叉/合并——共享模式像 OS 的进程树。vLLM 按块管理引用计数：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>候选被淘汰 → 引用计数减一 → 归零的物理块释放复用
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>新候选加入 → 分配新物理块
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>论文报告：beam search 场景下共享可省最多 55% 的 KV 显存
+</code></pre></div>
+<p>对比：旧系统要在候选之间<strong>拷贝 KV</strong>（代价高）；分页共享让"复制"退化为"多一行 block table 指向同一物理块"。</p>
+<hr />
+<h2 id="7">7. 块大小权衡<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<div class="arithmatex">\[
+\text{块越大：} \begin{cases}
+\text{好：一次 kernel 处理更多 token，并行度高、延迟低} \\
+\text{坏：最后一个块可能用不满 → 内部碎片变大}
+\end{cases}
+\]</div>
+<div class="arithmatex">\[
+\text{块越小：} \text{碎片少，但 kernel 开销/块表开销大}
+\]</div>
+<p>默认 16 token/块是实践折中；论文 §7.2 专门做了块大小敏感性实验。<strong>碎片与并行度的平衡点取决于模型与负载</strong>。</p>
+<hr />
+<h2 id="8-kv">8. KV 优化全景：维度、内容、布局<a class="headerlink" href="#8-kv" title="Permanent link">&para;</a></h2>
+<p>把 03/04/05 三章放在一张图里：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>KV cache 优化
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>├── 维度（03 章）：MQA/GQA/MLA —— 每 token 存多少
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├── 内容（04 章）：滑窗/驱逐/稀疏 —— 存哪些 token
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>└── 布局（05 章）：PagedAttention —— 怎么存放、怎么共享
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>三者可叠加：MLA 减少每 token 字节 → H2O 决定留谁 → 分页管理剩余
+</code></pre></div>
+<hr />
+<h2 id="9">9. 数值算例<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91-opt-13b">9.1 OPT-13B 账本（论文原例）<a class="headerlink" href="#91-opt-13b" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+\text{每 token： } 2 \times 5120 \times 40 \times 2 = 800\ \text{KB}
+\]</div>
+<div class="arithmatex">\[
+\text{单请求上限 2048 token： } 800\ \text{KB} \times 2048 = 1.6\ \text{GB}
+\]</div>
+<h3 id="92">9.2 分页示例<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<p>7B 模型（512KB/token）、块大小 16 token：一条 40 token 的请求需要 <span class="arithmatex">\(40/16 \to 3\)</span> 个逻辑块（16+16+8），映射到物理块（如 5, 2, 9 号）——物理上不连续、按需分配：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>逻辑块 1 → 物理块 5（满）
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>逻辑块 2 → 物理块 2（满）
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>逻辑块 3 → 物理块 9（8/16 填充）
+</code></pre></div>
+<p>若三个请求共享同一 prompt（并行采样），逻辑块 1 可以指向<strong>同一个物理块 5</strong>，只各配一块新的 COW 块。</p>
+<hr />
+<h2 id="10">10. 实验数据<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>方法</th>
-<th>做法</th>
-<th>状态</th>
+<th>指标</th>
+<th>数据</th>
+<th>出处</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>FlashAttention-3（2024）</td>
-<td>Hopper 上 FP8 attention + 异步拷贝</td>
-<td>生产化中</td>
+<td>现有系统 KV 有效利用率</td>
+<td>仅 20.4%–38.2%</td>
+<td>vLLM Fig. 2</td>
 </tr>
 <tr>
-<td>SageAttention（2024）</td>
-<td>8-bit 量化 Q/K/V，精度保持，图像/视频生成加速</td>
-<td>研究+落地中</td>
+<td>OPT-13B KV 账本</td>
+<td>800KB/token；2048 token = 1.6GB</td>
+<td>vLLM §3.2</td>
+</tr>
+<tr>
+<td>vLLM 吞吐</td>
+<td>比 FasterTransformer/Orca 高 <strong>2–4x</strong>（同等延迟，不影响精度）</td>
+<td>vLLM 摘要</td>
+</tr>
+<tr>
+<td>beam search 共享</td>
+<td>最多省 55% KV 显存</td>
+<td>vLLM §6.3</td>
+</tr>
+<tr>
+<td>块大小</td>
+<td>默认 16 token/块；§7.2 做敏感性分析</td>
+<td>vLLM §4.1/§7.2</td>
 </tr>
 </tbody>
 </table>
-<p>工程建议：</p>
-<p>默认：QK/softmax 用 FP16/FP32
-FP8 attention 只在：① 有专用 kernel ② 长序列 attention 占比高 ③ 评测通过</p>
 <hr />
-<h2 id="5">5. 推理引擎的量化支持地图<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>引擎</th>
-<th>支持的量化</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM</a></td>
-<td>AWQ、GPTQ、FP8(E4M3/E5M2)、MXFP8、FP4(Blackwell)、KV cache 量化</td>
-<td>生态最广；PagedAttention；生产首选之一</td>
-</tr>
-<tr>
-<td><a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a></td>
-<td>FP8、INT4/FP4、SmoothQuant W8A8、AWQ、KV 量化</td>
-<td>NVIDIA 深度优化；部署灵活</td>
-</tr>
-<tr>
-<td><a href="https://github.com/sgl-project/sglang">SGLang</a></td>
-<td>同上（复用多种后端）</td>
-<td>高性能 + 结构化生成</td>
-</tr>
-<tr>
-<td><a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></td>
-<td>GGUF：<span class="arithmatex">\(Q2_K\sim Q8_0\)</span>、IQ 系列、MXFP4</td>
-<td>本地/边缘；格式事实标准</td>
-</tr>
-<tr>
-<td><a href="https://huggingface.co/docs/transformers/quantization">bitsandbytes / HF Transformers</a></td>
-<td>NF4/INT8（bitsandbytes）、GPTQ、AWQ、FP8</td>
-<td>研究/微调（QLoRA）</td>
-</tr>
-<tr>
-<td><a href="https://github.com/ml-explore/mlx">MLX（Apple）</a></td>
-<td>4-bit 量化（MLX 生态）</td>
-<td>Apple Silicon 本地部署</td>
-</tr>
-</tbody>
-</table>
-<p>选引擎的检查清单：</p>
+<h2 id="11">11. 本章小结<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
 <ol>
-<li>我要的量化格式有没有 kernel（不是"支持"而是"实测速度"）</li>
-<li>激活是否也量化（W8A8 还是只 W4A16）</li>
-<li>KV cache 量化是否可开关</li>
-<li>长上下文、GQA、MoE 是否适配</li>
-<li>是否支持我要的硬件（Hopper / Blackwell / 本地）</li>
-</ol>
-<hr />
-<h2 id="6">6. 组合优化栈：无损优先<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
-<p>Inference Engineering Ch5 的关键提示：<strong>除了量化，本章其他技术都是无损的</strong>。所以优化顺序：</p>
-<p>第一优先（无损）：
-  1. 前缀缓存 / KV 复用（相同前缀不算第二次）
-  2. 推测解码（draft 模型多 token 猜测）
-  3. PagedAttention 类显存管理</p>
-<p>第二优先（有损但收益大）：
-  4. W8A8 FP8（权重+激活，01 章带宽/FLOPS 账本）
-  5. KV cache 4-bit/FP8（长上下文显存）
-  6. W4A8KV4（激进，Blackwell/QServe 类系统）</p>
-<p>最后（按需）：
-  7. 模型并行 / 预填充-解码解耦（另一套工程）</p>
-<blockquote>
-<p>记忆：<strong>"先白嫖（无损），再冒险（量化），最后上重型工程（并行/解耦）。"</strong></p>
-</blockquote>
-<hr />
-<h2 id="7">7. 部署决策树（含验收闭环）<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
-<p>① 有 GPU 与模型<span class="arithmatex">\(\to\)</span>先跑 FP16 基线（速度/质量双基线）
-② 质量必须无损<span class="arithmatex">\(\to\)</span>只用无损优化（缓存/推测解码）
-③ 可以接受"验证过的"风险<span class="arithmatex">\(\to\)</span>
-   默认配方：W8A8 FP8 + KV 4-bit/FP8，attention 留 FP16
-   激进：W4A8KV4（QServe）/ FP4（Blackwell）
-④ 每档都走 10 章的 Gate 1–4 验收
-⑤ 不达标<span class="arithmatex">\(\to\)</span>降档：更细粒度<span class="arithmatex">\(\to\)</span>更高位宽<span class="arithmatex">\(\to\)</span>换方法<span class="arithmatex">\(\to\)</span>局部 QAT
-⑥ 达标<span class="arithmatex">\(\to\)</span>灰度<span class="arithmatex">\(A/B \to\)</span>上线<span class="arithmatex">\(\to\)</span>监控长尾/长上下文</p>
-<hr />
-<h2 id="8">8. 本章小结<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>算法好 ≠ 系统快</strong>：dequant、内存布局、kernel 覆盖是三个隐形瓶颈。</li>
-<li><strong>QServe 示范了协同设计</strong>：W4A8KV4（渐进量化让 4-bit 权重跑在 INT8 Tensor Core）+ 权重重排 + 寄存器级 dequant + KV4 attention；vs TensorRT-LLM 高 1.2–1.4x（72B 上 2.4–3.5x）。</li>
-<li><strong>attention 默认不动</strong>，FP8 attention 是前沿选项（FA3/SageAttention）。</li>
-<li><strong>引擎选择看 kernel 实测</strong>，不是看支持列表。</li>
-<li><strong>无损优化优先</strong>：缓存/推测解码先上，量化后上，并行/解耦最后。</li>
-<li><strong>部署 = 量化 × 系统 × 验收闭环</strong>（接 10 章）。</li>
+<li><strong>问题</strong>：KV 显存浪费来自预留、内部碎片、外部碎片，实测有效利用率只有 20.4%–38.2%。</li>
+<li><strong>方案</strong>：分页（固定大小逻辑块 + block table + 按需分配），把碎片压到"一个块以内"。</li>
+<li><strong>计算</strong>：PagedAttention 用 02 章的 online softmax 逐块合并；与 FlashAttention 正交叠加。</li>
+<li><strong>共享</strong>：COW + 引用计数让并行采样、beam search 共享 KV（最多省 55%）。</li>
+<li><strong>全景</strong>：维度（03）→ 内容（04）→ 布局（05），三层可叠加。</li>
 </ol>
 <blockquote>
-<p>一句话记忆：<strong>"量化解决'数据太多'，系统解决'解包太慢'，验收解决'到底行不行'——三件事一起做，才是推理工程的量化。"</strong></p>
+<p>一句话记忆：<strong>"KV 显存管理就是给 GPU 装一个操作系统——把整块地皮切成统一大小的页，谁要谁领、不用就还，多个进程（beam/采样）还能共享只读页。"</strong></p>
 </blockquote>
 <hr />
-<h2 id="9">9. 习题与解答<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
-<h3 id="1-4-bit">题 1（思考）：为什么 4-bit 不一定快<a class="headerlink" href="#1-4-bit" title="Permanent link">&para;</a></h3>
-<p>一个 naive 的 W4A16 kernel 比 W8A8 慢，可能的原因有哪些？</p>
+<h2 id="12">12. 习题与解答<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<h3 id="1kv">题 1（计算）：KV 账本与分块<a class="headerlink" href="#1kv" title="Permanent link">&para;</a></h3>
+<p>LLaMA-2 70B（80 层、GQA-8、<span class="arithmatex">\(d=8192\)</span>、<span class="arithmatex">\(d_{\text{head}}=128\)</span>、BF16）：① 每 token KV 字节数；② 若块大小 16，一条 1000 token 请求需要多少逻辑块；③ 最后一块的填充率。</p>
 <details>
 <summary>题 1 解答</summary>
 
-① 4-bit 解包/去量化开销大（无原生 INT4 Tensor Core）；② 内存布局碎片化导致访存效率低；③ 激活 16-bit 让计算量不变，只是省了权重带宽，而带宽收益被 kernel 开销抵消；④ scale 折叠没做好，多了一轮乘法。
+① $2 \times 80 \times 8 \times 128 \times 2 = 320\ \text{KB/token}$。② $1000/16 = 62.5 \to 63$ 个逻辑块。③ 前 62 块满（$62\times16=992$），第 63 块填充 $8/16 = 50\%$——整条请求的浪费被压到"不到一个块"。
 </details>
 
-<h3 id="2-70b">题 2（设计）：给 70B 部署选型<a class="headerlink" href="#2-70b" title="Permanent link">&para;</a></h3>
-<p>场景：H200（单卡 141GB）、70B 模型、32K 上下文、要求 PPL 无损 + 尽量快。给出方案组合与理由。</p>
+<h3 id="2">题 2（推导）：为什么"等大块 + 按需分配"同时消两种碎片<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p>解释内部碎片与外部碎片各自的成因，以及分页方案分别怎么消除。</p>
 <details>
-<summary>题 2 解答要点</summary>
+<summary>题 2 解答</summary>
 
-无损优先：前缀缓存 + PagedAttention。量化：W8A8 FP8（权重+激活近无损、FLOPS 翻倍）+ KV 4-bit（32K 上下文显存大头，08 章算过≈$10.7GB\to 2.7GB$）。attention 留 FP16。引擎：vLLM 或 TensorRT-LLM（FP8 kernel 成熟）。验收：10 章 Gate 1–4。
+内部碎片来自"预分配最大长度"（预留超过实际所需）；按需分配让每条请求只占用已产生的 token 的块，浪费被限制在最后一个不满块内。外部碎片来自"不同请求预分配不同大小"造成的分配器空洞；所有物理块等大、逻辑到物理自由映射，空洞不再存在。
 </details>
 
-<h3 id="3w4a16-vs-w4a8kv4">题 3（对比）：W4A16 vs W4A8KV4<a class="headerlink" href="#3w4a16-vs-w4a8kv4" title="Permanent link">&para;</a></h3>
-<p>两者权重都是 4-bit，为什么端到端收益不同？</p>
+<h3 id="3pagedattention-vs-flashattention">题 3（思考）：PagedAttention vs FlashAttention<a class="headerlink" href="#3pagedattention-vs-flashattention" title="Permanent link">&para;</a></h3>
+<p>两者都"分块"，解决的是同一个问题吗？工程上如何叠加？</p>
 <details>
-<summary>题 3 解答</summary>
+<summary>题 3 解答要点</summary>
 
-W4A16 只省权重带宽（decode 受益，prefill 计算仍是 16-bit）；W4A8KV4 的激活 8-bit 让 prefill 也用上低精度 Tensor Core（2x FLOPS），KV4 让 attention 带宽减半——三段（权重、激活、KV）都受益，端到端收益更高，但系统复杂度也更高。
+不是。FlashAttention 解决"计算时中间矩阵不落 HBM"（IO 优化，KV 仍是连续存储）；PagedAttention 解决"KV 在 HBM 里的布局与共享"（内存管理）。FlashAttention kernel 处理连续块，PagedAttention kernel 按 block table 取非连续块；vLLM 等引擎两者同时启用。
 </details>
 
-<h3 id="4_1">题 4（排错）：量化后速度没提升<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
-<p>W8A8 量化部署后 TPS 没变，排查思路（至少 4 条）。</p>
+<h3 id="4cow">题 4（设计）：COW 引用计数<a class="headerlink" href="#4cow" title="Permanent link">&para;</a></h3>
+<p>并行采样 4 条输出共享 prompt 的物理块 7。① 第 3 条输出要写入块 7 的新位置，流程是什么？② 块 7 的引用计数如何变化？</p>
 <details>
-<summary>题 4 解答要点</summary>
+<summary>题 4 解答</summary>
 
-① kernel 是否真的生效（profile 看算子的数据类型）；② 是否只有权重量化、激活还是 FP16（退化成 W8A16）；③ 是否被注意力/非量化算子占比掩盖（短序列时 attention 占比高）；④ 是否 batch 太小（带宽没打满）；⑤ 是否 KV/前缀缓存把瓶颈移到别处。
+① 检测到块 7 被 4 条输出共享 → 复制块 7 为新物理块 7'，把第 3 条输出的 block table 指向 7'，其余 3 条仍指向 7；写入 7' 的新 token。② 7 的引用计数从 4 降到 3；7' 引用计数为 1。任何输出结束后引用计数减一，归零即释放。
 </details>
 
-<h3 id="5_1">题 5（开放）：量化 × 推测解码<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
-<p>推测解码（无损）和量化（有损）叠加时，验收要注意什么？</p>
+<h3 id="5-kv">题 5（对比）：三种"省 KV"的层次<a class="headerlink" href="#5-kv" title="Permanent link">&para;</a></h3>
+<p>用一句话分别说明 MLA（03）、H2O/StreamingLLM（04）、PagedAttention（05）在 KV 上动的是什么，并给一个三者叠加的部署组合。</p>
 <details>
 <summary>题 5 解答要点</summary>
 
-两者独立验收后再做联合验收：① draft 模型与 target 量化是否引入接受率下降（量化误差影响 draft 一致性）；② 联合后的端到端质量仍要走 Gate 1–4；③ 速度收益要分别归因（量化省带宽、推测省步数），避免把噪声当收益。
+MLA：每 token 存更少（维度）；H2O/StreamingLLM：存更少的 token（内容）；PagedAttention：存得更紧凑、可共享（布局）。叠加示例：MLA 压缩维度 + H2O 驱逐低频 token + 分页管理剩余 KV 并让并行采样共享。
+</details>
+
+<h3 id="6">题 6（编程）：分块分配模拟器<a class="headerlink" href="#6" title="Permanent link">&para;</a></h3>
+<p>实现一个简单模拟器：给定请求到达/离开序列与块大小，① 按需分配物理块（block table）；② 统计三种方案的碎片率：预分配最大长度 / 按需分配 / 统一分页；③ 验证"按需分页"碎片率趋近 0。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+预分配：每条请求占"最大长度/块"块，请求提前结束时大量空闲；按需：请求结束时只剩最后一个不满块；统一分页 + 引用计数：请求间可复用、释放即时。统计总占用/总分配即可复现 vLLM Fig. 2 的结论。
 </details>
 
 <hr />
-<h2 id="10">10. 延伸阅读<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h2 id="13">13. 延伸阅读<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="https://arxiv.org/abs/2405.04532">QServe / QoQ（arXiv:2405.04532）</a>；<a href="https://github.com/mit-han-lab/qserve">代码</a></li>
-<li><a href="https://arxiv.org/abs/2407.08691">FlashAttention-3（arXiv:2407.08691）</a></li>
-<li><a href="https://arxiv.org/abs/2410.02367">SageAttention（arXiv:2410.02367）</a></li>
-<li><a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM 量化文档</a>；<a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a>；<a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></li>
-<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">10 质量评估方法论</a>；本系列完结，回到 <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">00 总览</a>。</li>
+<li><a href="https://arxiv.org/abs/2309.06180">Efficient Memory Management for LLM Serving with PagedAttention（arXiv:2309.06180）</a>：本章全部内容的出处（§3 浪费分析、§4 算法、§6 共享、§7 块大小）。</li>
+<li><a href="https://docs.vllm.ai/">vLLM 文档</a>：PagedAttention 的生产实现、前缀缓存、并行采样。</li>
+<li><a href="https://arxiv.org/abs/2312.07104">RadixAttention / SGLang（arXiv:2312.07104）</a>：前缀缓存的树形管理，PagedAttention 思想的延伸。</li>
+<li>上一篇：<a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E7%A8%80%E7%96%8F%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%BA%BF%E6%80%A7%E6%B3%A8%E6%84%8F%E5%8A%9B/">04 稀疏、滑动窗口与线性注意力</a>；下一篇：<strong>06 内核优化与算子融合</strong>——从算法回到硬件：FLOPs/带宽模型、算子融合、Tensor Core、FP8 注意力与编译优化。</li>
 </ol>
 
 
@@ -2162,7 +2151,7 @@ W4A16 只省权重带宽（decode 受益，prefill 计算仍是 16-bit）；W4A8
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 10 质量评估方法论">
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E7%A8%80%E7%96%8F%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%BA%BF%E6%80%A7%E6%B3%A8%E6%84%8F%E5%8A%9B/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 04 稀疏、滑动窗口与线性注意力">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2172,20 +2161,20 @@ W4A16 只省权重带宽（decode 受益，prefill 计算仍是 16-bit）；W4A8
                 上一页
               </span>
               <div class="md-ellipsis">
-                10 质量评估方法论
+                04 稀疏、滑动窗口与线性注意力
               </div>
             </div>
           </a>
         
         
           
-          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-footer__link md-footer__link--next" aria-label="下一页: 00 总览与学习地图">
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E5%86%85%E6%A0%B8%E4%BC%98%E5%8C%96%E4%B8%8E%E7%AE%97%E5%AD%90%E8%9E%8D%E5%90%88/" class="md-footer__link md-footer__link--next" aria-label="下一页: 06 内核优化与算子融合">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                00 总览与学习地图
+                06 内核优化与算子融合
               </div>
             </div>
             <div class="md-footer__button md-icon">
