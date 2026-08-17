@@ -60,7 +60,7 @@ $$
 
 ### 2.3 两个收益
 
-省显存$\to $同样的 GPU 能塞更大 batch / 更长上下文
+省显存$\to$同样的 GPU 能塞更大 batch / 更长上下文
 省带宽$\to decode$读 KV 的时间减少（和权重带宽同源）
 
 ---
@@ -71,10 +71,10 @@ $$
 
 KV 误差是**动态累积**的：
 
-1. token t 写入时被量化$\to $带误差的$K_{t}$、$V_{t}$进入 cache
+1. token t 写入时被量化$\to$带误差的$K_{t}$、$V_{t}$进入 cache
 2. 之后每个 token（t+1, t+2, …）都要读$K_{t}$、$V_{t}$算注意力
 3. 误差不消失，还参与所有后续 softmax/输出计算
-4. 每一层、每一步都在重复使用这些被污染的缓存$\to $误差逐 token 累积
+4. 每一层、每一步都在重复使用这些被污染的缓存$\to$误差逐 token 累积
 
 更微妙的是 softmax：QK 分数一旦被量化噪声扰动，softmax 的指数放大会把"小扰动"变成"注意力权重偏差"，进而直接改变输出分布。这就是 Inference Engineering 说"errors compound token-to-token"的机理。
 
@@ -136,7 +136,7 @@ V cache：2-bit，per-token 非对称量化（每个 token 一个 scale + zero-p
 KV 是**在线生成**的（一个 token 一个 token 写），所以量化必须流式：
 
 1. 保留一小段最近的 token 在 FP16 缓冲（避免反复量化、保证近期精度）
-2. K：以一小段 token 为单元，统计该段每个通道的$\max/\min \to per-channel$非对称量化$\to $写 2-bit
+2. K：以一小段 token 为单元，统计该段每个通道的$\max/\min \to per-channel$非对称量化$\to$写 2-bit
 3. V：每 token 到达即按该 token 自己的 max/min 量化（per-token）
 4. 解码时：2-bit 数据按需反量化回 FP16 参与 attention
 
@@ -157,7 +157,7 @@ KV 是**在线生成**的（一个 token 一个 token 写），所以量化必�
 
 - **模型**：Llama-2 7B/13B/70B、OPT、Mistral 等。
 - **质量**：2-bit KV 在论文测试长度（数千到上万 token）下 perplexity 与 FP16 差异在噪声范围内；4-bit 更稳。
-- **内存**：KV 省 4 倍$\to $同一 GPU 可支持更大 batch 或更长上下文。
+- **内存**：KV 省 4 倍$\to$同一 GPU 可支持更大 batch 或更长上下文。
 - **即插即用**：无需微调、无需额外校准训练。
 
 ### 7.2 边界与生产建议
@@ -188,7 +188,7 @@ KV 优化是一个组合拳，量化只是其中一块：
 ## 9. 本章小结
 
 1. **KV 是长上下文的显存大头**：公式 `2·L·H·d·S·bytes`，$70B @32K \approx 10.7 GB$。
-2. **误差滚雪球**：KV 被反复读取，softmax 放大扰动$\to $逐 token 累积。
+2. **误差滚雪球**：KV 被反复读取，softmax 放大扰动$\to$逐 token 累积。
 3. **K 按通道、V 按 token**：K 分布稳定（通道模式），V 分布漂移（随时间变）——KIVI 的全部设计都从这里来。
 4. **2-bit 非对称 + 流式量化 + 免调参**：即插即用，4x 省显存，近无损。
 5. **生产建议**：4-bit/FP8 起步、按实际长度评测、与 PagedAttention/前缀缓存叠加。
@@ -227,7 +227,7 @@ $K_{t}$被 token t+1 … T 每一步读取，共 T−t 次；每次读取都参�
 <details>
 <summary>题 3 解答</summary>
 
-scale 过期：新 token 的 V 分布可能远超/远低于旧 scale 覆盖范围$\to $大量截断或有效位宽浪费（02 章）；per-token scale 始终跟当前 token 对齐，截断可控。K 因为分布稳定才敢用 per-channel。
+scale 过期：新 token 的 V 分布可能远超/远低于旧 scale 覆盖范围$\to$大量截断或有效位宽浪费（02 章）；per-token scale 始终跟当前 token 对齐，截断可控。K 因为分布稳定才敢用 per-channel。
 </details>
 
 ### 题 4（编程）：per-token vs per-channel 对比
@@ -237,7 +237,7 @@ scale 过期：新 token 的 V 分布可能远超/远低于旧 scale 覆盖范�
 <details>
 <summary>题 4 解答要点</summary>
 
-per-channel 的 scale 固定$\to $后一半全部落在网格边缘/外，误差大；per-token 每 token 自适应，误差接近理论最优。验证 KIVI 的结论：**分布漂移时 per-token 完胜**。
+per-channel 的 scale 固定$\to$后一半全部落在网格边缘/外，误差大；per-token 每 token 自适应，误差接近理论最优。验证 KIVI 的结论：**分布漂移时 per-token 完胜**。
 </details>
 
 ### 题 5（开放）：KV 量化的验收

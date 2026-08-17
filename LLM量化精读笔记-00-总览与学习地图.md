@@ -30,7 +30,7 @@
 1. **打地基**（01）：信息论、整数/浮点编码、舍入与截断——回答"一个数在计算机里到底怎么存、误差从哪来"。
 2. **为什么能省**（02–03）：量化 = 有损压缩；位宽每减 1，噪声音量减半、SNR 涨$\sim 6 dB$；浮点格式用指数位换动态范围。
 3. **难在哪**（04）：outlier、分布利用不充分、粒度选择——所有方法都在绕这三个坑。
-4. **怎么解决**（05–08）：权重（GPTQ/AWQ/QuIP#）$\to $激活（LLM.int8/SmoothQuant）$\to KV cache$（KIVI），从"最不敏感"到"最敏感"逐层攻克。
+4. **怎么解决**（05–08）：权重（GPTQ/AWQ/QuIP#）$\to$激活（LLM.int8/SmoothQuant）$\to KV cache$（KIVI），从"最不敏感"到"最敏感"逐层攻克。
 5. **训练侧怎么做**（09）：QAT、QLoRA、BitNet。
 6. **怎么验收**（10）＋**怎么部署**（11）。
 
@@ -60,9 +60,9 @@ $LLM.int8 (2022) \to GPTQ (2022) \to SmoothQuant (2023) \to AWQ (2023) \to QLoRA
 | qmin, qmax | 量化整数值域（如$INT8: -128 \sim 127$） |
 | s | 缩放因子 scale（实数） |
 | z | 零点 zero-point（整数） |
-|$\Delta $| 步长 step size（相邻量化层间距） |
+|$\Delta$| 步长 step size（相邻量化层间距） |
 | [rmin, rmax] | 量化覆盖的实数范围 |
-|$\varepsilon $| 量化误差（$\varepsilon = r - \hat{r}$） |
+|$\varepsilon$| 量化误差（$\varepsilon = r - \hat{r}$） |
 |$\sigma ^{2}$| 方差（信号$\sigma ^{2}_s$，噪声$\sigma ^{2}_e$） |
 | SNR / SQNR | 信噪比 / 量化信噪比（dB） |
 | W8A8 / W4A16 / W4A8KV4 | 权重位数-激活位数（-KV 位数）记法 |

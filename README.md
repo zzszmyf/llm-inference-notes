@@ -43,7 +43,9 @@
 
 ## 公式渲染
 
-推荐阅读器（支持 MathJax/KaTeX 的 Markdown + LaTeX）：
+**GitHub 原生支持**：Markdown 与 README 中的 LaTeX 数学公式可直接渲染（行内 `$...$`、独立 `$$...$$`，引擎为 MathJax）。本仓库已按 GitHub 的语法规则处理（`$` 与内容之间不留空格），打开任意章节即可看到公式。
+
+本地阅读器（支持 MathJax/KaTeX 的 Markdown + LaTeX）：
 
 - VS Code + [Markdown Preview Enhanced](https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced)（或 VS Code 内置 Markdown 预览）
 - [Typora](https://typora.io/)

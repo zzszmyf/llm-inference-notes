@@ -55,7 +55,7 @@ $$
 W8A8 \to INT8 GEMM kernel（Ampere+）
 $$
 $W4A16 \to INT4 weight-only kernel$（各家自定义）
-$W4A8KV4 \to $专门的 4-bit GEMM + KV 4-bit attention（QServe）
+$W4A8KV4 \to$专门的 4-bit GEMM + KV 4-bit attention（QServe）
 
 没有 kernel 的层退回 FP16，收益就漏掉一块。
 
@@ -81,8 +81,8 @@ $$
 **为什么 W4A8，而不是 W4A4？**
 
 W4A4 的 GEMM 主循环里，权重和激活都要解包/去量化，每步开销更大
-W4A8：激活 8-bit 可直接进 INT8 Tensor Core，只有权重需要解包$\to $主循环更干净
-$\to $端到端反而更快（QServe 论文专门分析了这个 tradeoff）
+W4A8：激活 8-bit 可直接进 INT8 Tensor Core，只有权重需要解包$\to$主循环更干净
+$\to$端到端反而更快（QServe 论文专门分析了这个 tradeoff）
 
 **为什么 KV4？**
 
@@ -167,14 +167,14 @@ Inference Engineering Ch5 的关键提示：**除了量化，本章其他技术�
 
 ## 7. 部署决策树（含验收闭环）
 
-① 有 GPU 与模型$\to $先跑 FP16 基线（速度/质量双基线）
-② 质量必须无损$\to $只用无损优化（缓存/推测解码）
-③ 可以接受"验证过的"风险$\to $
+① 有 GPU 与模型$\to$先跑 FP16 基线（速度/质量双基线）
+② 质量必须无损$\to$只用无损优化（缓存/推测解码）
+③ 可以接受"验证过的"风险$\to$
    默认配方：W8A8 FP8 + KV 4-bit/FP8，attention 留 FP16
    激进：W4A8KV4（QServe）/ FP4（Blackwell）
 ④ 每档都走 10 章的 Gate 1–4 验收
-⑤ 不达标$\to $降档：更细粒度$\to $更高位宽$\to $换方法$\to $局部 QAT
-⑥ 达标$\to $灰度$A/B \to $上线$\to $监控长尾/长上下文
+⑤ 不达标$\to$降档：更细粒度$\to$更高位宽$\to$换方法$\to$局部 QAT
+⑥ 达标$\to$灰度$A/B \to$上线$\to$监控长尾/长上下文
 
 ---
 

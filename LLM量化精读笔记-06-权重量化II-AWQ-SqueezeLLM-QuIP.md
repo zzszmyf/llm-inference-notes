@@ -23,9 +23,9 @@
 
 05 章的 GPTQ 证明了"误差可以补偿"，但它有三个短板：**要逐层重建（慢）、校准集可能过拟合、2-bit 依然崩**。本章三条路线分别针对这三个短板：
 
-$AWQ \to $不重建，几分钟完成；用"激活幅度"代替 Hessian
-$SqueezeLLM \to $用敏感度 + 非均匀量化 + outlier 分离，冲 3-bit
-QuIP#$\to $用"非相干变换"把误差变成白噪声，冲 2-bit
+$AWQ \to$不重建，几分钟完成；用"激活幅度"代替 Hessian
+$SqueezeLLM \to$用敏感度 + 非均匀量化 + outlier 分离，冲 3-bit
+QuIP#$\to$用"非相干变换"把误差变成白噪声，冲 2-bit
 
 ---
 
@@ -49,9 +49,9 @@ AWQ 论文做了个实验：INT3（$group=128$）量化后，把**部分通道�
 
 OPT-13B, INT3-g128, WikiText-2 PPL（FP16 基线 10.13）：
   全量化（RTN）$\to 46.04$
-  保留 1% 通道为 FP16（按激活幅度选）$\to 10.51 \leftarrow $几乎无损
-  保留 1% 通道为 FP16（按权重幅度选）$\to 48.96 \leftarrow $没用
-  保留 1% 通道为 FP16（随机选）$\to 42.00 \leftarrow $没用
+  保留 1% 通道为 FP16（按激活幅度选）$\to 10.51 \leftarrow$几乎无损
+  保留 1% 通道为 FP16（按权重幅度选）$\to 48.96 \leftarrow$没用
+  保留 1% 通道为 FP16（随机选）$\to 42.00 \leftarrow$没用
 
 **结论**：显著通道只有$\sim 1\%$（甚至 0.1%），必须按**输入激活的幅度**识别——激活大的通道处理的是重要特征。
 
@@ -69,7 +69,7 @@ OPT-13B, INT3-g128, WikiText-2 PPL（FP16 基线 10.13）：
 两个经验事实（论文 Table 2 背后的分析）：
 
 1. $RoundErr(\cdot ) \approx 0.25$（均匀分布在$[0, 0.5]$），缩放不改变它
-2. 缩放单个（少数）元素通常不改变组的$\max \to \Delta ′ \approx \Delta $
+2. 缩放单个（少数）元素通常不改变组的$\max \to \Delta ′ \approx \Delta$
 
 于是误差：
 
@@ -78,9 +78,9 @@ OPT-13B, INT3-g128, WikiText-2 PPL（FP16 基线 10.13）：
 
 **结论：把显著通道的权重放大 s 倍、激活除以 s，在组内 max 基本不变的前提下，显著通道的量化误差约缩小 1/s。** 这就是"等效保护"。
 
-代价：s 太大时，被放大的通道会成为组的 max（$\Delta ′ > \Delta $），反而伤到同组其他通道。论文在 OPT-6.7B INT3-g128 上扫 s：
+代价：s 太大时，被放大的通道会成为组的 max（$\Delta ′ > \Delta$），反而伤到同组其他通道。论文在 OPT-6.7B INT3-g128 上扫 s：
 
-| s |$\Delta ′\ne \Delta $的比例 | 平均$\Delta ′/\Delta \cdot (1/s)$| Wiki-2 PPL |
+| s |$\Delta ′\ne \Delta$的比例 | 平均$\Delta ′/\Delta \cdot (1/s)$| Wiki-2 PPL |
 |---|---|---|---|
 | 1 | 0% | 1.0 | 23.54 |
 | 1.25 | 2.8% | 0.804 | 12.87 |
@@ -93,8 +93,8 @@ OPT-13B, INT3-g128, WikiText-2 PPL（FP16 基线 10.13）：
 ### 3.4 算法：怎么选 s
 
 1. 用校准集前向，记录每层输入激活 X
-2. 对每个输入通道 j：$s_{j} = (\max|X_{j}|)^\alpha $
-3. 网格搜索$\alpha \in \{0, 0.05, ..., 1\}$，选使量化后校准损失最小的$\alpha $*
+2. 对每个输入通道 j：$s_{j} = (\max|X_{j}|)^\alpha$
+3. 网格搜索$\alpha \in \{0, 0.05, ..., 1\}$，选使量化后校准损失最小的$\alpha$*
 4. 应用：$W \leftarrow W\cdot \operatorname{diag}(s)$，$X \leftarrow X\cdot \operatorname{diag}(s)^{-1}$（权重放大、激活缩小）
 5. 对缩放后的 W 做常规 group 量化（$group=128$）
 
@@ -141,7 +141,7 @@ $$
 
 （H 是层输入的 Hessian 对角近似；公式来源与 05 章$\Delta L = \frac{1}{2}(w-\hat{w})^{2}/[H^{-1}]_{qq}$同源。）
 
-敏感度高的权重：量化它的损失大$\to $值得"特殊照顾"。
+敏感度高的权重：量化它的损失大$\to$值得"特殊照顾"。
 
 ### 4.3 敏感度感知的非均匀量化
 
@@ -188,7 +188,7 @@ $$
 
 （D 是随机对角符号，H 是 Hadamard 矩阵；变换可逆、计算 O(n log n)，且可以折叠到相邻层）
 
-洗牌后：权重各分量幅度趋于均匀$\to $量化误差各向同性$\to 2-bit$从"结构性破坏"变成"噪声级扰动"。
+洗牌后：权重各分量幅度趋于均匀$\to$量化误差各向同性$\to 2-bit$从"结构性破坏"变成"噪声级扰动"。
 
 ### 5.3 E8 格码本：2-bit 的最优打包
 
@@ -197,7 +197,7 @@ $$
 把 8 个权重打包成一个 8 维向量
 用 E8 格（8 维空间里 packing 最优的格之一）的码字近似
 
-E8 格的性质：码字间的最小距离在 8 维格中最大$\to $同样的位预算下失真最小（经典编码理论的结论）。推理时用查表（LUT）快速解码。
+E8 格的性质：码字间的最小距离在 8 维格中最大$\to$同样的位预算下失真最小（经典编码理论的结论）。推理时用查表（LUT）快速解码。
 
 ### 5.4 结果
 
@@ -228,7 +228,7 @@ E8 格的性质：码字间的最小距离在 8 维格中最大$\to $同样的�
 
 ## 7. 本章小结
 
-1. **AWQ**：1% 显著权重（按激活幅度）决定成败；用 $s = \max|X|^\alpha $ 缩放，数学上等效"保护"，无重建、分钟级、硬件友好——W4A16 的事实标准。
+1. **AWQ**：1% 显著权重（按激活幅度）决定成败；用 $s = \max|X|^\alpha$ 缩放，数学上等效"保护"，无重建、分钟级、硬件友好——W4A16 的事实标准。
 2. **SqueezeLLM**：敏感度（Hessian 对角）驱动非均匀码本 + outlier 稀疏分离，3-bit 追平 FP16。
 3. **QuIP#**：Hadamard 把权重洗成"非相干"（误差白噪声化）+ E8 格码本打包，2-bit 极限区间 SOTA。
 4. **共同主线**：都是"不均匀对待权重"——要么按通道（AWQ）、要么按个体（SqueezeLLM）、要么先把分布变均匀（QuIP#）。
@@ -241,12 +241,12 @@ E8 格的性质：码字间的最小距离在 8 维格中最大$\to $同样的�
 
 ### 题 1（推导）：AWQ 的误差公式
 
-从$Q(w\cdot s)\cdot (x/s) = \Delta ′\cdot \operatorname{Round}(ws/\Delta ′)\cdot x/s$出发，写出误差表达式，并解释$\Delta ′\approx \Delta $时为什么误差约缩小 1/s。
+从$Q(w\cdot s)\cdot (x/s) = \Delta ′\cdot \operatorname{Round}(ws/\Delta ′)\cdot x/s$出发，写出误差表达式，并解释$\Delta ′\approx \Delta$时为什么误差约缩小 1/s。
 
 <details>
 <summary>题 1 解答</summary>
 
-真实输出 w·x；量化输出$\Delta ′\cdot \operatorname{Round}(ws/\Delta ′)\cdot x/s$。误差= $|w - \Delta ′\cdot \operatorname{Round}(ws/\Delta ′)/s|\cdot x = (\Delta ′/s)\cdot RoundErr(ws/\Delta ′)\cdot x$。若$\Delta ′\approx \Delta $：误差≈ $\Delta \cdot RoundErr\cdot x/s$，即原始误差（$\Delta \cdot RoundErr\cdot x$）除以 s。
+真实输出 w·x；量化输出$\Delta ′\cdot \operatorname{Round}(ws/\Delta ′)\cdot x/s$。误差= $|w - \Delta ′\cdot \operatorname{Round}(ws/\Delta ′)/s|\cdot x = (\Delta ′/s)\cdot RoundErr(ws/\Delta ′)\cdot x$。若$\Delta ′\approx \Delta$：误差≈ $\Delta \cdot RoundErr\cdot x/s$，即原始误差（$\Delta \cdot RoundErr\cdot x$）除以 s。
 </details>
 
 ### 题 2（思考）：为什么 s 不能无限大
@@ -256,7 +256,7 @@ E8 格的性质：码字间的最小距离在 8 维格中最大$\to $同样的�
 <details>
 <summary>题 2 解答</summary>
 
-$s=4$时 21.2% 的组被缩放后的权重顶出新 max（$\Delta ′>\Delta $），同组非显著通道的网格变粗，误差上升；显著通道省下的误差 < 非显著通道失去的误差，总损失变大。缩放是"转移误差预算"，不是"消灭误差"。
+$s=4$时 21.2% 的组被缩放后的权重顶出新 max（$\Delta ′>\Delta$），同组非显著通道的网格变粗，误差上升；显著通道省下的误差 < 非显著通道失去的误差，总损失变大。缩放是"转移误差预算"，不是"消灭误差"。
 </details>
 
 ### 题 3（对比）：AWQ vs SqueezeLLM 的保护粒度
@@ -276,7 +276,7 @@ AWQ 按**输入通道**（激活幅度大 = 通道重要），整体缩放该通
 <details>
 <summary>题 4 解答要点</summary>
 
-输出= $Wx$，量化误差$\varepsilon $对输出的影响= $\varepsilon ^{T}x$。相干矩阵的$\varepsilon $集中在少数坐标（与 x 的少数分量强相关），伤害大且不可预测；非相干后$\varepsilon $的各分量独立、幅度均匀，与 x 的内积像随机噪声，期望影响小、可被后续层平均掉。这就是"把结构性误差变成白噪声"。
+输出= $Wx$，量化误差$\varepsilon$对输出的影响= $\varepsilon ^{T}x$。相干矩阵的$\varepsilon$集中在少数坐标（与 x 的少数分量强相关），伤害大且不可预测；非相干后$\varepsilon$的各分量独立、幅度均匀，与 x 的内积像随机噪声，期望影响小、可被后续层平均掉。这就是"把结构性误差变成白噪声"。
 </details>
 
 ### 题 5（实践）：给一个 7B 模型选权重量化方案

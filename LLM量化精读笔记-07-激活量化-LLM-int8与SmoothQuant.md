@@ -1,7 +1,7 @@
 # LLM 量化精读笔记 · 07 激活量化：LLM.int8() 与 SmoothQuant（W8A8）
 
 > 对应：LLM.int8()（arXiv:2208.07339，NeurIPS 2022）；SmoothQuant（arXiv:2211.10438，ICML 2023）；MIT 6.5940 Lecture 5。
-> 学完本章你应该能：① 说明激活量化比权重量化难在哪（动态、per-tensor、outlier）；② 讲清 LLM.int8() 的 vector-wise 量化与混合精度分解，并复述其 outlier 统计数字；③ 推导 SmoothQuant 的等效变换和$s_{j}$公式，解释$\alpha $的语义；④ 说清"scale 折叠"为什么让 W8A8 零运行时开销。
+> 学完本章你应该能：① 说明激活量化比权重量化难在哪（动态、per-tensor、outlier）；② 讲清 LLM.int8() 的 vector-wise 量化与混合精度分解，并复述其 outlier 统计数字；③ 推导 SmoothQuant 的等效变换和$s_{j}$公式，解释$\alpha$的语义；④ 说清"scale 折叠"为什么让 W8A8 零运行时开销。
 
 ---
 
@@ -25,8 +25,8 @@
 
 两条路线的分工：
 
-$LLM.int8() \to $承认 outlier 无法量化：把 outlier 列单独留在 FP16 算
-$SmoothQuant \to $否认 outlier 必须存在：用等效变换把难度搬到权重上
+$LLM.int8() \to$承认 outlier 无法量化：把 outlier 列单独留在 FP16 算
+$SmoothQuant \to$否认 outlier 必须存在：用等效变换把难度搬到权重上
 
 ---
 
@@ -100,7 +100,7 @@ $$
 3. X_{\text{outlier}}、W_{\text{outlier}} \to FP16 GEMM
 \end{aligned}
 $$
-4. 两部分结果相加$\to $输出
+4. 两部分结果相加$\to$输出
 
 由于 outlier 维度≤ $7$（13B 以下），FP16 路径只占$\sim 0.1\%$的计算和内存。
 
@@ -145,15 +145,15 @@ $$
 s_{j} = \max|X_{j}|^\alpha / \max|W_{j}|^{1-\alpha}, \alpha \in [0, 1]
 $$
 
-$\alpha $是"迁移强度"：
+$\alpha$是"迁移强度"：
 
-$\alpha = 0$：$s = 1/\max|W_{j}| \to $只归一化权重，不迁移（退化）
+$\alpha = 0$：$s = 1/\max|W_{j}| \to$只归一化权重，不迁移（退化）
 $\alpha = 0.5$：一半一半（OPT/BLOOM 的通用甜点）
-$\alpha = 1$：$s = \max|X_{j}| \to $激活被完全归一化，难度全部搬到权重
+$\alpha = 1$：$s = \max|X_{j}| \to$激活被完全归一化，难度全部搬到权重
 
-论文结论：**OPT/BLOOM 取$\alpha =0.5$最佳；激活更难量化的 GLM-130B 需要更大的$\alpha $（0.8）。**
+论文结论：**OPT/BLOOM 取$\alpha =0.5$最佳；激活更难量化的 GLM-130B 需要更大的$\alpha$（0.8）。**
 
-直觉：激活 outlier 通道（$\max|X_{j}|$巨大）对应$s_{j}$巨大$\to $该通道激活被除以巨大 s（被"抚平"），权重被乘上巨大 s（outlier 搬家到权重）。而权重是 per-channel 量化的，通道之间的巨大差异本来就各自独立处理——**权重扛得住，激活扛不住**。
+直觉：激活 outlier 通道（$\max|X_{j}|$巨大）对应$s_{j}$巨大$\to$该通道激活被除以巨大 s（被"抚平"），权重被乘上巨大 s（outlier 搬家到权重）。而权重是 per-channel 量化的，通道之间的巨大差异本来就各自独立处理——**权重扛得住，激活扛不住**。
 
 ### 4.4 为什么零运行时开销：scale 折叠
 
@@ -168,7 +168,7 @@ $\alpha = 1$：$s = \max|X_{j}| \to $激活被完全归一化，难度全部搬�
 ### 4.5 算法流程
 
 1. 校准：用校准集前向，统计每层$\max|X_{j}|$与$\max|W_{j}|$
-2. 选$\alpha $（默认 0.5，或按验证集扫描）
+2. 选$\alpha$（默认 0.5，或按验证集扫描）
 3. 计算$per-channel s_{j}$，生成$W' = W\cdot s$，记录 X 的 per-tensor scale
 4. 对 W' 做 per-channel INT8 量化、X 做 per-tensor INT8 量化
 5. 部署：INT8 GEMM + 折叠后的 scale
@@ -204,8 +204,8 @@ INT8×INT8 的乘积累加必须用 INT32/FP32，否则溢出。**量化的是�
 
 03 章讲过：FP8 E4M3 自带 4 位指数，动态范围远好于 INT8。因此现代 W8A8 越来越多直接用 **FP8**：
 
-INT8 方案：SmoothQuant（把 outlier 抚平）$\to $需要$\alpha $校准
-FP8 方案：E4M3 天然容忍部分$outlier \to $校准更省事
+INT8 方案：SmoothQuant（把 outlier 抚平）$\to$需要$\alpha$校准
+FP8 方案：E4M3 天然容忍部分$outlier \to$校准更省事
 
 但 SmoothQuant 的思想没有过时：FP8 激活仍有 outlier 问题（只是阈值变宽了），且 FP8 的尾数只有 3 bit，精度预算更紧张。TensorRT-LLM / vLLM 的 FP8 方案里仍然常见"SmoothQuant 式迁移 + FP8"的组合。
 
@@ -215,7 +215,7 @@ FP8 方案：E4M3 天然容忍部分$outlier \to $校准更省事
 
 1. **激活量化难**：动态、per-tensor、outlier（99.99% 在$\pm 60$但$\max \sim 1000$）。
 2. **LLM.int8()**：vector-wise 量化 + outlier 混合精度分解；$6.0/0.1\%/6.7B/75\%/\le 7$是它的统计基石；无损但工程复杂、小模型不快。
-3. **SmoothQuant**：恒等变换 (W·s)(X/s) 把难度从激活搬到权重；$s_{j} = \max|X|^\alpha /\max|W|^{1-\alpha}$，$\alpha $控制迁移强度；scale 折叠$\to $零运行时开销；W8A8 近无损、$\sim 1.5x$。
+3. **SmoothQuant**：恒等变换 (W·s)(X/s) 把难度从激活搬到权重；$s_{j} = \max|X|^\alpha /\max|W|^{1-\alpha}$，$\alpha$控制迁移强度；scale 折叠$\to$零运行时开销；W8A8 近无损、$\sim 1.5x$。
 4. **工程铁律**：累加器永远高精度；激活量化在线做、权重离线做；scale 能折叠就折叠。
 
 > 一句话记忆：**"LLM.int8 打不过 outlier 就绕开它，SmoothQuant 打不过就把它搬到权重那边去。"**
@@ -257,7 +257,7 @@ $\alpha =0$：$s_{j} = 1/\max|W_{j}|$（只归一化权重通道，激活不动�
 | 量化对象 | 权重+激活（INT8） | 权重+激活（INT8/FP8） |
 | outlier 处理 | 分离到 FP16 路径 | 迁移到权重 |
 | FP16 路径 | 有（outlier 列） | 无（全 INT8/FP8） |
-| 校准 | 不需要 | 需要（统计 max，选$\alpha $） |
+| 校准 | 不需要 | 需要（统计 max，选$\alpha$） |
 | 适用位宽 | 8-bit | 8-bit（FP8 变体更常用） |
 </details>
 
@@ -286,6 +286,6 @@ per-channel 量化对每个通道独立选 scale（04 章）：通道 j 的 scal
 ## 9. 延伸阅读
 
 1. [LLM.int8()（arXiv:2208.07339）](https://arxiv.org/abs/2208.07339)：vector-wise + 混合精度分解
-2. [SmoothQuant（arXiv:2211.10438）](https://arxiv.org/abs/2211.10438)：迁移公式、$\alpha $扫描、scale 折叠
+2. [SmoothQuant（arXiv:2211.10438）](https://arxiv.org/abs/2211.10438)：迁移公式、$\alpha$扫描、scale 折叠
 3. [SmoothQuant 官方代码](https://github.com/mit-han-lab/smoothquant)：INT8 GEMM kernel 与校准实现
 4. 上一篇：[06 权重量化 II](./LLM量化精读笔记-06-权重量化II-AWQ-SqueezeLLM-QuIP.md)；下一篇：**[08 KV Cache 量化：KIVI 与误差累积]**——第三个量化对象：把长上下文里的显存大头压下来。
