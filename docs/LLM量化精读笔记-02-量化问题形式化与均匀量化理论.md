@@ -159,7 +159,7 @@ def dequantize_affine(q, s, z):
     return (q - z) * s
 ```
 
-（$round_$ 用 banker's rounding 或 round-half-away-from-zero 都可，工程上注意与 kernel 一致即可；MIT Lab 2 的实现与此等价。）
+（`round_` 用 banker's rounding 或 round-half-away-from-zero 都可，工程上注意与 kernel 一致即可；MIT Lab 2 的实现与此等价。）
 
 ### 3.5 数值算例 1：8-bit 对称量化
 

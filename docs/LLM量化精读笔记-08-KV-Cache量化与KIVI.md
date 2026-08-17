@@ -35,17 +35,17 @@
 
 解码时，每个 token 的注意力 Key/Value 向量被缓存，供后续所有 token 复用：
 
-KV cache 张量：K、V 各一个，形状$[n_{\text{layers}}, n_{kv_heads}, \text{seq\_len}, \text{head\_dim}]$
+KV cache 张量：K、V 各一个，形状$[n_{\text{layers}}, n_{\text{kv\_heads}}, \text{seq\_len}, \text{head\_dim}]$
 
 显存公式（FP16）：
 
 $$
-Bytes = 2 \times n_{\text{layers}} \times n_{kv_heads} \times \text{head\_dim} \times \text{seq\_len} \times 2
+Bytes = 2 \times n_{\text{layers}} \times n_{\text{kv\_heads}} \times \text{head\_dim} \times \text{seq\_len} \times 2
 $$
 
 ### 2.2 实例：Llama-2-70B
 
-n_{\text{layers}} = 80，n_{kv_heads} = 8（GQA），\text{head\_dim} = 128，FP16
+n_layers = 80，n_kv_heads = 8（GQA），head_dim = 128，FP16
 
 每 token：$2 \times 80 \times 8 \times 128 \times 2 B = 327,680 B \approx 0.31 MB$
 

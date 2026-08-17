@@ -326,7 +326,7 @@ $$
 1. **无偏性**：half-away 对 +2.5 向上、−2.5 向下，在大数据量下误差会系统性偏向一侧（均值不为 0）；half-even 正负对称、期望误差为 0。
 2. **避免累积漂移**：金融/科学计算里大量求和时，系统性偏差会线性累积；half-even 让误差在统计上相互抵消。
 
-量化里的意义：模型有上亿次量化/反量化，**任何系统性偏差都会被放大**，所以默认用无偏舍入。PyTorch 的 `torch.round`、NumPy 的 `np.round` 都是 half-even；CUDA 的 $__float2int_rn$ 也是 round-to-nearest-even。部分量化库（如 bitsandbytes）用 round-to-nearest（half-away），实际影响通常很小，但做严格对比实验时要注意复现性。
+量化里的意义：模型有上亿次量化/反量化，**任何系统性偏差都会被放大**，所以默认用无偏舍入。PyTorch 的 `torch.round`、NumPy 的 `np.round` 都是 half-even；CUDA 的 `__float2int_rn` 也是 round-to-nearest-even。部分量化库（如 bitsandbytes）用 round-to-nearest（half-away），实际影响通常很小，但做严格对比实验时要注意复现性。
 
 > 补充：训练里还有一种**随机舍入（stochastic rounding）**：以概率往上下取整，期望值恰好等于原数。它在 QAT 里用于去掉量化噪声的偏差（09 章会再见到）。
 
