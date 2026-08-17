@@ -1752,7 +1752,7 @@ q &amp;= \operatorname{clamp}(\operatorname{round}(r / s) + z, q_{\min}, q_{\max
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">def</span><span class="w"> </span><span class="nf">dequantize_affine</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="k">return</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span>
 </code></pre></div>
-<p>（<span class="arithmatex">\(round_\)</span> 用 banker's rounding 或 round-half-away-from-zero 都可，工程上注意与 kernel 一致即可；MIT Lab 2 的实现与此等价。）</p>
+<p>（<code>round_</code> 用 banker's rounding 或 round-half-away-from-zero 都可，工程上注意与 kernel 一致即可；MIT Lab 2 的实现与此等价。）</p>
 <h3 id="35-18-bit">3.5 数值算例 1：8-bit 对称量化<a class="headerlink" href="#35-18-bit" title="Permanent link">&para;</a></h3>
 <p>输入：</p>
 <div class="arithmatex">\[

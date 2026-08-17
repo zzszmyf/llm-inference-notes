@@ -2206,7 +2206,7 @@ BF16：指数<span class="arithmatex">\(8 bit \to\)</span>范围同 FP32，尾�
 <li><strong>无偏性</strong>：half-away 对 +2.5 向上、−2.5 向下，在大数据量下误差会系统性偏向一侧（均值不为 0）；half-even 正负对称、期望误差为 0。</li>
 <li><strong>避免累积漂移</strong>：金融/科学计算里大量求和时，系统性偏差会线性累积；half-even 让误差在统计上相互抵消。</li>
 </ol>
-<p>量化里的意义：模型有上亿次量化/反量化，<strong>任何系统性偏差都会被放大</strong>，所以默认用无偏舍入。PyTorch 的 <code>torch.round</code>、NumPy 的 <code>np.round</code> 都是 half-even；CUDA 的 <span class="arithmatex">\(__float2int_rn\)</span> 也是 round-to-nearest-even。部分量化库（如 bitsandbytes）用 round-to-nearest（half-away），实际影响通常很小，但做严格对比实验时要注意复现性。</p>
+<p>量化里的意义：模型有上亿次量化/反量化，<strong>任何系统性偏差都会被放大</strong>，所以默认用无偏舍入。PyTorch 的 <code>torch.round</code>、NumPy 的 <code>np.round</code> 都是 half-even；CUDA 的 <code>__float2int_rn</code> 也是 round-to-nearest-even。部分量化库（如 bitsandbytes）用 round-to-nearest（half-away），实际影响通常很小，但做严格对比实验时要注意复现性。</p>
 <blockquote>
 <p>补充：训练里还有一种<strong>随机舍入（stochastic rounding）</strong>：以概率往上下取整，期望值恰好等于原数。它在 QAT 里用于去掉量化噪声的偏差（09 章会再见到）。</p>
 </blockquote>
