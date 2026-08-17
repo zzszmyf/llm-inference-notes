@@ -274,11 +274,11 @@ decode 阶段每个 token 都要把权重从 HBM 搬一遍。设模型参数量 
 
 70B 模型、2048 token 的 prefill：
 
-\begin{aligned}
- FLOPs $\approx$ 2 $\times$ 70e9 $\times$ 2048 $\approx$ 287 TFLOP
- H100 FP16（989 TFLOPS）：$\approx$ 0.29 s
- H100 FP8 （1979 TFLOPS）：$\approx$ 0.145 s
-\end{aligned}
+$$
+\text{FLOPs} \approx 2 \times 70e9 \times 2048 \approx 287 \text{ TFLOP}
+$$
+
+H100 FP16（989 TFLOPS）≈ 0.29 s；H100 FP8（1979 TFLOPS）≈ 0.145 s
 
 这就是"prefill 是计算密集、量化降一级 FLOPS 翻倍、TTFT 减半"的出处。
 
