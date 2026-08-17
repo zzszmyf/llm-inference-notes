@@ -1,7 +1,7 @@
 site_name: LLM 推理优化精读笔记
 site_description: MIT lecture note 级别的 LLM 推理优化精读笔记：量化 + 推测解码（Markdown + LaTeX）
-site_url: https://zzszmyf.github.io/llm-quantization-notes/
-repo_url: https://github.com/zzszmyf/llm-quantization-notes
+site_url: https://zzszmyf.github.io/llm-inference-notes/
+repo_url: https://github.com/zzszmyf/llm-inference-notes
 edit_uri: edit/main/docs/
 
 theme:

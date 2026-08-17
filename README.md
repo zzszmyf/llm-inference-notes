@@ -11,7 +11,7 @@
 
 📖 静态网站（GitHub Pages，带侧边栏导航、中文搜索、MathJax 公式渲染）：
 
-<https://zzszmyf.github.io/llm-quantization-notes/>
+<https://zzszmyf.github.io/llm-inference-notes/>
 
 源码目录 `docs/` 即网站源文件；本地重新构建网站：
 
