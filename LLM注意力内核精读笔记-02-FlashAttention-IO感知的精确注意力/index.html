@@ -1,0 +1,2299 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理优化精读笔记：量化 + 推测解码（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-inference-notes/LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-FlashAttention-IO%E6%84%9F%E7%9F%A5%E7%9A%84%E7%B2%BE%E7%A1%AE%E6%B3%A8%E6%84%8F%E5%8A%9B/">
+      
+      
+        <link rel="prev" href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>02 FlashAttention（IO 感知的精确注意力） - LLM 推理优化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-02-flashattentionio" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-header__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 推理优化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              02 FlashAttention（IO 感知的精确注意力）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-inference-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 推理优化精读笔记" class="md-nav__button md-logo" aria-label="LLM 推理优化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 推理优化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-inference-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推测解码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    推测解码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E6%8E%A5%E5%8F%97%E7%8E%87%E6%95%B0%E5%AD%A6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 问题形式化与接受率数学
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E5%8E%9F%E5%A7%8B%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81-%E8%8D%89%E7%A8%BF%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8B%92%E7%BB%9D%E9%87%87%E6%A0%B7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 原始推测解码（草稿模型与拒绝采样）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-Medusa-%E5%A4%9A%E5%A4%B4%E8%A7%A3%E7%A0%81/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Medusa（多头解码）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-EAGLE-%E7%89%B9%E5%BE%81%E7%A9%BA%E9%97%B4%E8%8D%89%E7%A8%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 EAGLE（特征空间草稿）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-n-gram%E6%A3%80%E7%B4%A2%E5%BC%8F%E4%B8%8E%E6%97%A0%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%BA%BF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 n-gram/检索式与无模型路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%AA%8C%E6%94%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 系统集成与生产验收
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    量化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    量化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力与计算内核
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力与计算内核
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 注意力机制基础与复杂度分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 FlashAttention（IO 感知的精确注意力）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 FlashAttention（IO 感知的精确注意力）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 01 章的遗留问题：朴素注意力"卡"在哪
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-io-hbm-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. IO 复杂度视角：瓶颈是 HBM，不是 FLOPs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. IO 复杂度视角：瓶颈是 HBM，不是 FLOPs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-hbm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 标准注意力的 HBM 账本
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-flashattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 FlashAttention 的目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 技巧一：Tiling（分块）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-online-softmax-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 技巧二：Online Softmax（增量 softmax）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 技巧二：Online Softmax（增量 softmax）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 为什么这是"精确"算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-recomputation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 技巧三：Recomputation（反向重算）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 算法与定理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 算法与定理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-fa1-algorithm-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 前向伪代码（FA1 Algorithm 1 精简版）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 两条定理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-online-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 数值算例：online softmax 手算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-flashattention-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. FlashAttention-2：并行与工作划分
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-flashattention-3hopper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. FlashAttention-3：Hopper 上的异步与低精度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 实验数据汇总
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-decode-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 衔接：decode 侧、FP8 注意力与量化系列
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 衔接：decode 侧、FP8 注意力与量化系列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-decode-flashdecoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Decode 形态（FlashDecoding）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 与量化系列的呼应
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1online-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：online softmax 保持精确
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：重做第 8 节算例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-m4d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（推导）：块大小为什么是 M/4d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：为什么"多算 FLOPs 反而更快"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5fa1fa2fa3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（对比）：FA1/FA2/FA3 各自解决什么
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：分块 softmax 验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 01 章的遗留问题：朴素注意力"卡"在哪
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-io-hbm-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. IO 复杂度视角：瓶颈是 HBM，不是 FLOPs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. IO 复杂度视角：瓶颈是 HBM，不是 FLOPs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-hbm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 标准注意力的 HBM 账本
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-flashattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 FlashAttention 的目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 技巧一：Tiling（分块）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-online-softmax-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 技巧二：Online Softmax（增量 softmax）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 技巧二：Online Softmax（增量 softmax）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 为什么这是"精确"算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-recomputation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 技巧三：Recomputation（反向重算）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 算法与定理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 算法与定理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-fa1-algorithm-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 前向伪代码（FA1 Algorithm 1 精简版）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 两条定理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-online-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 数值算例：online softmax 手算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-flashattention-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. FlashAttention-2：并行与工作划分
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-flashattention-3hopper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. FlashAttention-3：Hopper 上的异步与低精度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 实验数据汇总
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-decode-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 衔接：decode 侧、FP8 注意力与量化系列
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 衔接：decode 侧、FP8 注意力与量化系列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-decode-flashdecoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Decode 形态（FlashDecoding）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 与量化系列的呼应
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1online-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：online softmax 保持精确
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：重做第 8 节算例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-m4d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（推导）：块大小为什么是 M/4d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：为什么"多算 FLOPs 反而更快"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5fa1fa2fa3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（对比）：FA1/FA2/FA3 各自解决什么
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 6（编程）：分块 softmax 验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-02-flashattentionio">LLM 注意力与计算内核精读笔记 · 02 FlashAttention：IO 感知的精确注意力<a class="headerlink" href="#llm-02-flashattentionio" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：Dao et al., <em>FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness</em>（arXiv:2205.14135，NeurIPS 2022）；Dao, <em>FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning</em>（arXiv:2307.08691，ICLR 2024）；Shah et al., <em>FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision</em>（arXiv:2407.08608，2024）。
+前置：01 章（注意力复杂度、prefill/decode 形态、max-subtraction）。学完本章你应该能：① 说清朴素注意力"快不起来"的真正瓶颈是 HBM 读写而不是 FLOPs；② 写出 FlashAttention 的三个核心技巧（tiling、online softmax、recompute）及各自解决的问题；③ 推导 online softmax 的增量更新公式并手算验证与整体 softmax 一致；④ 复述 IO 复杂度定理（<span class="arithmatex">\(O(N^2d^2/M)\)</span> vs <span class="arithmatex">\(\Omega(Nd+N^2)\)</span>）与最优性结论；⑤ 对比 FA1/FA2/FA3 的改进路线与实测数据；⑥ 解释"重计算多花 FLOPs 反而更快"和"FlashAttention 是精确算法"这两个关键论断。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li>本章目标</li>
+<li>01 章的遗留问题：朴素注意力"卡"在哪</li>
+<li>IO 复杂度视角：瓶颈是 HBM，不是 FLOPs</li>
+<li>技巧一：Tiling（分块）</li>
+<li>技巧二：Online Softmax（增量 softmax）</li>
+<li>技巧三：Recomputation（反向重算）</li>
+<li>算法与定理</li>
+<li>数值算例：online softmax 手算</li>
+<li>FlashAttention-2：并行与工作划分</li>
+<li>FlashAttention-3：Hopper 上的异步与低精度</li>
+<li>实验数据汇总</li>
+<li>衔接：decode 侧、FP8 注意力与量化系列</li>
+<li>本章小结</li>
+<li>习题与解答</li>
+<li>延伸阅读</li>
+</ol>
+<hr />
+<h2 id="2-01">2. 01 章的遗留问题：朴素注意力"卡"在哪<a class="headerlink" href="#2-01" title="Permanent link">&para;</a></h2>
+<p>01 章算出注意力 FLOPs <span class="arithmatex">\(= 4L^2d\)</span>、显存 <span class="arithmatex">\(O(L^2)\)</span>。朴素 PyTorch 实现的三步：</p>
+<div class="arithmatex">\[
+\mathbf{S} = \mathbf{Q}\mathbf{K}^\top, \qquad
+\mathbf{P} = \mathrm{softmax}(\mathbf{S}), \qquad
+\mathbf{O} = \mathbf{P}\mathbf{V}
+\]</div>
+<p>三个浪费：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>① 显存：S 和 P 都是 N×N 矩阵，必须完整落在 HBM
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>   L=128K 时一个 S 就是 32GB（FP16）→ 直接爆显存
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>② IO：S 写一次、softmax 读一次、P 写一次、PV 再读一次
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>   每个元素被搬进搬出 HBM 多次
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>③ 白算：因果掩码在矩阵算完之后才应用，上三角 FLOPs 全浪费
+</code></pre></div>
+<p>FlashAttention 的答案：<strong>不让 <span class="arithmatex">\(N \times N\)</span> 矩阵落地</strong>——把它拆成能塞进片上 SRAM 的块，逐块算、逐块合并。难点只有一个：softmax 的归一化依赖整行，怎么分块还算得<strong>精确</strong>？这就是 online softmax。</p>
+<hr />
+<h2 id="3-io-hbm-flops">3. IO 复杂度视角：瓶颈是 HBM，不是 FLOPs<a class="headerlink" href="#3-io-hbm-flops" title="Permanent link">&para;</a></h2>
+<p>现代 GPU 有两层存储：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>HBM（主存）：容量大（几十 GB）、带宽有限（A100 约 2TB/s）
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>SRAM（片上）：容量小（每 SM 192KB）、带宽极高（~19TB/s 量级）
+</code></pre></div>
+<p>一次 HBM 访问的成本远高于一次浮点运算。所以算法的快慢不由 FLOPs 决定，而由 <strong>HBM 访问次数</strong>决定——这正是"IO 感知"的含义。</p>
+<h3 id="31-hbm">3.1 标准注意力的 HBM 账本<a class="headerlink" href="#31-hbm" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+\Omega(Nd + N^2)
+\]</div>
+<p>解读：读 <span class="arithmatex">\(\mathbf{Q},\mathbf{K},\mathbf{V}\)</span> 各 <span class="arithmatex">\(Nd\)</span> 是不可避免的；但 <span class="arithmatex">\(\mathbf{S}\)</span> 和 <span class="arithmatex">\(\mathbf{P}\)</span> 的<strong>写入再读出</strong>贡献了 <span class="arithmatex">\(N^2\)</span> 量级的 HBM 访问（每个元素至少 3–4 次搬移）。</p>
+<h3 id="32-flashattention">3.2 FlashAttention 的目标<a class="headerlink" href="#32-flashattention" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+O\!\left(\frac{N^2 d^2}{M}\right)
+\]</div>
+<p>其中 <span class="arithmatex">\(M\)</span> 是 SRAM 容量。当 <span class="arithmatex">\(M \gg d^2\)</span> 时，这个系数远小于标准实现的常数。论文实测：典型配置下 HBM 访问<strong>最多减少 9 倍</strong>（Fig. 2）。</p>
+<hr />
+<h2 id="4-tiling">4. 技巧一：Tiling（分块）<a class="headerlink" href="#4-tiling" title="Permanent link">&para;</a></h2>
+<p>把 <span class="arithmatex">\(\mathbf{Q}\)</span> 按行切成 <span class="arithmatex">\(T_r\)</span> 块、<span class="arithmatex">\(\mathbf{K},\mathbf{V}\)</span> 按行切成 <span class="arithmatex">\(T_c\)</span> 块：</p>
+<div class="arithmatex">\[
+\mathbf{Q}_i \in \mathbb{R}^{B_r \times d}, \qquad
+\mathbf{K}_j, \mathbf{V}_j \in \mathbb{R}^{B_c \times d}
+\]</div>
+<p>每次只把一块 <span class="arithmatex">\(\mathbf{Q}_i\)</span>、一块 <span class="arithmatex">\(\mathbf{K}_j\)</span>、一块 <span class="arithmatex">\(\mathbf{V}_j\)</span> 和中间的 <span class="arithmatex">\(\mathbf{S}_{ij} = \mathbf{Q}_i \mathbf{K}_j^\top\)</span> 放进 SRAM，算完合并到输出后丢弃。<strong><span class="arithmatex">\(N \times N\)</span> 的矩阵从头到尾不落 HBM</strong>。</p>
+<p>块大小怎么定？SRAM 里同时要放 <span class="arithmatex">\(\mathbf{Q}\)</span> 块（<span class="arithmatex">\(B_r d\)</span>）、<span class="arithmatex">\(\mathbf{K}\)</span> 块（<span class="arithmatex">\(B_c d\)</span>）、<span class="arithmatex">\(\mathbf{V}\)</span> 块（<span class="arithmatex">\(B_c d\)</span>）、<span class="arithmatex">\(\mathbf{S}\)</span> 块（<span class="arithmatex">\(B_r B_c\)</span>）四项，所以：</p>
+<div class="arithmatex">\[
+B_c = \left\lceil \frac{M}{4d} \right\rceil, \qquad
+B_r = \min\left(\left\lceil \frac{M}{4d} \right\rceil, d\right)
+\]</div>
+<p>（<span class="arithmatex">\(\approx M/4d\)</span> 的直觉：四项各占 <span class="arithmatex">\(\approx M/4\)</span>。）</p>
+<hr />
+<h2 id="5-online-softmax-softmax">5. 技巧二：Online Softmax（增量 softmax）<a class="headerlink" href="#5-online-softmax-softmax" title="Permanent link">&para;</a></h2>
+<p>分块后，第 <span class="arithmatex">\(j\)</span> 块的 softmax 归一化依赖"已经看过的 <span class="arithmatex">\(1..j-1\)</span> 块"，不能独立归一化。解法是维护三个运行量：</p>
+<div class="arithmatex">\[
+m^{(j)} = \max \text{ of scores so far}, \qquad
+\ell^{(j)} = \sum \exp(s - m^{(j)}), \qquad
+\mathbf{O}^{(j)} = \text{unnormalized output so far}
+\]</div>
+<p>处理新块 <span class="arithmatex">\(j+1\)</span>（块内最大 <span class="arithmatex">\(\tilde{m}\)</span>、块内指数和 <span class="arithmatex">\(\tilde{\ell}\)</span>、块内贡献 <span class="arithmatex">\(\tilde{\mathbf{P}}\mathbf{V}\)</span>）时，按以下三步更新：</p>
+<div class="arithmatex">\[
+m^{(j+1)} = \max(m^{(j)},\ \tilde{m})
+\]</div>
+<div class="arithmatex">\[
+\ell^{(j+1)} = e^{m^{(j)} - m^{(j+1)}}\, \ell^{(j)} + e^{\tilde{m} - m^{(j+1)}}\, \tilde{\ell}
+\]</div>
+<div class="arithmatex">\[
+\mathbf{O}^{(j+1)} = \frac{1}{\ell^{(j+1)}}\left(
+e^{m^{(j)} - m^{(j+1)}} \ell^{(j)} \mathbf{O}^{(j)} + e^{\tilde{m} - m^{(j+1)}} \tilde{\mathbf{P}} \mathbf{V}
+\right)
+\]</div>
+<p>直觉：如果新的最大值比旧的大（<span class="arithmatex">\(m^{(j+1)} &gt; m^{(j)}\)</span>），旧块的指数都要按 <span class="arithmatex">\(e^{m^{(j)} - m^{(j+1)}} &lt; 1\)</span> <strong>打折</strong>；新块按 <span class="arithmatex">\(e^{\tilde{m} - m^{(j+1)}}\)</span> 缩放。全部块处理完后，<span class="arithmatex">\(\mathbf{O} = \mathbf{O}^{(T_c)}\)</span> 已经是正确归一化的输出。</p>
+<h3 id="51">5.1 为什么这是"精确"算法<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>每一步的缩放都是软max恒等式的直接应用：</p>
+<div class="arithmatex">\[
+\mathrm{softmax}(s) = \frac{\exp(s - m)}{\sum_{j}\exp(s_j - m)}
+\]</div>
+<p>对任意 <span class="arithmatex">\(m\)</span> 成立。Online softmax 只是"换了个 <span class="arithmatex">\(m\)</span>"并等比缩放之前的累计——<strong>结果与一次性算整行 softmax 完全相同</strong>（只差浮点舍入）。这是 FlashAttention 与近似注意力（稀疏/线性）的本质区别：<strong>快，但不改结果</strong>。</p>
+<hr />
+<h2 id="6-recomputation">6. 技巧三：Recomputation（反向重算）<a class="headerlink" href="#6-recomputation" title="Permanent link">&para;</a></h2>
+<p>反向传播需要 <span class="arithmatex">\(\mathbf{S}\)</span> 和 <span class="arithmatex">\(\mathbf{P}\)</span> 的梯度。朴素实现把它们存下来（<span class="arithmatex">\(O(N^2)\)</span> 显存）；FlashAttention 选择：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>前向：只存每块的归一化因子 ℓ 和行最大 m（O(N)）
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>反向：从 HBM 重新读 Q/K/V 块，在 SRAM 里重算 S 和 P
+</code></pre></div>
+<p>代价是反向 FLOPs 大约翻倍；收益是<strong>免掉 <span class="arithmatex">\(O(N^2)\)</span> 的中间矩阵落盘</strong>，反向的 HBM 访问从 <span class="arithmatex">\(O(N^2)\)</span> 降到 <span class="arithmatex">\(O(N^2d^2/M)\)</span>。这就是"<strong>用 FLOPs 换 HBM 访问</strong>"——GPU 的算力是富余的，带宽才是稀缺的。</p>
+<hr />
+<h2 id="7">7. 算法与定理<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="71-fa1-algorithm-1">7.1 前向伪代码（FA1 Algorithm 1 精简版）<a class="headerlink" href="#71-fa1-algorithm-1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>输入：Q, K, V ∈ R^{N×d}（HBM），SRAM 容量 M
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>1. B_c = ⌈M/4d⌉，B_r = min(⌈M/4d⌉, d)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>2. 初始化 O = 0, ℓ = 0, m = −∞（HBM）
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>3. for j = 1..T_c:                    # 遍历 K/V 块
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>4.   载入 K_j, V_j 到 SRAM
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>5.   for i = 1..T_r:                  # 遍历 Q 块
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>6.     载入 Q_i, O_i, ℓ_i, m_i 到 SRAM
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>7.     S_ij = Q_i K_j^T               # 片上算
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>8.     m̃ = rowmax(S_ij), P̃ = exp(S_ij − m̃), ℓ̃ = rowsum(P̃)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>9.     m_i^new = max(m_i, m̃)
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>10.    ℓ_i^new = e^{m_i−m_i^new}ℓ_i + e^{m̃−m_i^new}ℓ̃
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>11.    O_i ← (e^{m_i−m_i^new}ℓ_i O_i + e^{m̃−m_i^new}P̃ V_j) / ℓ_i^new
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>12. 返回 O
+</code></pre></div>
+<h3 id="72">7.2 两条定理<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<p><strong>定理 1（正确性与资源）</strong>：上述算法返回精确的 <span class="arithmatex">\(\mathrm{softmax}(\mathbf{Q}\mathbf{K}^\top)\mathbf{V}\)</span>，FLOPs 为 <span class="arithmatex">\(O(N^2d)\)</span>，<strong>额外显存 <span class="arithmatex">\(O(N)\)</span></strong>。</p>
+<p><strong>定理 2（IO 复杂度与最优性）</strong>：FlashAttention 需要 <span class="arithmatex">\(O(N^2 d^2 / M)\)</span> 次 HBM 访问，而标准注意力需要 <span class="arithmatex">\(\Omega(Nd + N^2)\)</span> 次；并且<strong>不存在渐近更优的精确注意力算法</strong>（对所有 SRAM 大小）。</p>
+<hr />
+<h2 id="8-online-softmax">8. 数值算例：online softmax 手算<a class="headerlink" href="#8-online-softmax" title="Permanent link">&para;</a></h2>
+<p>复用 01 章 <span class="arithmatex">\(q_3\)</span> 的分数行 <span class="arithmatex">\(s = (1.414,\ 0.707,\ 0.707)\)</span>，<span class="arithmatex">\(V\)</span> 取第一坐标 <span class="arithmatex">\(v = (1,\ 0,\ 1)\)</span>。把行分两块：块 1 = 前两个分数，块 2 = 最后一个。</p>
+<p><strong>块 1</strong>：</p>
+<div class="arithmatex">\[
+\tilde{m} = 1.414, \quad \tilde{\mathbf{P}} = \exp(s-\tilde{m}) = (1,\ 0.493), \quad \tilde{\ell} = 1.493
+\]</div>
+<div class="arithmatex">\[
+m^{(1)} = 1.414, \quad \ell^{(1)} = 1.493, \quad
+\mathbf{O}^{(1)} = \frac{1\cdot 1 + 0.493 \cdot 0}{1.493} = 0.670
+\]</div>
+<p><strong>块 2</strong>：</p>
+<div class="arithmatex">\[
+\tilde{m} = 0.707, \quad \tilde{\mathbf{P}} = (1), \quad \tilde{\ell} = 1
+\]</div>
+<div class="arithmatex">\[
+m^{(2)} = \max(1.414, 0.707) = 1.414
+\]</div>
+<div class="arithmatex">\[
+\ell^{(2)} = e^{0}\cdot 1.493 + e^{0.707-1.414}\cdot 1 = 1.493 + 0.493 = 1.986
+\]</div>
+<div class="arithmatex">\[
+\mathbf{O}^{(2)} = \frac{1.493 \times 1 \times 0.670 + 0.493 \times 1 \times 1}{1.986}
+= \frac{1.0 + 0.493}{1.986} = 0.752
+\]</div>
+<p><strong>对照整体 softmax</strong>：<span class="arithmatex">\(a = (0.5035,\ 0.2483,\ 0.2483)\)</span>，输出 <span class="arithmatex">\(= 0.5035\cdot1 + 0.2483\cdot0 + 0.2483\cdot1 = 0.7518 \approx 0.752\)</span> ✓。</p>
+<blockquote>
+<p>注意：<span class="arithmatex">\(\mathbf{O}^{(1)} = 0.670\)</span> 是"只看前两块"的部分输出；合入块 2 时按 <span class="arithmatex">\(\ell\)</span> 正确重归一化——分块没有改变最终结果。</p>
+</blockquote>
+<hr />
+<h2 id="9-flashattention-2">9. FlashAttention-2：并行与工作划分<a class="headerlink" href="#9-flashattention-2" title="Permanent link">&para;</a></h2>
+<p>FA1 已经比标准实现快 2–4 倍，但论文实测其前向只达到 A100 理论峰值 FLOPs 的 30–50%（反向 25–35%），而优化过的 GEMM 能到 80–90%。差距来自<strong>工作划分</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>FA2 的三处改进：
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>① 序列长度维并行：每个 thread block 负责一个 (query 块, key 块) 对，减少串行依赖
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>② 减少非 matmul 运算：不再频繁重归一化，把 rescale 推迟到块末做一次
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>③ warp 内划分：KV 的列维在 warp 间均分，避免重复读共享内存，支持 d 到 256
+</code></pre></div>
+<p>结果：</p>
+<div class="arithmatex">\[
+\text{FA2} \approx 2\times \text{FA1}, \qquad \text{峰值} \approx 230\ \text{TFLOPs/s} = 73\%\ \text{理论峰值（A100）}
+\]</div>
+<hr />
+<h2 id="10-flashattention-3hopper">10. FlashAttention-3：Hopper 上的异步与低精度<a class="headerlink" href="#10-flashattention-3hopper" title="Permanent link">&para;</a></h2>
+<p>FA2 在 H100 上只到约 35% 利用率（GEMM 能到 80–90%）。H100 的新硬件给了 FA3 三个杠杆：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>① TMA 异步搬运：Tensor Memory Accelerator 专做 HBM↔SRAM 拷贝，
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>   让数据搬运与计算重叠（warp specialization：生产者 warp 搬运、消费者 warp 计算）
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>② 软max 藏在 GEMM 下面：把 softmax 的指数/归一等低吞吐运算
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>   与 WGMMA（warpgroup 矩阵乘）交错，用"乒乓"调度隐藏掉
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>③ FP8 张量核：块级量化 + incoherent processing（旋转/置换打散离群值），
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>   把精度损失压到最低
+</code></pre></div>
+<p>实测（H100 SXM5）：</p>
+<div class="arithmatex">\[
+\text{FA3 FP16} = 1.5\text{–}2.0\times \text{FA2（前向）}, \quad \text{最高 740 TFLOPs/s（75% 利用率）}
+\]</div>
+<div class="arithmatex">\[
+\text{FA3 FP8} \approx 1.2\ \text{PFLOPs/s}, \quad \text{数值误差比基线 FP8 注意力低 2.6 倍}
+\]</div>
+<hr />
+<h2 id="11">11. 实验数据汇总<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>版本/指标</th>
+<th>数据</th>
+<th>出处</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FA1 vs 标准注意力</td>
+<td>2–4x；GPT-2 上最高 7.6x</td>
+<td>FA1 Fig. 1</td>
+</tr>
+<tr>
+<td>FA1 内存</td>
+<td>由 <span class="arithmatex">\(O(N^2)\)</span> 降到 <span class="arithmatex">\(O(N)\)</span>，省 10–20 倍</td>
+<td>FA2 引言</td>
+</tr>
+<tr>
+<td>FA1 HBM 访问</td>
+<td>最多减少 9 倍；<span class="arithmatex">\(O(N^2d^2/M)\)</span> vs <span class="arithmatex">\(\Omega(Nd+N^2)\)</span></td>
+<td>FA1 Theorem 2</td>
+</tr>
+<tr>
+<td>FA1 训练提速</td>
+<td>BERT-large 15%（vs MLPerf 1.1 记录）；GPT-2 3x；LRA 2.4x</td>
+<td>FA1 §4.1</td>
+</tr>
+<tr>
+<td>FA1 长序列收益</td>
+<td>GPT-2 ppl −0.7；长文档分类 +6.4；Path-X 16K 61.4%、Path-256 64K 63.1%</td>
+<td>FA1 §4.2</td>
+</tr>
+<tr>
+<td>FA2</td>
+<td>约 2x vs FA1；前向 73% 理论峰值（230 TFLOPs/s on A100）</td>
+<td>FA2 摘要/§4</td>
+</tr>
+<tr>
+<td>FA3</td>
+<td>FP16 1.5–2.0x vs FA2，740 TFLOPs/s；FP8 ≈1.2 PFLOPs/s；误差低 2.6x</td>
+<td>FA3 摘要/§5</td>
+</tr>
+</tbody>
+</table>
+<p>共同主题：<strong>每一步都在压 HBM 访问、提硬件利用率，而不是改注意力数学</strong>——三版都是精确算法。</p>
+<hr />
+<h2 id="12-decode-fp8">12. 衔接：decode 侧、FP8 注意力与量化系列<a class="headerlink" href="#12-decode-fp8" title="Permanent link">&para;</a></h2>
+<h3 id="121-decode-flashdecoding">12.1 Decode 形态（FlashDecoding）<a class="headerlink" href="#121-decode-flashdecoding" title="Permanent link">&para;</a></h3>
+<p>decode 时 query 只有 1 行、key 有 <span class="arithmatex">\(L\)</span> 行，<span class="arithmatex">\(L\)</span> 很长而 batch 小，GPU 并行度不够。FlashDecoding 把 KV <strong>按行切块</strong>并行算部分输出，再做一次 online-softmax 式合并——复用本章的数学，把 decode 的长序列注意力也并行化。</p>
+<h3 id="122">12.2 与量化系列的呼应<a class="headerlink" href="#122" title="Permanent link">&para;</a></h3>
+<p>01 章说过"注意力是量化最敏感的区域之一"；FA3 给出了低精度注意力的两条工程经验：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>块级量化（per-block scale）比 per-tensor 更稳
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>incoherent processing（打散离群值）能把 FP8 注意力误差再降一截
+</code></pre></div>
+<p>这与量化系列的"粒度 + 离群值"主线完全一致——<strong>Attention 内核与量化在精度策略上共享同一套语言</strong>。</p>
+<hr />
+<h2 id="13">13. 本章小结<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>瓶颈是 IO</strong>：朴素注意力的 <span class="arithmatex">\(N^2\)</span> 矩阵在 HBM 反复搬移；FA 的 IO 复杂度 <span class="arithmatex">\(O(N^2d^2/M)\)</span> vs 标准 <span class="arithmatex">\(\Omega(Nd+N^2)\)</span>。</li>
+<li><strong>三个技巧</strong>：tiling（分块塞 SRAM）、online softmax（增量归一化，精确）、recompute（反向重算换带宽）。</li>
+<li><strong>精确性</strong>：FlashAttention 的结果与朴素 softmax 逐位等价（浮点舍入内），不是近似算法。</li>
+<li><strong>演进</strong>：FA1 提出 IO 感知框架（2–4x）；FA2 修工作划分（再 2x、73% 峰值）；FA3 吃 Hopper 硬件（再 1.5–2x、FP8）。</li>
+<li><strong>定理</strong>：<span class="arithmatex">\(O(N)\)</span> 额外显存、<span class="arithmatex">\(O(N^2d^2/M)\)</span> HBM 访问，且对精确注意力是最优的。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"不要造一张 N×N 的纸（中间矩阵），把它剪成能放进口袋（SRAM）的碎片，边算边记账（online softmax），反向时再撕一遍（recompute）——纸没了，账一分不少。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="14">14. 习题与解答<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
+<h3 id="1online-softmax">题 1（推导）：online softmax 保持精确<a class="headerlink" href="#1online-softmax" title="Permanent link">&para;</a></h3>
+<p>证明：若第 <span class="arithmatex">\(j\)</span> 块前 <span class="arithmatex">\(m^{(j)}, \ell^{(j)}, \mathbf{O}^{(j)}\)</span> 满足 <span class="arithmatex">\(\ell^{(j)} = \sum_{k \le j}\exp(s_k - m^{(j)})\)</span>、<span class="arithmatex">\(\mathbf{O}^{(j)} = \mathrm{softmax}(s_{1:j})\mathbf{V}_{1:j}\)</span>，则第 5 节的更新公式使相同性质对 <span class="arithmatex">\(j+1\)</span> 成立。</p>
+<details>
+<summary>题 1 解答</summary>
+
+$\ell^{(j+1)} = e^{m^{(j)}-m^{(j+1)}}\ell^{(j)} + e^{\tilde{m}-m^{(j+1)}}\tilde{\ell} = \sum_{k\le j}\exp(s_k - m^{(j+1)}) + \sum_{k>j}\exp(s_k - m^{(j+1)})$，即全行以 $m^{(j+1)}$ 为基准的指数和。$\mathbf{O}^{(j+1)}$ 分子 $= e^{m^{(j)}-m^{(j+1)}}\ell^{(j)}\mathbf{O}^{(j)} + e^{\tilde{m}-m^{(j+1)}}\tilde{\mathbf{P}}\mathbf{V} = \sum_{k\le j+1}\exp(s_k - m^{(j+1)})v_k$，除以 $\ell^{(j+1)}$ 即 softmax 加权和。归纳成立。
+</details>
+
+<h3 id="2-8">题 2（计算）：重做第 8 节算例<a class="headerlink" href="#2-8" title="Permanent link">&para;</a></h3>
+<p>把 <span class="arithmatex">\(s = (1.414, 0.707, 0.707)\)</span> 按"块 1 = 第一个分数、块 2 = 后两个"切分，重新走一遍 online softmax，验证结果仍是 0.752。</p>
+<details>
+<summary>题 2 解答</summary>
+
+块 1（单个分数 $1.414$）：$\tilde{m}=1.414$，$\tilde{\mathbf{P}}=\exp(1.414-1.414)=(1)$，$\tilde{\ell}=1$。更新：$m^{(1)}=1.414$，$\ell^{(1)} = e^{-\infty-1.414}\cdot0 + e^{0}\cdot1 = 1$，$O^{(1)} = (0 + 1\cdot 1\cdot v_1)/1 = v_1 = 1$。
+
+块 2（两个分数 $0.707, 0.707$）：$\tilde{m}=0.707$，$\tilde{\mathbf{P}}=\exp(0.707-0.707)=(1,1)$，$\tilde{\ell}=2$。更新：
+
+$$
+m^{(2)} = \max(1.414, 0.707) = 1.414
+$$
+
+$$
+\ell^{(2)} = e^{0}\cdot 1 + e^{0.707-1.414}\cdot 2 = 1 + 0.493\times 2 = 1.986
+$$
+
+$$
+O^{(2)} = \frac{1\cdot 1\cdot 1 + e^{-0.707}\cdot (1\cdot v_2 + 1\cdot v_3)}{1.986}
+= \frac{1 + 0.493\times(0+1)}{1.986} = \frac{1.493}{1.986} = 0.752
+$$
+
+与整体 softmax 一致 ✓。关键点：**块内 $\tilde{\mathbf{P}}$ 必须相对块内最大值 $\tilde{m}$ 计算**（这里是 $(1,1)$），合入时再统一缩放到全局基准 $m^{(2)}$。
+</details>
+
+<h3 id="3-m4d">题 3（推导）：块大小为什么是 M/4d<a class="headerlink" href="#3-m4d" title="Permanent link">&para;</a></h3>
+<p>说明 <span class="arithmatex">\(B_c = \lceil M/4d \rceil\)</span> 的来源：SRAM 里同时驻留哪四项？</p>
+<details>
+<summary>题 3 解答</summary>
+
+同时驻留 $\mathbf{Q}_i$（$B_r d$）、$\mathbf{K}_j$（$B_c d$）、$\mathbf{V}_j$（$B_c d$）、$\mathbf{S}_{ij}$（$B_r B_c$）。取 $B_r = B_c = B$，四项约各占 $M/4$：$B d \approx M/4 \Rightarrow B \approx M/4d$。$B_r$ 额外限制不超过 $d$（Q 块不必比 head 维还宽）。
+</details>
+
+<h3 id="4-flops">题 4（思考）：为什么"多算 FLOPs 反而更快"<a class="headerlink" href="#4-flops" title="Permanent link">&para;</a></h3>
+<p>FA 反向的 FLOPs 约为标准实现的两倍，却更快。用"IO 稀缺、FLOPs 富余"解释，并说明什么条件下这个结论会反转。</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+反向重算省掉 $O(N^2)$ 矩阵的落盘与回读；HBM 访问次数是墙钟的主导项，FLOPs 只要没超硬件上限就不值钱。反转条件：$d$ 很大而 $M$ 很小（$d^2/M$ 接近 1），或设备算力本身成为瓶颈（如极低功耗设备）——此时重算的开销可能超过省下的 IO。
+</details>
+
+<h3 id="5fa1fa2fa3">题 5（对比）：FA1/FA2/FA3 各自解决什么<a class="headerlink" href="#5fa1fa2fa3" title="Permanent link">&para;</a></h3>
+<p>用一句话分别总结 FA1、FA2、FA3 的核心贡献，并说明三版为什么都保持"精确"。</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+FA1：提出 IO 感知框架（tiling + online softmax + recompute），把 HBM 访问从 $O(N^2)$ 降到 $O(N^2d^2/M)$；FA2：修 thread block/warp 的工作划分，把利用率从 30–50% 提到 73%；FA3：用 TMA/wgmma 的异步与 FP8 张量核，在 H100 上再提 1.5–2x。三版都不改注意力数学，只改计算的组织方式，所以都精确。
+</details>
+
+<h3 id="6-softmax">题 6（编程）：分块 softmax 验证<a class="headerlink" href="#6-softmax" title="Permanent link">&para;</a></h3>
+<p>实现：① 朴素 softmax（整行）；② online softmax（按任意块大小切分）；③ 对比两者在随机输入（float32 与 float16）下的最大绝对误差；④ 画出误差随块大小 <span class="arithmatex">\(B \in \{2, 8, 32, 128\}\)</span> 的变化，并解释 float16 误差来源。</p>
+<details>
+<summary>题 6 解答要点</summary>
+
+①②输出应逐元素一致（float32 下误差 $\sim 10^{-7}$ 量级）；③ float16 下误差变大，主要来自 $e^{m-m^{new}}$ 缩放与累加的舍入；④ 块越大（越接近整行）误差越小——但即使块很小，online 版仍比"分块后各自独立 softmax"（错误做法）精确得多。这就是 FA 精度故事的代码级验证。
+</details>
+
+<hr />
+<h2 id="15">15. 延伸阅读<a class="headerlink" href="#15" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2205.14135">FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness（arXiv:2205.14135）</a>：本章算法（Algorithm 1）、定理 1/2、实验的出处。</li>
+<li><a href="https://arxiv.org/abs/2307.08691">FlashAttention-2（arXiv:2307.08691）</a>：并行与工作划分的细节。</li>
+<li><a href="https://arxiv.org/abs/2407.08608">FlashAttention-3（arXiv:2407.08608）</a>：Hopper 异步、FP8 注意力。</li>
+<li><a href="https://crfm.stanford.edu/2023/10/12/flashdecoding.html">FlashDecoding（Dao et al., 2023）</a>：decode 侧的并行化（12.1 节的展开）。</li>
+<li>上一篇：<a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/">01 注意力机制基础与复杂度分析</a>；下一篇：<strong>03 注意力头变体：MQA / GQA / MLA</strong>——把 KV cache 的显存账本从 <span class="arithmatex">\(d\)</span> 砍到 <span class="arithmatex">\(d_{\text{kv}}\)</span>。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%86%85%E6%A0%B8%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 01 注意力机制基础与复杂度分析">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                01 注意力机制基础与复杂度分析
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
