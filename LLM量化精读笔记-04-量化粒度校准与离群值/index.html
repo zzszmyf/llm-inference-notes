@@ -1,0 +1,2125 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/">
+      
+      
+        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>04 量化粒度、校准与离群值 - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-04" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              04 量化粒度、校准与离群值
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 从 02 章到本章：范围利用率是主线
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-per-tensor-per-channel-per-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 粒度光谱：per-tensor / per-channel / per-group
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 粒度光谱：per-tensor / per-channel / per-group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 三个层次
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 为什么权重按"输出通道"、激活按"输入通道"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-group-per-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 group 量化：per-channel 的"中间态"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 有效位宽与存储开销：动手算
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 有效位宽与存储开销：动手算">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 有效位宽公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-b-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 数值表（b = 4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 一个常见误区
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 校准（Calibration）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 校准（Calibration）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 什么是校准
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 校准集怎么选
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-minmax-vs-vs-vs-mse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 统计量选择：min/max vs 分位数 vs 熵 vs MSE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 校准与验证要分开
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 常见陷阱
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-outliers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 离群值问题（Outliers）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 离群值问题（Outliers）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-llmint8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 LLM.int8() 的观测（论文核心数字）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 为什么 outlier 对量化是致命的
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-smoothquant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 SmoothQuant 的补充统计
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 对付 outlier 的四种策略（本系列路线图）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 敏感性分析：谁更怕量化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 敏感性分析：谁更怕量化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 层与模块之间的差异
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 通道之间的差异：激活幅度 = 重要性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-hessian" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Hessian 视角：二阶信息衡量敏感性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 决策表：什么时候用哪种组合
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：有效位宽
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（思考）：outlier 的量化伤害
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（设计）：校准集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4per-channel-vs-per-tensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（推导）：per-channel vs per-tensor 的误差比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（编程）：校准统计量对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 从 02 章到本章：范围利用率是主线
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-per-tensor-per-channel-per-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 粒度光谱：per-tensor / per-channel / per-group
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 粒度光谱：per-tensor / per-channel / per-group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 三个层次
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 为什么权重按"输出通道"、激活按"输入通道"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-group-per-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 group 量化：per-channel 的"中间态"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 有效位宽与存储开销：动手算
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 有效位宽与存储开销：动手算">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 有效位宽公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-b-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 数值表（b = 4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 一个常见误区
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 校准（Calibration）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 校准（Calibration）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 什么是校准
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 校准集怎么选
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-minmax-vs-vs-vs-mse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 统计量选择：min/max vs 分位数 vs 熵 vs MSE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 校准与验证要分开
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 常见陷阱
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-outliers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 离群值问题（Outliers）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 离群值问题（Outliers）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-llmint8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 LLM.int8() 的观测（论文核心数字）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 为什么 outlier 对量化是致命的
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-smoothquant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 SmoothQuant 的补充统计
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 对付 outlier 的四种策略（本系列路线图）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 敏感性分析：谁更怕量化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 敏感性分析：谁更怕量化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 层与模块之间的差异
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 通道之间的差异：激活幅度 = 重要性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-hessian" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Hessian 视角：二阶信息衡量敏感性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 决策表：什么时候用哪种组合
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：有效位宽
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（思考）：outlier 的量化伤害
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（设计）：校准集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4per-channel-vs-per-tensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（推导）：per-channel vs per-tensor 的误差比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（编程）：校准统计量对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-04">LLM 量化精读笔记 · 04 量化粒度、校准与离群值<a class="headerlink" href="#llm-04" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：Inference Engineering Ch5 的 "Granularity matters" 部分；LLM.int8() 的 outlier 分析；MIT 6.5940 Lecture 5 的逐层/逐通道量化内容。
+学完本章你应该能：① 解释 per-tensor / per-channel / per-group 的差别，并手算各自的有效位宽与存储开销；② 说出校准是什么、校准集怎么选、常见统计量（min/max、分位数、熵、MSE）的取舍；③ 复述 LLM.int8() 的 outlier 统计结论（6.0、25%、6%、6.7B、0.1%、75%）并解释为什么 outlier 致命；④ 把"粒度 × 校准 × outlier"三条线串成一张决策表。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-本章目标">本章目标</a></li>
+<li><a href="#2-从-02-章到本章范围利用率是主线">从 02 章到本章：范围利用率是主线</a></li>
+<li><a href="#3-粒度光谱per-tensor--per-channel--per-group">粒度光谱：per-tensor / per-channel / per-group</a></li>
+<li><a href="#4-有效位宽与存储开销动手算">有效位宽与存储开销：动手算</a></li>
+<li><a href="#5-校准calibration">校准（Calibration）</a></li>
+<li><a href="#6-离群值问题outliers">离群值问题（Outliers）</a></li>
+<li><a href="#7-敏感性分析谁更怕量化">敏感性分析：谁更怕量化</a></li>
+<li><a href="#8-决策表什么时候用哪种组合">决策表：什么时候用哪种组合</a></li>
+<li><a href="#9-本章小结">本章小结</a></li>
+<li><a href="#10-习题与解答">习题与解答</a></li>
+<li><a href="#11-延伸阅读">延伸阅读</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>03 章确定了"用哪种格式"，本章回答"每个 scale 管多大范围、scale 怎么选、遇到 outlier 怎么办"——这是从"会量化"到"量化得好"的分水岭。</p>
+<p>03 章：格式（FP8 / FP4 / MXFP…）<span class="arithmatex">\(\to\)</span>码本结构
+04 章：粒度（tensor / channel / group）<span class="arithmatex">\(\to\)</span>码本拆成几份、每份自己的 scale
+       校准（怎么选 scale）<span class="arithmatex">\(\to\)</span>码本对齐真实分布
+       outlier（分布里的"刺"）<span class="arithmatex">\(\to\)</span>为什么要拆、为什么难选</p>
+<hr />
+<h2 id="2-02">2. 从 02 章到本章：范围利用率是主线<a class="headerlink" href="#2-02" title="Permanent link">&para;</a></h2>
+<p>02 章算过：量化范围只用了<span class="arithmatex">\(1/2^k\)</span>，有效位宽就损失 k bit。本章所有内容都是这句话的三个推论：</p>
+<ol>
+<li><strong>粒度</strong>：一个 scale 管的元素越少，每个元素越可能"接近自己的范围"<span class="arithmatex">\(\to\)</span>范围利用率高。</li>
+<li><strong>校准</strong>：scale 选得好不好，直接决定范围利用率；选 min/max 还是分位数，是在"截断风险"和"有效位宽"之间取舍。</li>
+<li><strong>outlier</strong>：outlier 把范围撑大，把正常值挤进一小块网格<span class="arithmatex">\(\to\)</span>范围利用率灾难性下降。</li>
+</ol>
+<hr />
+<h2 id="3-per-tensor-per-channel-per-group">3. 粒度光谱：per-tensor / per-channel / per-group<a class="headerlink" href="#3-per-tensor-per-channel-per-group" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 三个层次<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>设权重矩阵<span class="arithmatex">\(W \in \mathbb{R}^{C_{\text{out}} \times C_{\text{in}}}\)</span>：</p>
+<table>
+<thead>
+<tr>
+<th>粒度</th>
+<th>一个 scale 覆盖</th>
+<th>数量</th>
+<th>典型适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>per-tensor</td>
+<td>整个张量</td>
+<td>1</td>
+<td>小模型、FP8 W8A8 的激活</td>
+</tr>
+<tr>
+<td>per-channel（权重）</td>
+<td>每个输出通道一行</td>
+<td><span class="arithmatex">\(C_{\text{out}}\)</span></td>
+<td>4-bit 权重的默认起点</td>
+</tr>
+<tr>
+<td>per-channel（激活）</td>
+<td>每个输入通道一列</td>
+<td><span class="arithmatex">\(C_{\text{in}}\)</span></td>
+<td>激活量化常用</td>
+</tr>
+<tr>
+<td>per-group</td>
+<td>每 G 个连续元素</td>
+<td><span class="arithmatex">\(C_{\text{out}} \times C_{\text{in}} / G\)</span></td>
+<td>4-bit 权重的主流（<span class="arithmatex">\(G=32/64/128\)</span>）</td>
+</tr>
+</tbody>
+</table>
+<p>图示（权重 W，行 = 输出通道）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>per-tensor：      per-channel：        per-group（G=2）：
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>┌─────────────┐  ┌─────┬─────┬─────┐  ┌──┬──┬──┬──┬──┬──┐
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│ 同一 scale   │  │ s1  │ s1  │ s1  │  │s1│s1│s2│s2│s3│s3│
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│ s 覆盖全部   │  │ s2  │ s2  │ s2  │  │s4│s4│s5│s5│s6│s6│
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│             │  │ s3  │ s3  │ s3  │  │… │… │… │… │… │… │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>└─────────────┘  └─────┴─────┴─────┘  └──┴──┴──┴──┴──┴──┘
+</code></pre></div>
+<h3 id="32">3.2 为什么权重按"输出通道"、激活按"输入通道"<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<p>矩阵乘<span class="arithmatex">\(Y = WX\)</span>，Y 的第 j 行由 W 的第 j 行与 X 的所有列相乘：</p>
+<div class="arithmatex">\[
+Y[j, :] = W[j, :] \cdot X
+\]</div>
+<ul>
+<li>权重 W 的第 j 行只影响输出的第 j 行<span class="arithmatex">\(\to\)</span>每行一个 scale 是"误差只影响自己那行输出"的最细合理划分。</li>
+<li>激活 X 的第 i 列与 W 的所有行相乘<span class="arithmatex">\(\to\)</span>每列一个 scale 是同理。</li>
+</ul>
+<p>粒度再细（per-element）就退化回"不用量化"了。</p>
+<h3 id="33-group-per-channel">3.3 group 量化：per-channel 的"中间态"<a class="headerlink" href="#33-group-per-channel" title="Permanent link">&para;</a></h3>
+<p>per-channel 在通道数少时（如某些投影层<span class="arithmatex">\(C_{\text{in}}\)</span>只有几百）仍然太粗。group 量化把一行切成若干段，每段（如 128 个元素）一个 scale：</p>
+<p><span class="arithmatex">\(INT4 + group=128\)</span>：每个 scale 管 128 个权重</p>
+<p>这是 GPTQ/AWQ 的默认形态（通常 group 128 + FP16 scale，或 group 32/64 用于激进场景）。</p>
+<hr />
+<h2 id="4">4. 有效位宽与存储开销：动手算<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 有效位宽公式<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+b_{\text{eff}} = b + \text{scale\_bits} / G
+\]</div>
+<p>其中 b 是数据位宽，G 是每个 scale 覆盖的元素数。直觉：scale 是"额外的位"，摊到每个元素头上。</p>
+<h3 id="42-b-4">4.2 数值表（b = 4）<a class="headerlink" href="#42-b-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>粒度</th>
+<th>G</th>
+<th>scale 格式</th>
+<th><span class="arithmatex">\(b_{\text{eff}}\)</span></th>
+<th>相对纯 4-bit 的存储开销</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>per-tensor</td>
+<td>全部</td>
+<td>FP32</td>
+<td>≈ <span class="arithmatex">\(4.000\)</span></td>
+<td><span class="arithmatex">\(\sim 0\%\)</span></td>
+</tr>
+<tr>
+<td>per-channel（<span class="arithmatex">\(C=4096\)</span>）</td>
+<td>4096</td>
+<td>FP16</td>
+<td>≈ <span class="arithmatex">\(4.004\)</span></td>
+<td>0.1%</td>
+</tr>
+<tr>
+<td>per-group</td>
+<td>256</td>
+<td>FP16</td>
+<td>4.0625</td>
+<td>1.6%</td>
+</tr>
+<tr>
+<td>per-group</td>
+<td>128</td>
+<td>FP16</td>
+<td>4.125</td>
+<td>3.1%</td>
+</tr>
+<tr>
+<td>per-group</td>
+<td>64</td>
+<td>FP16</td>
+<td>4.25</td>
+<td>6.3%</td>
+</tr>
+<tr>
+<td>per-group</td>
+<td>32</td>
+<td>FP16</td>
+<td>4.5</td>
+<td>12.5%</td>
+</tr>
+<tr>
+<td>per-group</td>
+<td>16</td>
+<td>FP16</td>
+<td>5.0</td>
+<td>25%</td>
+</tr>
+</tbody>
+</table>
+<p>算例（<span class="arithmatex">\(group=128\)</span>、FP16 scale）：</p>
+<p>每个 128 元素块：128×4 bit 数据<span class="arithmatex">\(+ 16 bit scale = 528 bit\)</span>
+每元素平均= <span class="arithmatex">\(528/128 = 4.125 bit\)</span></p>
+<p><strong>关键 tradeoff</strong>：group 越小，质量越好、开销越大。业界在 4-bit 权重上基本收敛到 <strong><span class="arithmatex">\(group=128\)</span>（质量/开销平衡）</strong> 和<span class="arithmatex">\(group=32\)</span>（激进但质量仍可接受）。</p>
+<h3 id="43">4.3 一个常见误区<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<p>"4-bit 模型 = 正好 4 倍压缩"是错的。真实的模型文件大小要看<strong>有效位宽</strong>：</p>
+<p>70B 模型：
+  纯<span class="arithmatex">\(FP16 = 140 GB\)</span>
+<span class="arithmatex">\(INT4 group=128 = 70e9 \times 4.125/8 \approx 36.1 GB\)</span>（不是 35 GB）
+$$
+INT4 group=32 = 70e9 \times 4.5/8 \approx 39.4 GB
+$$</p>
+<p>这也是为什么估算器/模型卡片的"<span class="arithmatex">\(4-bit = 75\%\)</span>节省"是理想值，实际要加 scale 开销。</p>
+<hr />
+<h2 id="5-calibration">5. 校准（Calibration）<a class="headerlink" href="#5-calibration" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 什么是校准<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>校准 = 用一小部分<strong>代表数据</strong>跑一遍模型，统计每层权重/激活的分布，从而确定量化参数（scale、zero-point、范围）：</p>
+<p>流程：
+1. 选校准集（通常<span class="arithmatex">\(128\sim 512\)</span>条样本）
+2. 前向传播，记录每层输入激活 X（和需要时的权重分布）
+3. 按某种统计量计算 scale / 范围
+4. 量化并验证</p>
+<p>注意：<strong>校准是"无梯度"的</strong>，只统计分布，不更新权重。GPTQ/AWQ 的"校准集"就是这个东西。</p>
+<h3 id="52">5.2 校准集怎么选<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<p>标准做法（GPTQ/AWQ 论文）：从<strong>预训练语料</strong>里取<span class="arithmatex">\(\sim 128\)</span>条、每条 2048 token 的序列。</p>
+<p>选集的三个原则：</p>
+<ol>
+<li><strong>覆盖任务分布</strong>：做代码任务就用代码语料校准，别全用新闻语料。</li>
+<li><strong>避免单任务过拟合</strong>：AWQ 特意从预训练数据取校准集，而不是目标任务数据——防止量化参数"记住"评测集。</li>
+<li><strong>规模适中</strong>：128 条左右足够统计分布；太多没用，太少噪声大。</li>
+</ol>
+<h3 id="53-minmax-vs-vs-vs-mse">5.3 统计量选择：min/max vs 分位数 vs 熵 vs MSE<a class="headerlink" href="#53-minmax-vs-vs-vs-mse" title="Permanent link">&para;</a></h3>
+<p>给定一组校准激活，scale 怎么定？</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>规则</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>min/max</td>
+<td><span class="arithmatex">\(s = \max\vert x\vert  / 2^{b-1}\)</span></td>
+<td>无截断</td>
+<td>被 outlier 撑大，有效位宽被稀释</td>
+</tr>
+<tr>
+<td>分位数</td>
+<td><span class="arithmatex">\(s = P99.99 / 2^{b-1}\)</span></td>
+<td>抗 outlier</td>
+<td>需要选分位点（99.9%? 99.99%?）</td>
+</tr>
+<tr>
+<td>熵（entropy）</td>
+<td>最小化量化前后分布 KL 散度（TensorRT 的做法）</td>
+<td>直接对齐分布</td>
+<td>计算重、实现复杂</td>
+</tr>
+<tr>
+<td>MSE 最优（ACIQ 等）</td>
+<td>最小化<span class="arithmatex">\(E[(x-\hat{x})^{2}]\)</span></td>
+<td>理论最优</td>
+<td>需要分布假设/搜索</td>
+</tr>
+</tbody>
+</table>
+<p>工程上的默认：<strong>权重用 min/max（权重 outlier 少），激活用分位数（如 99.99% / 99.999%）</strong>。neural-compressor 等工具里 SmoothQuant 的默认分位点就是 99.999%。</p>
+<h3 id="54">5.4 校准与验证要分开<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<p>校准集：用于选 scale（训练量化器）
+验证集：用于测量化质量（perplexity / 基准 / 自定义评测，10 章）</p>
+<p><strong>用评测集当校准集是作弊</strong>：量化参数会"记住"评测数据，验证分数虚高，上线后现原形。</p>
+<h3 id="55">5.5 常见陷阱<a class="headerlink" href="#55" title="Permanent link">&para;</a></h3>
+<ul>
+<li>校准集只有几十条<span class="arithmatex">\(\to scale\)</span>噪声大</li>
+<li>校准集与部署流量分布差异大（聊天模型用文档语料校准）<span class="arithmatex">\(\to\)</span>上线退化</li>
+<li>只校准权重不校准激活<span class="arithmatex">\(\to W8A8\)</span>时激活 scale 拍脑袋</li>
+<li>复现性：库与库之间 round/百分位实现不同，量化结果不可比</li>
+</ul>
+<hr />
+<h2 id="6-outliers">6. 离群值问题（Outliers）<a class="headerlink" href="#6-outliers" title="Permanent link">&para;</a></h2>
+<h3 id="61-llmint8">6.1 LLM.int8() 的观测（论文核心数字）<a class="headerlink" href="#61-llmint8" title="Permanent link">&para;</a></h3>
+<p>Dettmers et al.（2022）系统统计了 Transformer 激活的 outlier：</p>
+<p>outlier 定义：<span class="arithmatex">\(|activation| \ge 6.0\)</span>，且出现在≥ <span class="arithmatex">\(25\%\)</span>的层、≥ <span class="arithmatex">\(6\%\)</span>的序列维度</p>
+<p>关键发现：
+1. 规模相变：<span class="arithmatex">\(\sim 6.7B\)</span>参数之前没有系统性 outlier；超过后，outlier 出现在所有层
+2. outlier 出现后：在约 75% 的序列维度上持续存在（同维度反复出现）
+3. outlier 占比极小：约 0.1% 的特征
+4. outlier 维度数量少：13B 以下模型通常≤ <span class="arithmatex">\(7\)</span>个维度
+5. 作用关键：这些 outlier 对 softmax 的大概率输出至关重要（不是噪声）</p>
+<h3 id="62-outlier">6.2 为什么 outlier 对量化是致命的<a class="headerlink" href="#62-outlier" title="Permanent link">&para;</a></h3>
+<p>回到 02 章的模型：outlier 让 <code>max|X|</code> 巨大（比如 1000+），而 99.99% 的正常值在<span class="arithmatex">\(\pm 60\)</span>内：</p>
+<p>8-bit 对称量化，<span class="arithmatex">\(s = \max|X|/127 = 1000/127 \approx 7.87\)</span>
+正常值<span class="arithmatex">\(\pm 60\)</span>只用到<span class="arithmatex">\(\pm 60/7.87 \approx \pm 7.6\)</span>个量化层级<span class="arithmatex">\(\to\)</span>有效位宽≈ <span class="arithmatex">\(\log_2(16) \approx 4 bit\)</span></p>
+<p><strong>outlier 用 0.1% 的特征，偷走了正常值<span class="arithmatex">\(\sim 4 bit\)</span>的有效精度。</strong> 这正是 LLM.int8()、SmoothQuant、AWQ、per-group 全部要解决的问题。</p>
+<h3 id="63-smoothquant">6.3 SmoothQuant 的补充统计<a class="headerlink" href="#63-smoothquant" title="Permanent link">&para;</a></h3>
+<p>SmoothQuant 论文（Xiao et al., 2023）对 OPT-175B 激活的统计：</p>
+<p>99.99% 的激活值落在<span class="arithmatex">\([-60, 60]\)</span>
+但最大值可以超过 1000（甚至更大）
+<span class="arithmatex">\(\to\)</span>激活分布是"尖峰 + 重尾"，min/max 校准必然翻车</p>
+<p>这解释了为什么激活量化比权重量化难：权重分布相对规整，激活分布带系统性 outlier。</p>
+<h3 id="64-outlier">6.4 对付 outlier 的四种策略（本系列路线图）<a class="headerlink" href="#64-outlier" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>思路</th>
+<th>代表方法</th>
+<th>章节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分离</td>
+<td>把 outlier 单独留在高精度</td>
+<td>LLM.int8() 混合精度分解</td>
+<td>07</td>
+</tr>
+<tr>
+<td>迁移</td>
+<td>把量化难度从激活搬到权重</td>
+<td>SmoothQuant</td>
+<td>07</td>
+</tr>
+<tr>
+<td>保护</td>
+<td>识别并保护显著通道/权重</td>
+<td>AWQ</td>
+<td>06</td>
+</tr>
+<tr>
+<td>细分</td>
+<td>用更细的网格容纳局部动态范围</td>
+<td>per-group、MXFP8</td>
+<td>04、03</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7">7. 敏感性分析：谁更怕量化<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="71">7.1 层与模块之间的差异<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<p>Inference Engineering 的敏感性排序（02 章已提）：</p>
+<p>权重（线性层）&lt; 激活 &lt; KV cache &lt; attention（softmax）</p>
+<p>更细的观察（GPTQ 论文与后续工作）：</p>
+<ul>
+<li><strong>attention 的投影层比 FFN 更敏感</strong>（信息压缩集中）；量化时通常优先给 attention 层更多位/更细粒度。</li>
+<li><strong>首层与末层更敏感</strong>（输入输出直接参与表示）；中间层相对鲁棒。</li>
+<li><strong>softmax 之前的 QK 点积不能量化</strong>（指数运算放大误差）——生产上 attention 留在 FP16。</li>
+</ul>
+<h3 id="72">7.2 通道之间的差异：激活幅度 = 重要性<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<p>AWQ 的核心观察：<strong>某个权重通道的重要性与对应输入激活的幅度强相关</strong>：</p>
+<p>输入通道 j 的激活幅度大<span class="arithmatex">\(\to\)</span>权重 W[:, j] 对输出贡献大<span class="arithmatex">\(\to\)</span>量化误差影响大</p>
+<p>所以 AWQ 用 <span class="arithmatex">\(s_{j} = (\max|X_{j}|)^\alpha\)</span>（<span class="arithmatex">\(\alpha\)</span>网格搜索）给"重要通道"配更精细的缩放——量化不是"平均用力"，而是<strong>把误差预算花在重要的地方</strong>。</p>
+<h3 id="73-hessian">7.3 Hessian 视角：二阶信息衡量敏感性<a class="headerlink" href="#73-hessian" title="Permanent link">&para;</a></h3>
+<p>GPTQ 用每层输入的<span class="arithmatex">\(Hessian H = 2XX^T + \lambda I\)</span>衡量"量化哪个权重代价最小"：</p>
+<p>损失增量≈ <span class="arithmatex">\((w_{q} - \hat{w}_q)^{2} / (2[H^{-1}]_qq)\)</span>（05 章完整推导）</p>
+<p>一句话：<strong>一阶信息（幅度）告诉你"谁重要"，二阶信息（Hessian）告诉你"动了谁代价最小"。</strong> 两者都是"不均匀对待权重"的数学依据。</p>
+<hr />
+<h2 id="8">8. 决策表：什么时候用哪种组合<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐粒度</th>
+<th>scale 格式</th>
+<th>校准统计量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP8 W8A8 权重</td>
+<td>per-channel</td>
+<td>FP32（fold 到 kernel 里）</td>
+<td>min/max</td>
+</tr>
+<tr>
+<td>FP8 W8A8 激活</td>
+<td>per-tensor</td>
+<td>FP32</td>
+<td>分位数 99.99%</td>
+</tr>
+<tr>
+<td>INT4 权重（GPTQ/AWQ）</td>
+<td><span class="arithmatex">\(group=128\)</span></td>
+<td>FP16</td>
+<td>min/max（权重 outlier 少）</td>
+</tr>
+<tr>
+<td>激进 3-bit / 2-bit</td>
+<td><span class="arithmatex">\(group=32\)</span>或更细</td>
+<td>FP16/FP8</td>
+<td>分位数 + 校准集优化</td>
+</tr>
+<tr>
+<td>KV cache（08 章）</td>
+<td>per-channel（K）/ per-token（V）</td>
+<td>每 token/通道 scale</td>
+<td>分位数</td>
+</tr>
+<tr>
+<td>Blackwell FP4/MX</td>
+<td>per-group（16/32）</td>
+<td>E4M3 / E8M0</td>
+<td>分位数</td>
+</tr>
+</tbody>
+</table>
+<p>经验法则：</p>
+<ol>
+<li><strong>权重不怕 min/max</strong>，激活必须防 outlier（分位数）。</li>
+<li><strong>4-bit 权重默认<span class="arithmatex">\(group=128\)</span></strong>；质量不够就<span class="arithmatex">\(group=32\)</span>，而不是先换方法。</li>
+<li><strong>per-tensor 只配 FP8 或 MX</strong>（有指数位托底）；INT4 用 per-tensor 基本必炸。</li>
+<li><strong>校准集永远不能等于评测集</strong>。</li>
+</ol>
+<hr />
+<h2 id="9">9. 本章小结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>粒度 = 范围利用率</strong>：<span class="arithmatex">\(per-tensor \to per-channel \to per-group\)</span>，粒度越细误差越小、开销越大。</li>
+<li><strong>有效位宽<span class="arithmatex">\(b_{\text{eff}} = b + \text{scale\_bits}/G\)</span></strong>：<span class="arithmatex">\(group=128\)</span>的 INT4 实际是 4.125 bit，别按 4.0 算容量。</li>
+<li><strong>校准 = 用代表数据选 scale</strong>：校准集要覆盖任务、与评测分离；激活用分位数，权重可用 min/max。</li>
+<li><strong>outlier 是头号敌人</strong>：0.1% 的特征偷走<span class="arithmatex">\(\sim 4 bit\)</span>有效精度（LLM.int8 的 6.0/25%/6%/6.7B 统计）；四种对策 = 分离/迁移/保护/细分。</li>
+<li><strong>不均匀对待权重</strong>：AWQ 按激活幅度保护重要通道，GPTQ 按 Hessian 挑代价最小的量化顺序。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"粒度决定网格细不细，校准决定网格放哪，outlier 决定你为什么要这么麻烦。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="10">10. 习题与解答<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">题 1（计算）：有效位宽<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(INT4 + group=64 + FP8 scale\)</span>的有效位宽和相对存储开销是多少？对比<span class="arithmatex">\(group=128 + FP16\)</span>。</p>
+<details>
+<summary>题 1 解答</summary>
+
+$group=64 + FP8$：$b_{\text{eff}} = 4 + 8/64 = 4.125 bit$；开销= $8/64 = 0.125 bit/$元素 = 相对 4-bit 数据 3.125%。
+$group=128 + FP16$：$b_{\text{eff}} = 4 + 16/128 = 4.125 bit$；开销= $3.125\%$。
+两者有效位宽相同——**FP8 scale 用一半位宽做到相同粒度开销，所以新 kernel 偏好 FP8 scale**。
+</details>
+
+<h3 id="2outlier">题 2（思考）：outlier 的量化伤害<a class="headerlink" href="#2outlier" title="Permanent link">&para;</a></h3>
+<p>激活 99.99% 在<span class="arithmatex">\(\pm 60\)</span>，<span class="arithmatex">\(\max=1000\)</span>。8-bit 对称量化（<span class="arithmatex">\(s=\max/127\)</span>）下，正常值的有效位宽大约是多少？</p>
+<details>
+<summary>题 2 解答</summary>
+
+正常值范围$\pm 60$只占$\pm 1000$的 6%；量化层级数≈ $2\times 60/(1000/127) \approx 15.2 \to$有效位宽≈ $\log_2(15) \approx 3.9 bit$。8-bit 实际只剩不到 4 bit 的有效精度，这正是 outlier 的"偷位"效应。
+</details>
+
+<h3 id="3">题 3（设计）：校准集<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p>你要给一个代码生成模型做 INT4 量化。设计校准集：来源、条数、每条约多长、要避免什么。</p>
+<details>
+<summary>题 3 解答要点</summary>
+
+来源：高质量代码语料（多语言/多框架，含少量文档注释混合数据）；128 条 × 2048 token；避免只用单语言/单框架；避免用评测集（如 HumanEval 样本）——那是验证集。量化后用代码相关 benchmark + 自定义任务验证（10 章）。
+</details>
+
+<h3 id="4per-channel-vs-per-tensor">题 4（推导）：per-channel vs per-tensor 的误差比<a class="headerlink" href="#4per-channel-vs-per-tensor" title="Permanent link">&para;</a></h3>
+<p>某层权重 W 有 4096 行，每行范围不同：一半行范围<span class="arithmatex">\([-1,1]\)</span>，一半<span class="arithmatex">\([-100,100]\)</span>。per-tensor min/max 下，<span class="arithmatex">\([-1,1]\)</span>那半行的量化步长是 per-channel 的多少倍？有效位宽损失多少？</p>
+<details>
+<summary>题 4 解答</summary>
+
+per-tensor 的$s = 100/127$；per-channel 对$[-1,1]$行的$s = 1/127$。步长比= $100$（≈ $2^{6.6}$）$\to$那半行损失约 6.6 bit 有效精度。这就是"per-channel 在通道范围差异大时是免费的精度"。
+</details>
+
+<h3 id="5">题 5（编程）：校准统计量对比<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<p>构造分布：N(0,1) 的 99.99% + 少量<span class="arithmatex">\(\pm 1000 outlier\)</span>。比较 min/max、P99.99、P99.999 三种 scale 下的 8-bit SQNR。</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+min/max 会被 outlier 撑大（SQNR 低）；P99.99 忽略最极端 0.01%，正常值有效位宽高，但 outlier 本身被截断；P99.999 介于两者之间。结果应验证：**outlier 存在时，分位数校准显著优于 min/max**，具体分位点按"截断代价 vs 有效位宽"权衡。
+</details>
+
+<hr />
+<h2 id="11">11. 延伸阅读<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2208.07339">LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale（arXiv:2208.07339）</a>：outlier 统计与混合精度分解</li>
+<li><a href="https://arxiv.org/abs/2211.10438">SmoothQuant（arXiv:2211.10438）</a>：激活分布统计（<span class="arithmatex">\(\pm 60 / 1000+\)</span>）与<span class="arithmatex">\(\alpha\)</span>迁移</li>
+<li><a href="https://arxiv.org/abs/2306.00978">AWQ（arXiv:2306.00978）</a>：<span class="arithmatex">\(s = \max|X|^\alpha\)</span> 通道缩放与校准集设计</li>
+<li><a href="https://arxiv.org/abs/2210.17323">GPTQ（arXiv:2210.17323）</a>：128 条 × 2048 token 校准集的标准用法</li>
+<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">03 数值格式与硬件</a>；下一篇：<strong>[05 权重量化 I：RTN 与 GPTQ]</strong>——把"选 scale"升级成"量化后全局补偿误差"。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 03 数值格式与硬件">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                03 数值格式与硬件
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-footer__link md-footer__link--next" aria-label="下一页: 05 权重量化 I（RTN 与 GPTQ）">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                05 权重量化 I（RTN 与 GPTQ）
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

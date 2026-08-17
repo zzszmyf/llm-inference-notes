@@ -1,0 +1,1738 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/">
+      
+      
+        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>08 KV Cache 量化（KIVI） - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-08-kv-cache-kivi" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              08 KV Cache 量化（KIVI）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 为什么 KV cache 是下一个量化对象
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 为什么 KV cache 是下一个量化对象">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 KV cache 是什么
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-llama-2-70b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 实例：Llama-2-70B
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 两个收益
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. KV 误差为什么"滚雪球"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 设计空间：量化什么、用什么粒度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-k-v" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 分布分析：K 稳定、V 多变
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 分布分析：K 稳定、V 多变">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-key-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Key 的分布：跨 token 稳定、按通道有规律
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Value 的分布：随时间漂移
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-kivi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. KIVI 算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. KIVI 算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 方案总览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 流式实现要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-2-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 为什么 2-bit 还能近无损
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 结果与边界
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 结果与边界">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 论文结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 边界与生产建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 与 KV 优化的其他手段的关系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：KV 显存
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（思考）：误差为什么逐 token 累积
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-v-per-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（设计）：为什么 V 不用 per-channel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4per-token-vs-per-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（编程）：per-token vs per-channel 对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（开放）：KV 量化的验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 为什么 KV cache 是下一个量化对象
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 为什么 KV cache 是下一个量化对象">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 KV cache 是什么
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-llama-2-70b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 实例：Llama-2-70B
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 两个收益
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. KV 误差为什么"滚雪球"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 设计空间：量化什么、用什么粒度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-k-v" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 分布分析：K 稳定、V 多变
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 分布分析：K 稳定、V 多变">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-key-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Key 的分布：跨 token 稳定、按通道有规律
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Value 的分布：随时间漂移
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-kivi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. KIVI 算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. KIVI 算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 方案总览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 流式实现要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-2-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 为什么 2-bit 还能近无损
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 结果与边界
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 结果与边界">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 论文结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 边界与生产建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 与 KV 优化的其他手段的关系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：KV 显存
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（思考）：误差为什么逐 token 累积
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-v-per-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（设计）：为什么 V 不用 per-channel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4per-token-vs-per-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（编程）：per-token vs per-channel 对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（开放）：KV 量化的验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-08-kv-cache-kivi">LLM 量化精读笔记 · 08 KV Cache 量化：KIVI 与误差累积<a class="headerlink" href="#llm-08-kv-cache-kivi" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：KIVI（arXiv:2402.02750，ICML 2024）；Inference Engineering Ch5 的敏感性排序（<span class="arithmatex">\(KV cache =\)</span>中等敏感、误差逐 token 累积）；vLLM PagedAttention 背景。
+学完本章你应该能：① 手算任意模型的 KV cache 显存公式与实例；② 解释"KV 误差为什么滚雪球"；③ 复述 KIVI 的两个核心洞察（K 按通道、V 按 token）及其理由；④ 说出 KIVI 的实现要点（非对称 2-bit、流式量化、FP16 缓冲）与结果（2-bit 近无损、4x 省显存）。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-本章目标">本章目标</a></li>
+<li><a href="#2-为什么-kv-cache-是下一个量化对象">为什么 KV cache 是下一个量化对象</a></li>
+<li><a href="#3-kv-误差为什么滚雪球">KV 误差为什么"滚雪球"</a></li>
+<li><a href="#4-设计空间量化什么用什么粒度">设计空间：量化什么、用什么粒度</a></li>
+<li><a href="#5-分布分析k-稳定v-多变">分布分析：K 稳定、V 多变</a></li>
+<li><a href="#6-kivi-算法">KIVI 算法</a></li>
+<li><a href="#7-结果与边界">结果与边界</a></li>
+<li><a href="#8-与-kv-优化的其他手段的关系">与 KV 优化的其他手段的关系</a></li>
+<li><a href="#9-本章小结">本章小结</a></li>
+<li><a href="#10-习题与解答">习题与解答</a></li>
+<li><a href="#11-延伸阅读">延伸阅读</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>至此我们已经量化了权重（05/06）和激活（07）。第三个量化对象是 <strong>KV cache</strong>——它是长上下文推理里最大的显存消耗者，也是"错误会跨 token 累积"的独特存在。Inference Engineering 把它排在敏感性排序的中间：<strong>中等敏感，但必须谨慎</strong>。</p>
+<p>本章以 KIVI 为主线，回答三个问题：KV 为什么值得量化、KV 量化为什么难、KIVI 怎么在 2-bit 做到近无损。</p>
+<hr />
+<h2 id="2-kv-cache">2. 为什么 KV cache 是下一个量化对象<a class="headerlink" href="#2-kv-cache" title="Permanent link">&para;</a></h2>
+<h3 id="21-kv-cache">2.1 KV cache 是什么<a class="headerlink" href="#21-kv-cache" title="Permanent link">&para;</a></h3>
+<p>解码时，每个 token 的注意力 Key/Value 向量被缓存，供后续所有 token 复用：</p>
+<p>KV cache 张量：K、V 各一个，形状<span class="arithmatex">\([n_{\text{layers}}, n_{kv_heads}, \text{seq\_len}, \text{head\_dim}]\)</span></p>
+<p>显存公式（FP16）：</p>
+<div class="arithmatex">\[
+Bytes = 2 \times n_{\text{layers}} \times n_{kv_heads} \times \text{head\_dim} \times \text{seq\_len} \times 2
+\]</div>
+<h3 id="22-llama-2-70b">2.2 实例：Llama-2-70B<a class="headerlink" href="#22-llama-2-70b" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+n_{\text{layers}} = 80，n_{kv_heads} = 8（GQA），\text{head\_dim} = 128，FP16
+\]</div>
+<p>每 token：<span class="arithmatex">\(2 \times 80 \times 8 \times 128 \times 2 B = 327,680 B \approx 0.31 MB\)</span></p>
+<p>32K 上下文<span class="arithmatex">\(\to \approx 10.7 GB\)</span>
+128K 上下文<span class="arithmatex">\(\to \approx 43 GB\)</span></p>
+<p>对比：70B 权重<span class="arithmatex">\(FP16 = 140 GB\)</span>；<span class="arithmatex">\(FP8 = 70 GB\)</span></p>
+<p>结论：<strong>上下文越长，KV 越接近甚至超过权重成为显存大头</strong>；而且 decode 每一步都要读全量 KV，带宽消耗同样可观。</p>
+<h3 id="23">2.3 两个收益<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<p>省显存<span class="arithmatex">\(\to\)</span>同样的 GPU 能塞更大 batch / 更长上下文
+省带宽<span class="arithmatex">\(\to decode\)</span>读 KV 的时间减少（和权重带宽同源）</p>
+<hr />
+<h2 id="3-kv">3. KV 误差为什么"滚雪球"<a class="headerlink" href="#3-kv" title="Permanent link">&para;</a></h2>
+<p>权重量化误差是<strong>静态</strong>的：量化一次，误差固定，且可以被校准补偿（GPTQ/AWQ）。</p>
+<p>KV 误差是<strong>动态累积</strong>的：</p>
+<ol>
+<li>token t 写入时被量化<span class="arithmatex">\(\to\)</span>带误差的<span class="arithmatex">\(K_{t}\)</span>、<span class="arithmatex">\(V_{t}\)</span>进入 cache</li>
+<li>之后每个 token（t+1, t+2, …）都要读<span class="arithmatex">\(K_{t}\)</span>、<span class="arithmatex">\(V_{t}\)</span>算注意力</li>
+<li>误差不消失，还参与所有后续 softmax/输出计算</li>
+<li>每一层、每一步都在重复使用这些被污染的缓存<span class="arithmatex">\(\to\)</span>误差逐 token 累积</li>
+</ol>
+<p>更微妙的是 softmax：QK 分数一旦被量化噪声扰动，softmax 的指数放大会把"小扰动"变成"注意力权重偏差"，进而直接改变输出分布。这就是 Inference Engineering 说"errors compound token-to-token"的机理。</p>
+<hr />
+<h2 id="4">4. 设计空间：量化什么、用什么粒度<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<p>KV 量化有四个自由参数：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>选项</th>
+<th>直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>量化对象</td>
+<td>K 或 V 或两者</td>
+<td>K 影响 softmax 分数，V 直接进输出</td>
+</tr>
+<tr>
+<td>粒度</td>
+<td>per-token / per-channel / per-tensor</td>
+<td>与 04 章同构</td>
+</tr>
+<tr>
+<td>位宽</td>
+<td>2/4/8-bit</td>
+<td>每 bit 省 2 倍显存</td>
+</tr>
+<tr>
+<td>对称性</td>
+<td>对称 / 非对称</td>
+<td>分布是否有偏</td>
+</tr>
+</tbody>
+</table>
+<p>朴素方案（per-tensor 4-bit）为什么不行：KV 的通道/时间分布差异大，per-tensor 范围利用率低（04 章），且 V 的分布随时间漂移。</p>
+<hr />
+<h2 id="5-k-v">5. 分布分析：K 稳定、V 多变<a class="headerlink" href="#5-k-v" title="Permanent link">&para;</a></h2>
+<p>KIVI 论文先做了分布统计（这是它最大的贡献）：</p>
+<h3 id="51-key-token">5.1 Key 的分布：跨 token 稳定、按通道有规律<a class="headerlink" href="#51-key-token" title="Permanent link">&para;</a></h3>
+<p>Key 张量：<span class="arithmatex">\(shape [tokens, heads, \text{head\_dim}]\)</span></p>
+<p>发现 1：同一通道（dim 维度）的 key 值跨 token 分布稳定（模式固定）
+发现 2：不同通道的量级/偏斜差异大（有通道级 outlier）</p>
+<p>含义：按通道选 scale（per-channel）是准的，而且 scale 可以"持续更新"而不怕时间漂移</p>
+<h3 id="52-value">5.2 Value 的分布：随时间漂移<a class="headerlink" href="#52-value" title="Permanent link">&para;</a></h3>
+<p>Value 张量：同一通道的 value 分布随 token 变化明显</p>
+<p>含义：per-channel 的 scale 会"过期"；per-token 的 scale 才能跟上当前分布</p>
+<p><strong>这是 KIVI 的命名式结论：K 按通道量化、V 按 token 量化。</strong></p>
+<p>为什么不对称是合理的：</p>
+<p>QK 分数= <span class="arithmatex">\(q\cdot k\)</span>：key 的量化误差通过点积进入 softmax，需要稳定的通道级精度
+V 直接加权进输出：value 的误差被注意力权重"平均"，per-token 精度更划算</p>
+<hr />
+<h2 id="6-kivi">6. KIVI 算法<a class="headerlink" href="#6-kivi" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 方案总览<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>K cache：2-bit，per-channel 非对称量化（每 head 每通道一个 scale + zero-point）
+V cache：2-bit，per-token 非对称量化（每个 token 一个 scale + zero-point）
+免调参：不需要微调，即插即用</p>
+<h3 id="62">6.2 流式实现要点<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>KV 是<strong>在线生成</strong>的（一个 token 一个 token 写），所以量化必须流式：</p>
+<ol>
+<li>保留一小段最近的 token 在 FP16 缓冲（避免反复量化、保证近期精度）</li>
+<li>K：以一小段 token 为单元，统计该段每个通道的<span class="arithmatex">\(\max/\min \to per-channel\)</span>非对称量化<span class="arithmatex">\(\to\)</span>写 2-bit</li>
+<li>V：每 token 到达即按该 token 自己的 max/min 量化（per-token）</li>
+<li>解码时：2-bit 数据按需反量化回 FP16 参与 attention</li>
+</ol>
+<p>实现细节（块大小、缓冲长度）是工程参数，见 <a href="https://github.com/jy-yuan/KIVI">KIVI 官方代码</a>。</p>
+<h3 id="63-2-bit">6.3 为什么 2-bit 还能近无损<a class="headerlink" href="#63-2-bit" title="Permanent link">&para;</a></h3>
+<ol>
+<li>粒度对：K 的通道规律 + V 的 token 适配，让 2-bit 网格利用率高</li>
+<li>非对称：KV 分布往往有偏，zero-point 把网格对准分布（01 章 3.7）</li>
+<li>误差去处：V 误差被注意力权重平均；K 误差虽然进 softmax，但通道级精度保住了主要结构</li>
+<li>免调参不意味着免验证：论文在多个模型上逐长度验证 PPL 差异落在噪声内</li>
+</ol>
+<hr />
+<h2 id="7">7. 结果与边界<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="71">7.1 论文结果<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>模型</strong>：Llama-2 7B/13B/70B、OPT、Mistral 等。</li>
+<li><strong>质量</strong>：2-bit KV 在论文测试长度（数千到上万 token）下 perplexity 与 FP16 差异在噪声范围内；4-bit 更稳。</li>
+<li><strong>内存</strong>：KV 省 4 倍<span class="arithmatex">\(\to\)</span>同一 GPU 可支持更大 batch 或更长上下文。</li>
+<li><strong>即插即用</strong>：无需微调、无需额外校准训练。</li>
+</ul>
+<h3 id="72">7.2 边界与生产建议<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<ol>
+<li>2-bit 是研究甜点；生产上 KV 量化通常从 4-bit 或 FP8 起步，先跑长上下文评测</li>
+<li>超长上下文（几十万 token）下误差累积更明显，需要按实际长度验证</li>
+<li>与 GQA 天然兼容（KV head 少，量化对象更少）</li>
+<li>vLLM / TensorRT-LLM 已提供 KV cache 的 FP8/INT8 量化选项</li>
+</ol>
+<hr />
+<h2 id="8-kv">8. 与 KV 优化的其他手段的关系<a class="headerlink" href="#8-kv" title="Permanent link">&para;</a></h2>
+<p>KV 优化是一个组合拳，量化只是其中一块：</p>
+<table>
+<thead>
+<tr>
+<th>手段</th>
+<th>思路</th>
+<th>与量化的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PagedAttention（vLLM）</td>
+<td>显存管理（分页，避免碎片/预分配浪费）</td>
+<td><strong>正交</strong>，可叠加</td>
+</tr>
+<tr>
+<td>前缀缓存 / KV 复用</td>
+<td>相同前缀只算一次</td>
+<td><strong>正交</strong>，可叠加</td>
+</tr>
+<tr>
+<td>淘汰（H2O / StreamingLLM）</td>
+<td>丢不重要的旧 token</td>
+<td>可叠加；量化省所有 token 的位</td>
+</tr>
+<tr>
+<td>ThinK</td>
+<td>裁剪 key 的冗余通道</td>
+<td>可与 KIVI 叠加（论文报告过）</td>
+</tr>
+<tr>
+<td>KV 量化（KIVI 等）</td>
+<td>每个 KV 用更少 bit</td>
+<td>本章主题</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>工程排序：先做 PagedAttention + 前缀缓存（无损、成熟），再考虑 KV 量化（有损但收益大），最后才考虑淘汰（改变语义）。</p>
+</blockquote>
+<hr />
+<h2 id="9">9. 本章小结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>KV 是长上下文的显存大头</strong>：公式 <code>2·L·H·d·S·bytes</code>，<span class="arithmatex">\(70B @32K \approx 10.7 GB\)</span>。</li>
+<li><strong>误差滚雪球</strong>：KV 被反复读取，softmax 放大扰动<span class="arithmatex">\(\to\)</span>逐 token 累积。</li>
+<li><strong>K 按通道、V 按 token</strong>：K 分布稳定（通道模式），V 分布漂移（随时间变）——KIVI 的全部设计都从这里来。</li>
+<li><strong>2-bit 非对称 + 流式量化 + 免调参</strong>：即插即用，4x 省显存，近无损。</li>
+<li><strong>生产建议</strong>：4-bit/FP8 起步、按实际长度评测、与 PagedAttention/前缀缓存叠加。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"Key 像星座（稳定、按通道有规律），Value 像天气（随时变），所以 Key 按通道记、Value 按天记。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="10">10. 习题与解答<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="1kv">题 1（计算）：KV 显存<a class="headerlink" href="#1kv" title="Permanent link">&para;</a></h3>
+<p>模型：64 层、4 个 KV head、<span class="arithmatex">\(\text{head\_dim} 128\)</span>。计算 FP16 与 2-bit 下 64K 上下文的 KV 显存。</p>
+<details>
+<summary>题 1 解答</summary>
+
+每$token = 2\times 64\times 4\times 128\times 2 = 131,072 B = 128 KB$。
+$64K = 65536 token \to FP16 \approx 8.59 GB$；$2-bit \approx 2.15 GB$（省 4 倍）。
+</details>
+
+<h3 id="2-token">题 2（思考）：误差为什么逐 token 累积<a class="headerlink" href="#2-token" title="Permanent link">&para;</a></h3>
+<p>用"KV 被读多少次"回答：第 t 个 token 写入的<span class="arithmatex">\(K_{t}\)</span>，在序列长度为 T 时会被后续多少步读取？量化误差因此被放大多少次？</p>
+<details>
+<summary>题 2 解答</summary>
+
+$K_{t}$被 token t+1 … T 每一步读取，共 T−t 次；每次读取都参与一层 attention 且可能影响后续所有 token 的生成（输出 token 会继续影响后面）。所以误差既被"重复使用"，又被"传播放大"——这就是累积。
+</details>
+
+<h3 id="3-v-per-channel">题 3（设计）：为什么 V 不用 per-channel<a class="headerlink" href="#3-v-per-channel" title="Permanent link">&para;</a></h3>
+<p>如果 V 也用 per-channel（scale 用前 1000 个 token 统计），长对话后 V 分布漂移，会发生什么？</p>
+<details>
+<summary>题 3 解答</summary>
+
+scale 过期：新 token 的 V 分布可能远超/远低于旧 scale 覆盖范围$\to$大量截断或有效位宽浪费（02 章）；per-token scale 始终跟当前 token 对齐，截断可控。K 因为分布稳定才敢用 per-channel。
+</details>
+
+<h3 id="4per-token-vs-per-channel">题 4（编程）：per-token vs per-channel 对比<a class="headerlink" href="#4per-token-vs-per-channel" title="Permanent link">&para;</a></h3>
+<p>生成随时间漂移的 V 数据（前一半 N(0,1)，后一半 N(10,1)），比较 per-token 与 per-channel（用前半统计）2-bit 量化的总误差。</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+per-channel 的 scale 固定$\to$后一半全部落在网格边缘/外，误差大；per-token 每 token 自适应，误差接近理论最优。验证 KIVI 的结论：**分布漂移时 per-token 完胜**。
+</details>
+
+<h3 id="5kv">题 5（开放）：KV 量化的验收<a class="headerlink" href="#5kv" title="Permanent link">&para;</a></h3>
+<p>给 KV 2-bit 方案设计验收实验：模型、长度、指标、对照组各是什么？</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+模型：生产用模型（如 70B 级）；长度：覆盖线上最大上下文（如 32K/128K）；指标：perplexity（WikiText-2 长段）+ 长上下文任务（如 RULER/大海捞针）+ 自定义业务评测；对照组：FP16 KV 与 4-bit KV，跑多遍确认差异在噪声内（10 章的方法论）。
+</details>
+
+<hr />
+<h2 id="11">11. 延伸阅读<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2402.02750">KIVI（arXiv:2402.02750）</a>：本章主文献；<a href="https://github.com/jy-yuan/KIVI">代码</a></li>
+<li><a href="https://arxiv.org/abs/2309.06180">PagedAttention（vLLM 论文，arXiv:2309.06180）</a>：KV 显存管理（正交手段）</li>
+<li><a href="https://proceedings.iclr.cc/paper_files/paper/2025/hash/8edb116d5b288b6a9bba4c16ab647702-Abstract-Conference.html">ThinK（ICLR 2025）</a>：key 通道剪枝 + KIVI 叠加</li>
+<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/">07 激活量化</a>；下一篇：<strong>[09 QAT 与训练内量化：STE、QLoRA、BitNet b1.58]</strong>——从"事后补偿"转向"让模型学会忍受量化"。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 07 激活量化（LLM.int8 与 SmoothQuant）">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                07 激活量化（LLM.int8 与 SmoothQuant）
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-footer__link md-footer__link--next" aria-label="下一页: 09 QAT 与训练内量化">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                09 QAT 与训练内量化
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

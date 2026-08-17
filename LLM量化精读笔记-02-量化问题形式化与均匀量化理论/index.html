@@ -1,0 +1,2109 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/">
+      
+      
+        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>02 量化问题形式化与均匀量化理论 - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-02" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              02 量化问题形式化与均匀量化理论
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 量化问题的一般形式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 量化问题的一般形式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 在神经网络里的具体化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 两种量化对象：数据分布 vs 计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 均匀（线性）量化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 均匀（线性）量化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-mid-tread-mid-rise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 mid-tread 与 mid-rise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 为什么默认用均匀量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-mit-lab-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 伪代码（与 MIT Lab 2 对齐）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-18-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 数值算例 1：8-bit 对称量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-24-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 数值算例 2：4-bit 对称量化（同样的数据）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 数值算例 3：非对称量化"省位"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 量化误差理论
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 量化误差理论">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 误差分解：舍入 + 截断
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 加性噪声模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-snr-bit-6-db" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 SNR 推导：每 bit ≈ 6 dB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 直觉：1 bit 到底意味着什么
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 量化器设计的四个旋钮
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 量化器设计的四个旋钮">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 位宽 b
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-rmin-rmax-sz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 范围 [rmin, rmax]（等价于 s、z）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 对称 vs 非对称
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 粒度（granularity）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 为什么神经网络能容忍量化
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-ptq-qat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. PTQ 与 QAT：两条路线的雏形
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. PTQ 与 QAT：两条路线的雏形">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-ptqpost-training-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 PTQ（Post-Training Quantization）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-qatquantization-aware-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 QAT（Quantization-Aware Training）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 本章小结与"一句话记忆"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（手算）：对称量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-dbbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（推导）：6 dB/bit 的另一种推法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3mid-tread-vs-mid-rise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（思考）：mid-tread vs mid-rise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mit-lab-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（编程，建议在 MIT Lab 2 环境里做）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（挑战）：范围利用率的数学
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 量化问题的一般形式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 量化问题的一般形式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 在神经网络里的具体化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 两种量化对象：数据分布 vs 计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 均匀（线性）量化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 均匀（线性）量化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-mid-tread-mid-rise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 mid-tread 与 mid-rise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 为什么默认用均匀量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-mit-lab-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 伪代码（与 MIT Lab 2 对齐）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-18-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 数值算例 1：8-bit 对称量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-24-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 数值算例 2：4-bit 对称量化（同样的数据）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 数值算例 3：非对称量化"省位"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 量化误差理论
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 量化误差理论">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 误差分解：舍入 + 截断
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 加性噪声模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-snr-bit-6-db" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 SNR 推导：每 bit ≈ 6 dB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 直觉：1 bit 到底意味着什么
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 量化器设计的四个旋钮
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 量化器设计的四个旋钮">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 位宽 b
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-rmin-rmax-sz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 范围 [rmin, rmax]（等价于 s、z）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 对称 vs 非对称
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 粒度（granularity）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 为什么神经网络能容忍量化
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-ptq-qat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. PTQ 与 QAT：两条路线的雏形
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. PTQ 与 QAT：两条路线的雏形">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-ptqpost-training-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 PTQ（Post-Training Quantization）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-qatquantization-aware-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 QAT（Quantization-Aware Training）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 本章小结与"一句话记忆"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（手算）：对称量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-dbbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（推导）：6 dB/bit 的另一种推法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3mid-tread-vs-mid-rise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（思考）：mid-tread vs mid-rise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mit-lab-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（编程，建议在 MIT Lab 2 环境里做）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（挑战）：范围利用率的数学
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-02">LLM 量化精读笔记 · 02 量化问题的形式化与均匀量化理论<a class="headerlink" href="#llm-02" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：MIT 6.5940 Lecture 5（Quantization Part I）前半部分；Inference Engineering Ch 5 的数学基础。
+学完本章你应该能：① 把任何量化方法归入"编码器 + 解码器 + 误差"的框架；② 徒手写出对称/非对称均匀量化的正向与反向公式；③ 推导并解释"每<span class="arithmatex">\(bit \approx 6 dB\)</span>"；④ 区分舍入误差与截断误差，并指出它们分别由什么造成；⑤ 理解为什么"范围利用率"是量化的第一性原理。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-本章目标">本章目标</a></li>
+<li><a href="#2-量化问题的一般形式">量化问题的一般形式</a></li>
+<li><a href="#3-均匀线性量化">均匀（线性）量化</a></li>
+<li><a href="#4-量化误差理论">量化误差理论</a></li>
+<li><a href="#5-量化器设计的四个旋钮">量化器设计的四个旋钮</a></li>
+<li><a href="#6-为什么神经网络能容忍量化">为什么神经网络能容忍量化</a></li>
+<li><a href="#7-ptq-与-qat两条路线的雏形">PTQ 与 QAT：两条路线的雏形</a></li>
+<li><a href="#8-本章小结与一句话记忆">本章小结与"一句话记忆"</a></li>
+<li><a href="#9-习题与解答">习题与解答</a></li>
+<li><a href="#10-延伸阅读">延伸阅读</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>量化（quantization）在推理优化里承担的角色可以用一句话概括：<strong>在"表示一个数要花多少 bit"和"这个数被算错多少"之间做交易。</strong></p>
+<p>本章不讨论任何具体模型，只建立一个严格的数学地基。后面的章节（04–07）全部是在这个地基上回答同一个问题：<strong>给定一个 LLM 的权重/激活/KV 分布，如何用最少的 bit、最小的质量损失把它表示出来，并且让硬件跑得快。</strong></p>
+<hr />
+<h2 id="2">2. 量化问题的一般形式<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 定义<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>令<span class="arithmatex">\(r \in \mathbb{R}\)</span>为一个需要表示的实数（可以是权重 w、激活 a 或 KV cache 的值）。量化是这样一个映射：</p>
+<p>编码器（量化）<span class="arithmatex">\(: f : \mathbb{R} \to Q, Q = \{q_0, q_1, ..., q_{M-1}\} \subset \mathbb{Z}, M = 2^b\)</span>
+解码器（反量化）<span class="arithmatex">\(: g : Q \to \mathbb{R}, g(q_{i}) = \hat{r}_i\)</span></p>
+<p>其中 b 是位宽，<span class="arithmatex">\(M = 2^b\)</span>是可表示的<strong>不同取值数量</strong>。量化后的数值集合 Q 远小于<span class="arithmatex">\(\mathbb{R}\)</span>，因此这是一个<strong>有损压缩</strong>过程：除了恰好落在某个<span class="arithmatex">\(\hat{r}_i\)</span>上的值，其余值都会引入误差<span class="arithmatex">\(\varepsilon = r - \hat{r}\)</span>。</p>
+<blockquote>
+<p>信息论直觉：用一个 b bit 的码字表示一个连续量，等价于把实数轴切成<span class="arithmatex">\(2^b\)</span>个区间，每个区间里的值都"坍缩"到同一个代表值。区间越粗（b 越小），每个值的失真越大。这就是率失真（rate-distortion）的雏形：rate（位宽）与 distortion（失真）不可兼得。</p>
+</blockquote>
+<h3 id="22">2.2 在神经网络里的具体化<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<p>一个线性层<span class="arithmatex">\(y = Wx\)</span>在量化后变成：</p>
+<p>原始<span class="arithmatex">\(: y = W x\)</span>
+量化<span class="arithmatex">\(: \hat{y} \approx dequant(\operatorname{quant}(W)) \cdot dequant(\operatorname{quant}(x))\)</span>
+$$
+= \hat{W} \cdot \hat{x}
+$$</p>
+<p>于是每一层的输出都携带了上一层权重和激活的量化误差。误差会沿网络传播（第 07/08 章会分析传播方式）。<strong>量化的目标不是让<span class="arithmatex">\(\hat{W} = W\)</span>，而是让整个模型的任务指标（perplexity、MMLU 分数……）退化到统计上与噪声不可区分。</strong></p>
+<h3 id="23-vs">2.3 两种量化对象：数据分布 vs 计算<a class="headerlink" href="#23-vs" title="Permanent link">&para;</a></h3>
+<p>论文里经常出现两组说法，容易混淆：</p>
+<table>
+<thead>
+<tr>
+<th>说法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>weight-only quantization</td>
+<td>只把权重存成低精度（W4A16 等），激活仍是高精度</td>
+</tr>
+<tr>
+<td>W8A8</td>
+<td>权重和激活都量化到 8-bit，矩阵乘在低精度 Tensor Core 上做</td>
+</tr>
+<tr>
+<td>KV cache quantization</td>
+<td>把解码时缓存的 Key/Value 张量降精度（省显存，08 章）</td>
+</tr>
+<tr>
+<td>存 vs 算</td>
+<td>权重可以"只省存储"（weight-only），也可以"省存储 + 加速计算"（W8A8）</td>
+</tr>
+</tbody>
+</table>
+<p>为什么要区分"存"和"算"？因为推理的 decode 阶段是<strong>访存密集</strong>的：权重每用一次都要从 HBM 搬到寄存器，位宽减半 ≈ 带宽翻倍；而 prefill 阶段是<strong>计算密集</strong>的，需要低精度 Tensor Core 的 FLOPS 翻倍才有效果（详见 03 章硬件部分）。这一区分决定了"只量化权重"还是"权重+激活一起量化"的选择。</p>
+<hr />
+<h2 id="3">3. 均匀（线性）量化<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 定义<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p><strong>均匀量化（uniform / linear quantization）</strong>：所有量化层级等距排列，相邻两层间距恒为<span class="arithmatex">\(\Delta\)</span>（称为步长 step size）。</p>
+<p>两种最常用的形式：</p>
+<p><strong>（a）对称量化（symmetric）</strong>：零点<span class="arithmatex">\(z = 0\)</span>，量化值域对称：</p>
+<p>$$
+\begin{aligned}
+q &amp;= \operatorname{clamp}(\operatorname{round}(r / s), q_{\min}, q_{\max})
+\hat{r} &amp;= q \cdot s
+\end{aligned}
+$$
+其中<span class="arithmatex">\(s = \max|r| / (2^{b-1} - 1)\)</span>（常用，值域对称，0 有精确表示）
+或<span class="arithmatex">\(s = \max|r| / 2^{b-1}\)</span>（个别 kernel 用，把<span class="arithmatex">\(\pm 2^{b-1}\)</span>都利用上）</p>
+<p>对 INT8：<span class="arithmatex">\(q_{\min} = -128\)</span>，<span class="arithmatex">\(q_{\max} = 127\)</span>；若用 <span class="arithmatex">\(s = \max|r| / 127\)</span>，则<span class="arithmatex">\(q \in [-127, 127]\)</span>，−128 不用。</p>
+<p><strong>（b）非对称量化（affine / asymmetric）</strong>：零点<span class="arithmatex">\(z \ne 0\)</span>：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+s &amp;= (r_{\max} - r_{\min}) / (q_{\max} - q_{\min})
+z &amp;= \operatorname{round}(q_{\min} - r_{\min} / s)
+q &amp;= \operatorname{clamp}(\operatorname{round}(r / s) + z, q_{\min}, q_{\max})
+\hat{r} &amp;= (q - z) \cdot s
+\end{aligned}
+\]</div>
+<p>非对称量化把 <code>[rmin, rmax]</code> 完整映射到 <code>[qmin, qmax]</code>，不浪费整数网格。代价是：矩阵乘时每个量化值要减去 z（多一次加法），硬件实现略贵。</p>
+<h3 id="32-mid-tread-mid-rise">3.2 mid-tread 与 mid-rise<a class="headerlink" href="#32-mid-tread-mid-rise" title="Permanent link">&para;</a></h3>
+<p>对称量化器还可以按"零点是不是量化层级"分成两类：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>零点</th>
+<th>例子（3-bit）</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mid-tread</td>
+<td>0 是一个量化值</td>
+<td><span class="arithmatex">\(q \in \{-4, -3, -2, -1, 0, 1, 2, 3\}\)</span></td>
+<td>能精确表示 0；适合权重（0 语义重要，如稀疏权重）</td>
+</tr>
+<tr>
+<td>mid-rise</td>
+<td>0 落在两级之间</td>
+<td><span class="arithmatex">\(q \in \{-4, -3, -2, -1, 1, 2, 3, 4\}\)</span></td>
+<td>偶数个层级，无精确 0；适合满量程正弦类信号</td>
+</tr>
+</tbody>
+</table>
+<p>神经网络里默认选 mid-tread：权重里的 0 有语义（很多权重本来就接近 0，量化后变成 0 可以配合稀疏性）。</p>
+<h3 id="33">3.3 为什么默认用均匀量化<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<p>均匀量化的实现极其简单，完全贴合硬件：</p>
+<ol>
+<li><strong>量化</strong>：一次除法 + round + clamp；</li>
+<li><strong>反量化</strong>：一次乘法；</li>
+<li><strong>矩阵乘</strong>：整数乘加（或 FP8 低精度 Tensor Core），累加器用 FP32，几乎不损失累加精度。</li>
+</ol>
+<p>非均匀量化（如 k-means 量化、对数量化）用更少的码字逼近真实分布，但推理时需要<strong>查表</strong>或<strong>特殊解码</strong>，位宽不整齐、内存布局不友好。现代 LLM 量化论文（GPTQ/AWQ/QuIP#）基本都回到"均匀网格 + 更聪明的网格选择/缩放"，只是把功夫下在 scale 和 outlier 上。</p>
+<blockquote>
+<p>一句话：均匀量化 = "等间距网格"；非均匀 = "按分布密度布点"。硬件喜欢前者，精度喜欢后者，所以业界在两者之间折中（见 04 章粒度、06 章 QuIP# 的格码本）。</p>
+</blockquote>
+<h3 id="34-mit-lab-2">3.4 伪代码（与 MIT Lab 2 对齐）<a class="headerlink" href="#34-mit-lab-2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_quantized_range</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""对称整数量化范围，如 b=8 -&gt; (-128, 127)"""</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">quantize_symmetric</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="sd">"""r: 实数张量; b: 位宽; s: 缩放因子（None 则从数据算）"""</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">qmin</span><span class="p">,</span> <span class="n">qmax</span> <span class="o">=</span> <span class="n">get_quantized_range</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">s</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>   <span class="c1"># 对称缩放</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">round_</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">s</span><span class="p">)</span>          <span class="c1"># 逐元素 round</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">clamp</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qmin</span><span class="p">,</span> <span class="n">qmax</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">s</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">dequantize_symmetric</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="k">return</span> <span class="n">q</span> <span class="o">*</span> <span class="n">s</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">quantize_affine</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">rmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">qmin</span><span class="p">,</span> <span class="n">qmax</span> <span class="o">=</span> <span class="n">get_quantized_range</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="k">if</span> <span class="n">rmin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">rmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">if</span> <span class="n">rmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">rmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">rmax</span> <span class="o">-</span> <span class="n">rmin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">qmax</span> <span class="o">-</span> <span class="n">qmin</span><span class="p">)</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">z</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">qmin</span> <span class="o">-</span> <span class="n">rmin</span> <span class="o">/</span> <span class="n">s</span><span class="p">)</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">clamp</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="n">z</span><span class="p">,</span> <span class="n">qmin</span><span class="p">,</span> <span class="n">qmax</span><span class="p">)</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">z</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">def</span><span class="w"> </span><span class="nf">dequantize_affine</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="k">return</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span>
+</code></pre></div>
+<p>（<span class="arithmatex">\(round_\)</span> 用 banker's rounding 或 round-half-away-from-zero 都可，工程上注意与 kernel 一致即可；MIT Lab 2 的实现与此等价。）</p>
+<h3 id="35-18-bit">3.5 数值算例 1：8-bit 对称量化<a class="headerlink" href="#35-18-bit" title="Permanent link">&para;</a></h3>
+<p>输入：</p>
+<div class="arithmatex">\[
+r = [0.52, -1.31, 2.05, -0.87], b = 8, q_{\max} = 127
+\]</div>
+<p>计算：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+s &amp;= 2.05 / 127 \approx 0.01614
+r/s &amp;= [32.21, -81.16, 127.00, -53.90]
+q &amp;= [32, -81, 127, -54]
+\hat{r} &amp;= [0.5165, -1.3075, 2.0500, -0.8717]
+\varepsilon &amp;= r - \hat{r} = [0.0035, -0.0025, 0, 0.0017]
+\end{aligned}
+\]</div>
+<p>最大误差<span class="arithmatex">\(|\varepsilon |\max \approx 0.0035 &lt; \Delta /2 = s/2 \approx 0.00807 ✓\)</span>（满足舍入误差上界，因为所有值都在量化范围内，没有截断）。</p>
+<h3 id="36-24-bit">3.6 数值算例 2：4-bit 对称量化（同样的数据）<a class="headerlink" href="#36-24-bit" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(b = 4, q_{\max} = 7\)</span>（对称时<span class="arithmatex">\(2^{4-1}-1 = 7\)</span>）
+$$
+\begin{aligned}
+s &amp;= 2.05 / 7 \approx 0.2929
+r/s &amp;= [1.78, -4.47, 7.00, -2.97]
+q &amp;= [2, -4, 7, -3]
+\hat{r} &amp;= [0.5857, -1.1714, 2.0500, -0.8786]
+\varepsilon &amp;= [-0.0657, -0.1386, 0, 0.0086]
+\end{aligned}
+$$</p>
+<p>最大误差<span class="arithmatex">\(|\varepsilon |\max \approx 0.1386\)</span>，仍是<span class="arithmatex">\(\Delta /2 = s/2 \approx 0.1464\)</span>以内。<strong>位宽从 8 降到 4，误差上限扩大了约 16 倍（<span class="arithmatex">\(\Delta\)</span>放大了 16 倍：<span class="arithmatex">\(0.01614 \to 0.2929\)</span>）。</strong> 注意：噪声功率理论上是<span class="arithmatex">\(4^{4} = 256\)</span>倍（−24 dB），但这里样本只有 4 个数，均匀噪声假设不成立，实际比值会偏离——这正是"统计模型需要足够多样本"的例子（见 4.2）。</p>
+<h3 id="37-3">3.7 数值算例 3：非对称量化"省位"<a class="headerlink" href="#37-3" title="Permanent link">&para;</a></h3>
+<p>考虑 ReLU 之后的激活，全部非负：</p>
+<div class="arithmatex">\[
+r = [0.1, 0.9, 0.05, 2.0]
+\]</div>
+<p><strong>对称 4-bit</strong>：<span class="arithmatex">\(s = 2.0/7 \approx 0.2857\)</span>，整数网格覆盖<span class="arithmatex">\([-2.0, 2.0]\)</span>，但数据只用了一半<span class="arithmatex">\(\to\)</span>量化层级浪费一半：</p>
+<div class="arithmatex">\[
+q = [0, 3, 0, 7] \to \hat{r} = [0, 0.857, 0, 2.0]
+\]</div>
+<p><strong>非对称 4-bit</strong>：<span class="arithmatex">\(s = (2.0 - 0.05)/15 = 0.13\)</span>，整数网格覆盖<span class="arithmatex">\([0.05, 2.0]\)</span>：</p>
+<div class="arithmatex">\[
+q = [1, 7, 0, 15] \to \hat{r} = [0.130, 0.910, 0, 1.950]
+\]</div>
+<p>误差从对称时的最大 0.1 降到约 0.05。结论：<strong>分布不对称时，非对称量化等于免费拿回被浪费的位</strong>——这是后面 SmoothQuant/激活量化的基础直觉之一。</p>
+<hr />
+<h2 id="4">4. 量化误差理论<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 误差分解：舍入 + 截断<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>量化误差由两部分组成：</p>
+<div class="arithmatex">\[
+\varepsilon = r - \hat{r} = \varepsilon_{   ext{round}} + \varepsilon_{ ext{clip}}
+\]</div>
+<ul>
+<li><strong>舍入误差<span class="arithmatex">\(\varepsilon_{  ext{round}}\)</span></strong>：当 r 落在量化范围 [rmin, rmax] 内时，r 被就近映射到最近层级，误差≤ <span class="arithmatex">\(\Delta /2\)</span>。</li>
+<li><strong>截断误差<span class="arithmatex">\(\varepsilon_{  ext{clip}}\)</span></strong>：当 r 超出 [rmin, rmax] 时，被 clamp 到边界，误差= <span class="arithmatex">\(|r - r_{\min}|\)</span>或 |r − rmax|，<strong>可以任意大</strong>，与位宽无关。</li>
+</ul>
+<p>这是整个量化理论里最重要的一个划分，值得停下来想清楚：</p>
+<blockquote>
+<p><strong>位宽决定"格子细不细"（舍入误差）；范围决定"边界在哪"（截断误差）。</strong> 大多数翻车事故不是舍入误差，而是截断误差——某个 outlier 值把范围撑得极大，导致大部分正常值的有效位宽被稀释，或者干脆被 clamp 掉。</p>
+</blockquote>
+<p>LLM 激活里恰好存在大量 outlier（少数维度值巨大），这正是 LLM.int8()、SmoothQuant、AWQ 全部要解决的<strong>同一个敌人</strong>（04、06、07 章）。</p>
+<h3 id="42">4.2 加性噪声模型<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<p>当 r 在量化范围内且值域被"充分激励"（样本足够多、分布不极端）时，可以把量化器建模为：</p>
+<div class="arithmatex">\[
+\hat{r} = r + e, e \sim Uniform(-\Delta /2, \Delta /2)
+\]</div>
+<p>两个性质：</p>
+<p><span class="arithmatex">\(E[e] = 0\)</span>（无偏）
+<span class="arithmatex">\(Var[e] = \Delta ^{2} / 12\)</span>（均匀分布方差：<span class="arithmatex">\(\int x^{2}/\Delta dx over [-\Delta /2, \Delta /2]\)</span>）</p>
+<p>推导：均匀分布在<span class="arithmatex">\([-\Delta /2, \Delta /2]\)</span>的方差= <span class="arithmatex">\((\Delta /2 - (-\Delta /2))^{2}/12 = \Delta ^{2}/12\)</span>。<span class="arithmatex">\(\Delta ^{2}/12\)</span>是量化噪声的<strong>教科书公式</strong>，后面所有 SNR 计算都从它出发。</p>
+<p>这个模型成立的条件是：舍入误差在各区间内均匀分布（对充分随机的信号近似成立）。小样本、周期性信号、有截断时都不成立——这也是为什么例 2 的噪声功率与理论有偏差。</p>
+<h3 id="43-snr-bit-6-db">4.3 SNR 推导：每 bit ≈ 6 dB<a class="headerlink" href="#43-snr-bit-6-db" title="Permanent link">&para;</a></h3>
+<p><strong>设定</strong>：b-bit 均匀量化器（mid-rise，<span class="arithmatex">\(2^b\)</span>个层级）覆盖满量程 [−A, A]；信号 r 在 [−A, A] 上均匀分布。</p>
+<p>步长：</p>
+<div class="arithmatex">\[
+\Delta = 2A / 2^b
+\]</div>
+<p>信号方差（均匀分布）：</p>
+<div class="arithmatex">\[
+\sigma _s^{2} = (2A)^{2} / 12 = A^{2} / 3
+\]</div>
+<p>噪声方差（4.2 的公式）：</p>
+<div class="arithmatex">\[
+\sigma _e^{2} = \Delta ^{2} / 12 = (2A / 2^b)^{2} / 12 = A^{2} / (3 \cdot 4^b)
+\]</div>
+<p>信噪比：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+SNR &amp;= \sigma _s^{2} / \sigma _e^{2} = (A^{2}/3) / (A^{2}/(3\cdot 4^b)) = 4^b
+SNR(dB) &amp;= 10\cdot \log_{10}(4^b) = b \cdot 10\cdot \log_{10}(4) \approx 6.02 \cdot b dB
+\end{aligned}
+\]</div>
+<p><strong>结论：位宽每增加 1 bit，信噪比提升约 6 dB（噪声功率降为原来的 1/4）。</strong> 这就是"6 dB per bit"的来历。</p>
+<p>两个常用的变体（推导完全相同，只是信号方差不同）：</p>
+<table>
+<thead>
+<tr>
+<th>信号模型</th>
+<th>信号方差<span class="arithmatex">\(\sigma _s^{2}\)</span></th>
+<th>SNR(dB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>满量程均匀分布</td>
+<td><span class="arithmatex">\(A^{2}/3\)</span></td>
+<td>6.02·b</td>
+</tr>
+<tr>
+<td>满量程正弦（振幅 A）</td>
+<td><span class="arithmatex">\(A^{2}/2\)</span></td>
+<td>6.02·b + 1.76</td>
+</tr>
+<tr>
+<td>半量程均匀分布（只用到<span class="arithmatex">\([-A/2, A/2]\)</span>）</td>
+<td><span class="arithmatex">\(A^{2}/12\)</span></td>
+<td>6.02·(b−1)</td>
+</tr>
+</tbody>
+</table>
+<p>最后一行非常关键：<strong>量化范围只用一半，等于白丢 1 bit。</strong> 推广：如果信号实际只占量化范围的<span class="arithmatex">\(1/2^k\)</span>，就损失约 k·6 dB（k 个有效位）。这把"范围利用率"和"有效位宽"直接挂钩——04 章 outlier 问题的数学根源就在这里。</p>
+<h3 id="44-1-bit">4.4 直觉：1 bit 到底意味着什么<a class="headerlink" href="#44-1-bit" title="Permanent link">&para;</a></h3>
+<ul>
+<li>噪声功率：×1/4（6 dB 约等于"音量减半"）</li>
+<li>权重矩阵：存储减半、访存带宽等效翻倍</li>
+<li>计算：低精度 Tensor Core FLOPS 翻倍</li>
+</ul>
+<p>所以"量化降一级 30–50% 性能提升"（Inference Engineering Ch5 的结论）本质上就是：<strong>用少一半的存储/带宽/计算精度，换取近似翻倍的吞吐，代价是 6 dB 的噪声预算。</strong></p>
+<hr />
+<h2 id="5">5. 量化器设计的四个旋钮<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<p>一个均匀量化器由四个旋钮完全确定，后面所有论文都是在调这四个旋钮：</p>
+<h3 id="51-b">5.1 位宽 b<a class="headerlink" href="#51-b" title="Permanent link">&para;</a></h3>
+<p>决定噪声上限（6 dB/bit）和压缩率。INT8 是默认起点；4-bit 是当前 LLM 权重的激进甜点；1.58-bit（BitNet）是极限探索。</p>
+<h3 id="52-rmin-rmax-sz">5.2 范围 [rmin, rmax]（等价于 s、z）<a class="headerlink" href="#52-rmin-rmax-sz" title="Permanent link">&para;</a></h3>
+<p>决定截断误差与范围利用率。范围怎么选？从<strong>校准数据</strong>（calibration set）统计：</p>
+<p>朴素：<span class="arithmatex">\(\min/\max \to\)</span>对 outlier 极敏感（范围被撑大，有效位宽被稀释）
+稳妥：分位数（如 99.99% 分位）<span class="arithmatex">\(\to\)</span>牺牲少量截断误差，换正常值更高的精度
+最优：per-channel / per-group 分别选范围（04 章）</p>
+<h3 id="53-vs">5.3 对称 vs 非对称<a class="headerlink" href="#53-vs" title="Permanent link">&para;</a></h3>
+<p>见 3.7：分布是否含符号、是否接近 0 决定选择。硬件上对称更便宜（无 z 减法），非对称更省位。</p>
+<h3 id="54-granularity">5.4 粒度（granularity）<a class="headerlink" href="#54-granularity" title="Permanent link">&para;</a></h3>
+<p>一个 scale 覆盖多少个元素：</p>
+<p>per-tensor（整层一个 s）<span class="arithmatex">\(\to per-channel\)</span>（每行/列一个 s）<span class="arithmatex">\(\to per-group\)</span>（每 G 个元素一个 s）</p>
+<p>粒度越细，对分布适应越好、误差越小，但 scale 本身要占存储、kernel 要处理非均匀布局。<strong>粒度是"精度 vs 开销"的连续光谱</strong>，04 章单独展开。</p>
+<hr />
+<h2 id="6">6. 为什么神经网络能容忍量化<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<p>既然每个数都被污染了 6–24 dB 的噪声，为什么网络还能工作？四个层次的解释：</p>
+<ol>
+<li><strong>冗余性</strong>：模型参数量远超信息需求。一个 70B 模型的大部分权重对输出的影响极小，删掉/量化它们几乎不可感知（这也是剪枝 work 的原因，MIT 6.5940 Lecture 3/4）。</li>
+<li><strong>平均化效应</strong>：单个数被污染影响小，很多数一起被污染时，误差在求和/求平均中部分抵消（随机误差的 √N 平均）。线性层的输出是成千上万个乘积之和，误差不是简单叠加。</li>
+<li><strong>鲁棒的优化目标</strong>：训练时 loss 已经对权重噪声有一定容忍度；QAT 更进一步让模型"学着忍受"量化噪声（09 章）。</li>
+<li><strong>不同张量的敏感度不同</strong>：权重量化误差是"静态污染"，可以用校准数据事后补偿（GPTQ/AWQ）；激活是"动态污染"，逐 token 变化，更难对付；KV cache 误差会跨 token 累积（08 章）；attention/softmax 对数值范围极其敏感。于是有了 Inference Engineering Ch5 的敏感性排序：</li>
+</ol>
+<p>权重（最不敏感）&lt; 激活 &lt; KV cache &lt; attention/softmax（最敏感）</p>
+<p>这个排序决定了后文的攻坚顺序：<strong>先量化权重（04/05），再碰激活（06），谨慎处理 KV（07），最后才考虑 attention（10）。</strong></p>
+<hr />
+<h2 id="7-ptq-qat">7. PTQ 与 QAT：两条路线的雏形<a class="headerlink" href="#7-ptq-qat" title="Permanent link">&para;</a></h2>
+<h3 id="71-ptqpost-training-quantization">7.1 PTQ（Post-Training Quantization）<a class="headerlink" href="#71-ptqpost-training-quantization" title="Permanent link">&para;</a></h3>
+<p>训练完成后直接量化：</p>
+<p>流程：加载 FP16/BF16 权重<span class="arithmatex">\(\to\)</span>用少量校准数据统计范围<span class="arithmatex">\(\to\)</span>量化<span class="arithmatex">\(\to\)</span>部署
+优点：不需要训练、不需要原始训练数据、几小时内完成
+缺点：误差"事后发生"，模型没有机会适应；只能靠更好的量化算法弥补</p>
+<p>本系列 05–08 章全部是 PTQ 算法（RTN/GPTQ/AWQ/SmoothQuant/KIVI 等）。</p>
+<h3 id="72-qatquantization-aware-training">7.2 QAT（Quantization-Aware Training）<a class="headerlink" href="#72-qatquantization-aware-training" title="Permanent link">&para;</a></h3>
+<p>训练过程中就模拟量化误差：</p>
+<p>流程：前向时把权重/激活"假装"量化（<span class="arithmatex">\(\operatorname{quantize} \to \operatorname{dequantize}\)</span>）<span class="arithmatex">\(\to\)</span>反向传播更新
+关键：量化是分段常数函数，梯度几乎处处为<span class="arithmatex">\(0 \to\)</span>用 STE（straight-through estimator）把梯度近似传过去
+优点：质量上限高，模型学会了容忍噪声
+缺点：需要训练数据与算力</p>
+<p>09 章会完整推导 STE 并比较 PTQ/QAT 的精度-成本曲线。</p>
+<blockquote>
+<p>现在的工程常态：<strong>先 PTQ 用默认配方（FP8/W8A8）上线，质量不达标再升级</strong>（更好的 PTQ 算法<span class="arithmatex">\(\to KV\)</span>量化验证<span class="arithmatex">\(\to\)</span>局部<span class="arithmatex">\(QAT \to\)</span>全量 QAT）。不要一上来就 QAT。</p>
+</blockquote>
+<hr />
+<h2 id="8">8. 本章小结与"一句话记忆"<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>量化 = 有损压缩</strong>：<span class="arithmatex">\(2^b\)</span>个码字表示实数轴，b 是唯一决定噪声上限的旋钮。</li>
+<li><strong>均匀量化 = 等距网格</strong>：对称（<span class="arithmatex">\(z=0\)</span>，省事）vs 非对称（<span class="arithmatex">\(z\ne 0\)</span>，省位）；mid-tread 保 0。</li>
+<li><strong>误差 = 舍入 + 截断</strong>：位宽管舍入（<span class="arithmatex">\(\Delta /2\)</span>上界），范围管截断（无上界）。outlier 主要制造截断误差。</li>
+<li><strong>每<span class="arithmatex">\(bit \approx 6 dB\)</span></strong>：噪声功率 ×1/4；量化范围只用一半 = 白丢 1 bit。</li>
+<li><strong>四个旋钮</strong>：位宽、范围、对称性、粒度——所有论文都在调这四个旋钮。</li>
+<li><strong>敏感性排序</strong>：权重 &lt; 激活 &lt; KV cache &lt; attention，决定进攻顺序。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"先选格子粗细（b），再选格子放哪（范围），最后决定谁跟谁共用一个格子（粒度）。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="9">9. 习题与解答<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">题 1（手算）：对称量化<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p>对<span class="arithmatex">\(r = [3.2, -1.7, 0.05, -4.9]\)</span>：</p>
+<p>(a) 用 8-bit 对称量化，写出 s、q、<span class="arithmatex">\(\hat{r}\)</span>、最大误差。
+(b) 用 4-bit 对称量化，重复 (a)。
+(c) 比较两者的<span class="arithmatex">\(\Delta\)</span>和最大误差，验证"位宽减 4，<span class="arithmatex">\(\Delta\)</span>放大 16 倍"。</p>
+<details>
+<summary>题 1 解答</summary>
+
+(a) $s = 4.9/127 \approx 0.03858$；$r/s \approx [82.9, -44.1, 1.3, -127.0] \to q = [83, -44, 1, -127]$；$\hat{r} \approx [3.202, -1.698, 0.039, -4.900]$；$|\varepsilon |\max \approx 0.0113 < s/2 \approx 0.0193$。
+
+(b) $s = 4.9/7 = 0.7$；$r/s \approx [4.57, -2.43, 0.071, -7.0] \to q = [5, -2, 0, -7]$；$\hat{r} = [3.5, -1.4, 0, -4.9]$；$|\varepsilon |\max = 0.3$。
+
+(c) $\Delta _8 = 2s_8 \approx 0.0772$，$\Delta _4 = 2s_4 = 1.4$；$1.4/0.0772 \approx 18.1$（小样本下略偏离理论 16，因为$127/7 \approx 18.1——$注意这里对称量化用$2^{b-1}-1$作分母，所以严格说$\Delta$比值是 127/7）。理论值用$2^{b-1}$作分母时为 16。两个约定都要会。
+</details>
+
+<h3 id="26-dbbit">题 2（推导）：6 dB/bit 的另一种推法<a class="headerlink" href="#26-dbbit" title="Permanent link">&para;</a></h3>
+<p>不用均匀分布假设，直接从<span class="arithmatex">\(\Delta\)</span>出发：证明把位宽从 b 增加到 b+1（范围不变），量化噪声功率降为原来的 1/4，SNR 提升 6 dB。</p>
+<details>
+<summary>题 2 解答</summary>
+
+范围 [−A, A] 不变时，$\Delta _{b+1} = 2A/2^{b+1} = \Delta _b / 2$。噪声功率$\propto \Delta ^{2}$，所以$\sigma _e^{2}(b+1) = \sigma _e^{2}(b)/4$。SNR(dB) 提升= $10\cdot \log_{10}(4) \approx 6.02 dB$。与分布无关，只依赖"均匀量化 + 范围固定 + 无截断"三个假设。
+</details>
+
+<h3 id="3mid-tread-vs-mid-rise">题 3（思考）：mid-tread vs mid-rise<a class="headerlink" href="#3mid-tread-vs-mid-rise" title="Permanent link">&para;</a></h3>
+<p>为什么权重量化几乎总是用 mid-tread？如果权重矩阵有 95% 的元素是 0，两种量化器分别会发生什么？</p>
+<details>
+<summary>题 3 解答</summary>
+
+mid-tread 的 0 是精确量化层级：$0 \to 0$，无误差，且与稀疏性天然兼容。mid-rise 的 0 会被量化到$\pm \Delta /2$，95% 的元素全部产生$\pm \Delta /2$的误差，噪声功率会非常高，而且破坏稀疏结构（0 变成非 0）。所以对称整数量化默认 mid-tread。
+</details>
+
+<h3 id="4-mit-lab-2">题 4（编程，建议在 MIT Lab 2 环境里做）<a class="headerlink" href="#4-mit-lab-2" title="Permanent link">&para;</a></h3>
+<p>实现 <span class="arithmatex">\(\text{quantize\_symmetric}\)</span> / <span class="arithmatex">\(\text{quantize\_affine}\)</span> / <code>dequantize</code>（3.4 的伪代码），然后：</p>
+<p>(a) 对 N(0,1) 随机张量（<span class="arithmatex">\(N=100000\)</span>）测<span class="arithmatex">\(SQNR = 10\cdot \log_{10}(\sum r^{2}/\sum (r-\hat{r})^{2})\)</span>，位宽 4/6/8/10/12，画 SQNR vs b，验证斜率≈ <span class="arithmatex">\(6 dB/bit\)</span>。
+(b) 把同样的张量先放大 100 倍（模拟 outlier 撑大范围），再量化到 8-bit，观察 SQNR 掉了多少 dB，并解释（对应 4.3 的"半量程 −6 dB"）。
+(c) 对比对称与非对称量化在<span class="arithmatex">\([0, 5]\)</span>均匀分布上的 SQNR（对应 3.7）。</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+(a) 满量程均匀信号的 SQNR 应近似 6.02·b dB；N(0,1) 是高斯，非满量程均匀，斜率仍约 6 dB/bit，但常数项不同（高斯重尾，偶有截断）。
+(b) 放大 100 倍后范围$[-100\sigma , 100\sigma ]$，正常值只占很小比例$\to$有效位宽减少$\log_2(100)\approx 6.6 bit$，SQNR 掉约 40 dB（放大倍数越大越明显）。
+(c) 对称量化覆盖$[-5,5]$，一半网格浪费$\to$有效位宽 −1 bit，SQNR 比非对称低约 6 dB。
+</details>
+
+<h3 id="5_1">题 5（挑战）：范围利用率的数学<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
+<p>证明：若信号均匀分布在<span class="arithmatex">\([-A/2, A/2]\)</span>，而量化器范围是 [−A, A]，则量化后等效于用 b−1 bit 量化满量程信号（即<span class="arithmatex">\(SQNR = 6.02(b-1) dB\)</span>）。</p>
+<details>
+<summary>题 5 解答</summary>
+
+$\sigma _s^{2} = (A/2)^{2}/3 = A^{2}/12$；$\sigma _e^{2}$不变（$\Delta$由量化器范围决定）= $A^{2}/(3\cdot 4^b)$；$SNR = (A^{2}/12)/(A^{2}/(3\cdot 4^b)) = 4^b/4 = 4^{b-1} \to 6.02(b-1) dB$。**范围利用率 k 分之$1 =$丢 log2(k) 个有效位。**
+</details>
+
+<hr />
+<h2 id="10">10. 延伸阅读<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://www.classcentral.com/course/youtube-efficientml-ai-lecture-5-quantization-part-i-mit-6-5940-fall-2024-340161">MIT 6.5940 Lecture 5 – Quantization Part I（Fall 2024，Class Central）</a>：线性量化、bitwidth、PTQ 总览</li>
+<li><a href="https://github.com/CalebDu/MIT6.5940-EfficientML/blob/master/Lab2-quantization/Lab2.ipynb">MIT 6.5940 Lab 2：Quantization</a>：linear quantize / k-means 量化的动手实现（对应本系列习题环境）</li>
+<li><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch 5</a>：教材正文（格式总览、敏感性排序、质量评估）</li>
+<li>Gersho &amp; Gray, <em>Vector Quantization and Signal Compression</em>：均匀量化误差理论的经典教材（<span class="arithmatex">\(\Delta ^{2}/12\)</span>、6 dB/bit 的出处）</li>
+<li>上一篇：<strong><a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/">01 数值编码与计算机表示基础</a></strong>——整数/浮点/舍入/截断的计算机表示，本章的数学工具都建立在其上</li>
+<li>下一篇：<strong>[03 数值格式：FP16/BF16/FP8/FP4/MXFP/NVFP4 与硬件]</strong>——把"格子"具体到硬件支持的浮点格式，回答"为什么 FP8 是甜点、BF16 为什么适合训练、FP4 为什么必须配块缩放"。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 01 数值编码与计算机表示基础">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                01 数值编码与计算机表示基础
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-footer__link md-footer__link--next" aria-label="下一页: 03 数值格式与硬件">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                03 数值格式与硬件
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

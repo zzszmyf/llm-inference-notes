@@ -1,0 +1,2361 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>速览笔记 - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-quantization" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              速览笔记
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 怎么用这份笔记
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 为什么学量化：收益与风险
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-prefill-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 量化为什么能加速：Prefill 与 Decode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 数字格式全景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 数字格式全景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 格式总览（章节原表）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 位布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 可表示数值数量（章节原表）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-fp8-e4m3-vs-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 FP8 两种变体怎么选（E4M3 vs E5M2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-mxfp8-mxfp4-nvfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 MXFP8 / MXFP4 与 NVFP4 的区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 量化的基本数学与粒度
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 量化的基本数学与粒度">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 均匀量化公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 粒度（Granularity）决定风险与开销
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 量化对象与敏感性排序
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-rtn-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 方法谱系：从 RTN 到 1-bit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 方法谱系：从 RTN 到 1-bit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-rtnround-to-nearest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 基线：RTN（Round-to-Nearest）+ 均匀量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-weight-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 权重低比特（Weight-only）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-w8a8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 权重 + 激活（W8A8）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 KV Cache 量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-quantization-serving-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 系统协同（Quantization × Serving System）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-qat-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 训练侧：QAT 与 1-bit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.7 前沿：Attention 量化与大规模实践
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 质量评估三板斧
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-quantization-quality-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 交互练习实测：Quantization Quality Estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 生产建议与决策清单
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 生产建议与决策清单">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 默认配方（从章节和业界实践综合）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 上线检查清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-han-song-mit-65940" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Han Song MIT 6.5940 课程地图
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Han Song MIT 6.5940 课程地图">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 课程主页
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 与量化直接相关的讲座
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-lab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 课程里的配套 Lab
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 论文阅读清单
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 工具与生态
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 术语速查
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 参考资料
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 怎么用这份笔记
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 为什么学量化：收益与风险
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-prefill-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 量化为什么能加速：Prefill 与 Decode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 数字格式全景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 数字格式全景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 格式总览（章节原表）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 位布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 可表示数值数量（章节原表）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-fp8-e4m3-vs-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 FP8 两种变体怎么选（E4M3 vs E5M2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-mxfp8-mxfp4-nvfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 MXFP8 / MXFP4 与 NVFP4 的区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 量化的基本数学与粒度
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 量化的基本数学与粒度">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 均匀量化公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 粒度（Granularity）决定风险与开销
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 量化对象与敏感性排序
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-rtn-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 方法谱系：从 RTN 到 1-bit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 方法谱系：从 RTN 到 1-bit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-rtnround-to-nearest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 基线：RTN（Round-to-Nearest）+ 均匀量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-weight-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 权重低比特（Weight-only）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-w8a8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 权重 + 激活（W8A8）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 KV Cache 量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-quantization-serving-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 系统协同（Quantization × Serving System）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-qat-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 训练侧：QAT 与 1-bit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.7 前沿：Attention 量化与大规模实践
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 质量评估三板斧
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-quantization-quality-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 交互练习实测：Quantization Quality Estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 生产建议与决策清单
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 生产建议与决策清单">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 默认配方（从章节和业界实践综合）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 上线检查清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-han-song-mit-65940" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Han Song MIT 6.5940 课程地图
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Han Song MIT 6.5940 课程地图">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 课程主页
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 与量化直接相关的讲座
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-lab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 课程里的配套 Lab
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 论文阅读清单
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 工具与生态
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 术语速查
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 参考资料
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-quantization">LLM 推理优化 · 量化（Quantization）系统学习笔记<a class="headerlink" href="#llm-quantization" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>整理日期：2026-08-16
+素材来源：
+- Inference Engineering（Baseten 出品）Ch 5: Quantization &amp; Speculative Decoding：https://inferenceengineering.tech/chapters/techniques/
+- 配套交互练习 Quantization Quality Estimator：https://inferenceengineering.tech/exercises/quantization-estimator/
+- Han Song（韩松）MIT 6.5940 TinyML and Efficient AI Computing（EfficientML.ai）课程
+- 业界论文：GPTQ / AWQ / SmoothQuant / LLM.int8() / SqueezeLLM / QuIP# / KIVI / QServe / QLoRA / BitNet b1.58 等</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-怎么用这份笔记">怎么用这份笔记</a></li>
+<li><a href="#2-为什么学量化收益与风险">为什么学量化：收益与风险</a></li>
+<li><a href="#3-量化为什么能加速prefill-与-decode">量化为什么能加速：Prefill 与 Decode</a></li>
+<li><a href="#4-数字格式全景">数字格式全景</a></li>
+<li><a href="#5-量化的基本数学与粒度">量化的基本数学与粒度</a></li>
+<li><a href="#6-量化对象与敏感性排序">量化对象与敏感性排序</a></li>
+<li><a href="#7-方法谱系从-rtn-到-1-bit">方法谱系：从 RTN 到 1-bit</a></li>
+<li><a href="#8-质量评估三板斧">质量评估三板斧</a></li>
+<li><a href="#9-交互练习实测quantization-quality-estimator">交互练习实测：Quantization Quality Estimator</a></li>
+<li><a href="#10-生产建议与决策清单">生产建议与决策清单</a></li>
+<li><a href="#11-han-song-mit-65940-课程地图">Han Song MIT 6.5940 课程地图</a></li>
+<li><a href="#12-论文阅读清单">论文阅读清单</a></li>
+<li><a href="#13-工具与生态">工具与生态</a></li>
+<li><a href="#14-术语速查">术语速查</a></li>
+<li><a href="#15-参考资料">参考资料</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 怎么用这份笔记<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>这是一份"教材 + 课程 + 论文"三合一的量化学习路线：</p>
+<ol>
+<li><strong>先读正文（第 2–8 节）</strong>：建立量化为什么存在、怎么工作、什么时候会翻车的完整框架，来源是 Inference Engineering Ch 5。</li>
+<li><strong>动手玩练习（第 9 节）</strong>：打开 <a href="https://inferenceengineering.tech/exercises/quantization-estimator/">Quantization Quality Estimator</a>，对照笔记里的实测表自己调参数。</li>
+<li><strong>再看 MIT 课程（第 11 节）</strong>：Han Song 的 6.5940 第 5/6 讲讲量化原理与 PTQ/QAT，第 13 讲讲 LLM 量化部署，视频和幻灯片全公开。</li>
+<li><strong>按顺序读论文（第 12 节）</strong>：先读方法谱系里"一环扣一环"的 5 篇核心论文，再按兴趣扩展。</li>
+</ol>
+<hr />
+<h2 id="2">2. 为什么学量化：收益与风险<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>一句话定位：<strong>量化是 LLM 推理优化里收益最直接、风险也最"可见"的一招。</strong></p>
+<ul>
+<li><strong>收益</strong>：同时改善 TTFT（首 Token 延迟）和 TPS（吞吐），提升吞吐，还为其他优化腾出显存/带宽余量。</li>
+<li><strong>风险</strong>：一旦量化失当，会实质性地降低输出质量（perplexity 变差、推理/代码任务退化），而且错误是"静默"的——模型不报错，只是变笨。</li>
+<li><strong>关键事实</strong>：实践中，精度每降低一级，LLM 性能大约提升 <strong>30–50%</strong>。</li>
+</ul>
+<blockquote>
+<p>章节原话的 Key Takeaway：FP8/MXFP8 是生产环境的甜点区间。权重和激活用 FP8 量化，KV cache 谨慎量化，attention 保持原精度。如果完全不能承受质量风险，本章其余技术（推测解码、缓存等）都是无损的。</p>
+</blockquote>
+<hr />
+<h2 id="3-prefill-decode">3. 量化为什么能加速：Prefill 与 Decode<a class="headerlink" href="#3-prefill-decode" title="Permanent link">&para;</a></h2>
+<p>后训练量化（PTQ）把权重从原生格式（通常 BF16/FP16）降到更低精度。加速的来源取决于处于推理的哪个阶段：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>瓶颈</th>
+<th>量化带来的收益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Prefill（预填充）</strong></td>
+<td>计算密集（compute-bound）</td>
+<td>在低精度 Tensor Core 上跑，FLOPS 翻倍（2x）</td>
+</tr>
+<tr>
+<td><strong>Decode（逐 Token 生成）</strong></td>
+<td>访存密集（memory-bound）</td>
+<td>权重数据加载量减半，等效带宽翻倍（2x）</td>
+</tr>
+</tbody>
+</table>
+<p>所以量化对两类延迟都有帮助：TTFT 受益于更快的矩阵乘，TPS 受益于更少的显存搬运。这也是为什么 4-bit 权重 + 8-bit 激活（W4A8）这类组合在服务系统里成为主流方向。</p>
+<hr />
+<h2 id="4">4. 数字格式全景<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 格式总览（章节原表）<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>位数</th>
+<th>首个支持架构</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16</td>
+<td>16</td>
+<td>Pascal（2016）</td>
+<td>默认推理格式</td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>16</td>
+<td>Ampere（2020）</td>
+<td>训练与推理</td>
+</tr>
+<tr>
+<td>FP8（E4M3 / E5M2）</td>
+<td>8</td>
+<td>Hopper（2022）</td>
+<td>质量/速度的甜点</td>
+</tr>
+<tr>
+<td>MXFP8</td>
+<td>8</td>
+<td>Blackwell（2024）</td>
+<td>Microscaling，精度更好</td>
+</tr>
+<tr>
+<td>FP4</td>
+<td>4</td>
+<td>Blackwell（2024）</td>
+<td>激进量化</td>
+</tr>
+<tr>
+<td>NVFP4</td>
+<td>4</td>
+<td>Blackwell（2024）</td>
+<td>FP4 里精度最好（block size 16）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 位布局<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<p>浮点格式 = 符号位（S）+ 指数位（E）+ 尾数位（M）。<strong>指数位决定了动态范围</strong>——这是浮点相对整数的核心优势：更能表达量化后仍然存在的离群值（outliers）。</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>S</th>
+<th>E</th>
+<th>M</th>
+<th>相对精度（约）</th>
+<th>动态范围特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16</td>
+<td>1</td>
+<td>5</td>
+<td>10</td>
+<td>高（约 2⁻¹⁰）</td>
+<td>与 FP32 相同的精度区间，范围小（max ~65504）</td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>1</td>
+<td>8</td>
+<td>7</td>
+<td>低（约 2⁻⁷）</td>
+<td>与 FP32 相同的动态范围，精度粗</td>
+</tr>
+<tr>
+<td>FP8 E4M3</td>
+<td>1</td>
+<td>4</td>
+<td>3</td>
+<td>中（约 2⁻³）</td>
+<td>范围中等（max 448），无 Infinity，单 NaN</td>
+</tr>
+<tr>
+<td>FP8 E5M2</td>
+<td>1</td>
+<td>5</td>
+<td>2</td>
+<td>低（约 2⁻²）</td>
+<td>范围接近 FP16（max ~57344），精度粗</td>
+</tr>
+<tr>
+<td>FP4（E2M1）</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>很低</td>
+<td>只有 16 种取值（max 6），必须配合块缩放</td>
+</tr>
+<tr>
+<td>NVFP4</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>很低 + 块缩放</td>
+<td>block size 16，FP8 E4M3 块缩放 + FP32 张量缩放</td>
+</tr>
+<tr>
+<td>MXFP8 / MXFP4</td>
+<td>1</td>
+<td>4/2</td>
+<td>3/1</td>
+<td>中/低 + 块缩放</td>
+<td>block size 32，E8M0 共享指数缩放</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 可表示数值数量（章节原表）<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>可表示的不同取值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16</td>
+<td>65,536</td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>65,536</td>
+</tr>
+<tr>
+<td>FP8（E4M3）</td>
+<td>256</td>
+</tr>
+<tr>
+<td>FP8（E5M2）</td>
+<td>256</td>
+</tr>
+<tr>
+<td>FP4</td>
+<td>16</td>
+</tr>
+<tr>
+<td>NVFP4</td>
+<td>16</td>
+</tr>
+</tbody>
+</table>
+<p>位数越少越快，但风险越高——这是所有格式选择的底层 tradeoff。</p>
+<h3 id="44-fp8-e4m3-vs-e5m2">4.4 FP8 两种变体怎么选（E4M3 vs E5M2）<a class="headerlink" href="#44-fp8-e4m3-vs-e5m2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>E4M3</strong>：4 位指数 + 3 位尾数，精度更高、范围更小（max 448）。适合<strong>权重和激活</strong>——它们的值通常集中在较小范围，精度更重要。NVIDIA 推荐 E4M3 用于前向（inference/训练 forward）。</li>
+<li><strong>E5M2</strong>：5 位指数 + 2 位尾数，范围大（接近 FP16）但精度粗。适合<strong>梯度/反向传播</strong>，或值域跨度大的场景。</li>
+</ul>
+<p>依据：NVIDIA/Arm/Intel 联合白皮书《FP8 Formats for Deep Learning》（arXiv:2209.05433）。</p>
+<h3 id="45-mxfp8-mxfp4-nvfp4">4.5 MXFP8 / MXFP4 与 NVFP4 的区别<a class="headerlink" href="#45-mxfp8-mxfp4-nvfp4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>MX 格式（OCP Microscaling Formats）</strong>：一组元素（block size 32）共享一个 E8M0 指数缩放（纯 2 的幂），元素本身仍是指数+尾数格式。用"一组一个缩放"换更细的适配，Blackwell 原生加速。</li>
+<li><strong>NVFP4</strong>：NVIDIA 在 Blackwell 上的 4-bit 方案。元素是 E2M1（16 种取值），但 block size 缩小到 <strong>16</strong>，块缩放用 FP8 E4M3（比 E8M0 更细），再加一个 FP32 张量缩放。粒度更细 → 目前 FP4 里精度最好。</li>
+</ul>
+<p>一句话：<strong>FP8 = 平衡；MXFP8 = FP8 的精度升级；FP4/NVFP4 = 激进压缩，省 75% 权重显存，但必须接受质量验证。</strong></p>
+<hr />
+<h2 id="5">5. 量化的基本数学与粒度<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 均匀量化公式<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>对称量化（最常用）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>q = clamp(round(x / s), q_min, q_max)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>s = max|x| / 2^(b-1)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>反量化：x ≈ q * s
+</code></pre></div>
+<p>非对称量化额外有一个 zero-point z：<code>q = clamp(round(x / s) + z, ...)</code>。</p>
+<h3 id="52-granularity">5.2 粒度（Granularity）决定风险与开销<a class="headerlink" href="#52-granularity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>粒度</th>
+<th>一个 scale 覆盖范围</th>
+<th>质量风险</th>
+<th>开销</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tensor-level（整层一个 scale）</td>
+<td>整个权重矩阵</td>
+<td>高</td>
+<td>最小</td>
+</tr>
+<tr>
+<td>Channel-level（按输出通道）</td>
+<td>每行/每列一个 scale</td>
+<td>中</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Block/Group-level（按块）</td>
+<td>每 16/32/128 个元素一个 scale</td>
+<td>低</td>
+<td>更高（scale 也要存储）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>粒度越细，质量损失越小，但 scale 本身的存储和计算开销越大。</strong> GPTQ/AWQ/QuIP# 的 4-bit 能逼近 FP16 质量，很大程度靠的就是细粒度分组 + 精心的 scale 选择。</p>
+<hr />
+<h2 id="6">6. 量化对象与敏感性排序<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<p>Transformer 各组件对量化的敏感度从低到高（章节原表）：</p>
+<ol>
+<li><strong>权重（线性层）</strong> —— 最不敏感</li>
+<li><strong>激活</strong> —— 有些敏感</li>
+<li><strong>KV cache</strong> —— 中等敏感（误差会逐 Token 累积）</li>
+<li><strong>Attention（尤其是 softmax）</strong> —— 高度敏感</li>
+</ol>
+<p>原因直觉：
+- 权重是"静态"的，可以用校准数据精调（GPTQ/AWQ），且 outlier 可以单独处理；
+- 激活是"动态"的，每层输入分布未知，LLM 激活还有著名的 outlier 问题（少数维度值巨大），直接量化会毁掉精度（→ SmoothQuant / LLM.int8() 的动机）；
+- KV cache 误差会随着序列变长反复参与计算，错误像滚雪球一样累积；
+- softmax 的指数运算对数值范围极其敏感，所以生产上通常让 attention 留在高精度。</p>
+<hr />
+<h2 id="7-rtn-1-bit">7. 方法谱系：从 RTN 到 1-bit<a class="headerlink" href="#7-rtn-1-bit" title="Permanent link">&para;</a></h2>
+<p>按"要量化什么、怎么克服误差"这条主线，业界方法可以排成一条清晰的谱系：</p>
+<h3 id="71-rtnround-to-nearest">7.1 基线：RTN（Round-to-Nearest）+ 均匀量化<a class="headerlink" href="#71-rtnround-to-nearest" title="Permanent link">&para;</a></h3>
+<p>把权重四舍五入到最近的量化网格。实现最简单，但 4-bit 以下质量崩得快，因为忽略了权重的重要性和分布。</p>
+<h3 id="72-weight-only">7.2 权重低比特（Weight-only）<a class="headerlink" href="#72-weight-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GPTQ</strong>（ICLR 2023）：逐层量化 + 用二阶 Hessian 信息做误差补偿（近似最优的逐列更新）。一次性把 OPT-175B/BLOOM-176B 量化到 3–4 bit 只需约 4 GPU 小时，perplexity 几乎不涨。→ <strong>"数学补偿派"</strong></li>
+<li><strong>AWQ</strong>（MLSys 2024，Han Lab）：不动模型，只根据激活分布找出约 1% 的显著权重，用 per-channel 缩放保护它们。比 GPTQ 更省事、硬件更友好（无逐列重建）。→ <strong>"保护重要权重派"</strong></li>
+<li><strong>SqueezeLLM</strong>（ICML 2024）：基于敏感度的非均匀量化 + 稠密/稀疏分解，把 outlier 权重单独用高精度存。→ <strong>"outlier 单独处理派"</strong></li>
+<li><strong>QuIP#</strong>（ICML 2024）：用随机 Hadamard 变换把权重"打散"成对量化友好的分布（incoherence），配合 E8 格码本，2-bit 权重达到当时 SOTA。→ <strong>"先洗牌再量化派"</strong></li>
+</ul>
+<h3 id="73-w8a8">7.3 权重 + 激活（W8A8）<a class="headerlink" href="#73-w8a8" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>LLM.int8()</strong>（NeurIPS 2022）：INT8 矩阵乘 + 混合精度分解——把激活里有 outlier 的列挑出来留在 FP16 算，其余走 INT8。首个无精度损失的 175B 模型 INT8 推理方案。</li>
+<li><strong>SmoothQuant</strong>（ICML 2023，Han Lab）：激活难量化、权重好量化，那就通过数学上等价的缩放把"量化难度"从激活迁移到权重（<code>s = max|X|^α / max|W|^(1−α)</code>），实现 W8A8 且精度几乎无损。已被 TensorRT-LLM 采用。</li>
+</ul>
+<h3 id="74-kv-cache">7.4 KV Cache 量化<a class="headerlink" href="#74-kv-cache" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>KIVI</strong>（ICML 2024）：首个免调参的 2-bit KV cache 量化。洞察：Key 的分布模式稳定（per-channel 量化），Value 的分布易变（per-token 量化）。KV 省 4 倍显存，长上下文场景吞吐大增。</li>
+</ul>
+<h3 id="75-quantization-serving-system">7.5 系统协同（Quantization × Serving System）<a class="headerlink" href="#75-quantization-serving-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>QServe / QoQ</strong>（MLSys 2025，Han Lab）：W4A8KV4——4-bit 权重、8-bit 激活、4-bit KV cache，配合专门设计的 GEMM 调度（int4 权重打包、避免 dequant 开销），是"算法 + 系统"一起设计的代表作。</li>
+</ul>
+<h3 id="76-qat-1-bit">7.6 训练侧：QAT 与 1-bit<a class="headerlink" href="#76-qat-1-bit" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>QAT（Quantization-Aware Training）/ STE</strong>：训练时模拟量化误差（直通估计器），模型学会"容忍"低精度。质量上限最高，但需要数据和训练算力。</li>
+<li><strong>QLoRA</strong>（NeurIPS 2023）：NF4（4-bit NormalFloat）+ 双重量化 + paged optimizer，让 65B 模型能在单张 48GB GPU 上微调，且不损失 16-bit 微调效果。→ 量化 + 参数高效微调的经典组合。</li>
+<li><strong>BitNet b1.58</strong>（2024）：参数只有 {-1, 0, +1} 的三值权重（1.58 bit），从头训练，同等规模/训练 Token 下匹配 FP16 Transformer 的困惑度与下游表现，推理能耗大幅下降。→ "从架构上拥抱量化"的终极形态。</li>
+</ul>
+<h3 id="77-attention">7.7 前沿：Attention 量化与大规模实践<a class="headerlink" href="#77-attention" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>FlashAttention-3</strong>（2024）：Hopper 上支持 FP8 的 attention（低精度 + 异步拷贝）。</li>
+<li><strong>SageAttention</strong>（2024）：FP8 量化 attention 且保持精度，图像/视频生成加速。</li>
+<li><strong>DeepSeek-V3</strong>（2024）：671B MoE 全程 FP8 训练/推理（DeepGEMM），证明 FP8 在超大模型上是可行的。</li>
+</ul>
+<hr />
+<h2 id="8">8. 质量评估三板斧<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<p>量化有没有搞砸，用三种方法检查（章节原表），每种都在找"与噪声不可区分"的差异：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>成本</th>
+<th>灵敏度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Perplexity</strong>（WikiText-2 / C4）</td>
+<td>最低</td>
+<td>最粗</td>
+<td>最常用的快速筛查，量化后涨幅应可忽略</td>
+</tr>
+<tr>
+<td><strong>智能基准</strong>（MMLU、SWE-bench 等）</td>
+<td>中</td>
+<td>中</td>
+<td>覆盖知识和真实编程任务，更能暴露应用层退化</td>
+</tr>
+<tr>
+<td><strong>自定义评测（Custom Evals）</strong></td>
+<td>最高</td>
+<td>最准</td>
+<td>用你真实业务的 prompt/任务集评测，<strong>最终以它为准</strong></td>
+</tr>
+</tbody>
+</table>
+<p>要点：只跑 perplexity 不够；只跑几个 MMLU 题也不够。生产上线前，至少要在自定义评测上把量化模型和原模型做并排对比，确认差异落在噪声范围内。</p>
+<hr />
+<h2 id="9-quantization-quality-estimator">9. 交互练习实测：Quantization Quality Estimator<a class="headerlink" href="#9-quantization-quality-estimator" title="Permanent link">&para;</a></h2>
+<p>我把练习页 <a href="https://inferenceengineering.tech/exercises/quantization-estimator/">Quantization Quality Estimator</a> 实际跑了一遍（70B 模型、FP16 原始精度），实测结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>量化组件</th>
+<th>目标精度</th>
+<th>量化后大小</th>
+<th>内存节省</th>
+<th>估算加速</th>
+<th>估算质量风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>仅权重</td>
+<td>FP8</td>
+<td>70 GB</td>
+<td>50%</td>
+<td>~1.4x</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>权重 + KV</td>
+<td>FP8</td>
+<td>70 GB</td>
+<td>50%</td>
+<td>~1.6x</td>
+<td>High</td>
+</tr>
+<tr>
+<td>权重 + 激活</td>
+<td>FP8</td>
+<td>70 GB</td>
+<td>50%</td>
+<td>~1.5x</td>
+<td>High</td>
+</tr>
+<tr>
+<td>全部</td>
+<td>FP8</td>
+<td>70 GB</td>
+<td>50%</td>
+<td>~1.5x</td>
+<td>High</td>
+</tr>
+<tr>
+<td>仅权重</td>
+<td>FP4</td>
+<td>35 GB</td>
+<td>75%</td>
+<td>~2.2x</td>
+<td>High</td>
+</tr>
+<tr>
+<td>权重 + KV</td>
+<td>FP4</td>
+<td>35 GB</td>
+<td>75%</td>
+<td>~2.5x</td>
+<td>High</td>
+</tr>
+<tr>
+<td>权重 + 激活</td>
+<td>FP4</td>
+<td>35 GB</td>
+<td>75%</td>
+<td>~2.5x</td>
+<td>High</td>
+</tr>
+<tr>
+<td>全部</td>
+<td>FP4</td>
+<td>35 GB</td>
+<td>75%</td>
+<td>~2.8x</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<p>几个值得注意的点：</p>
+<ol>
+<li><strong>内存节省只看目标精度</strong>：FP16→FP8 省 50%，FP16→FP4 省 75%（模型 70B = 140 GB / 70 GB / 35 GB）。勾选哪些组件<strong>不影响</strong>内存数字——估算器只按权重算模型大小，KV/激活的显存与上下文长度相关，没被建模。</li>
+<li><strong>组件勾选影响加速比和风险</strong>：加量化 KV/激活，加速比略升（1.4x → 1.6x；FP4 从 2.2x → 2.8x），但风险迅速拉高。</li>
+<li><strong>估算器比章节结论保守</strong>：章节说 FP8 是甜点、值得把权重+激活量到 FP8；但估算器对 70B 模型把"FP8 全组件"标成了 High risk。两者不矛盾——估算器是启发式"提示你小心"，章节的立场是"小心但值得做，用评测验证"。</li>
+</ol>
+<blockquote>
+<p>结论：这是一个给数量级直觉的小工具，不是精度预言机。真实部署必须跑第 8 节的评测流程。</p>
+</blockquote>
+<hr />
+<h2 id="10">10. 生产建议与决策清单<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="101">10.1 默认配方（从章节和业界实践综合）<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>首选 FP8 / MXFP8（W8A8）</strong>：权重 + 激活都量化，Hopper/Blackwell 上有原生 Tensor Core 支持，收益 1.5x 左右，质量风险最低。</li>
+<li><strong>KV cache 单独谨慎处理</strong>：先跑长上下文场景的评测再决定是否量化（KIVI 类方法可到 4-bit/2-bit）。</li>
+<li><strong>Attention 留在原精度</strong>：除非用 FlashAttention-3/SageAttention 这类专门方案。</li>
+<li><strong>4-bit 权重（W4A16/W4A8）是激进选项</strong>：用 GPTQ/AWQ/QuIP# 生成，配合 vLLM/TensorRT-LLM 的 kernel，收益 2x+，但必须过自定义评测。</li>
+<li><strong>能用无损优化就先无损</strong>：推测解码、prefix caching、KV 复用等全部无损，优先级应该在"激进量化"之前。</li>
+</ol>
+<h3 id="102">10.2 上线检查清单<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 用校准集（几百条代表性 prompt）跑 perplexity，与 FP16 基线对比</li>
+<li>[ ] 跑 MMLU/SWE-bench 等基准，量化前后差异 &lt; 噪声</li>
+<li>[ ] 用真实业务 prompt 集做自定义评测（尤其代码、数学、长上下文）</li>
+<li>[ ] 检查 outlier 场景：长 prompt、多轮对话、流式输出</li>
+<li>[ ] 实测 TTFT / TPS / 吞吐 / 显存占用，确认收益达到预期</li>
+<li>[ ] 保留 A/B 开关，可随时回退到高精度版本</li>
+</ul>
+<hr />
+<h2 id="11-han-song-mit-65940">11. Han Song MIT 6.5940 课程地图<a class="headerlink" href="#11-han-song-mit-65940" title="Permanent link">&para;</a></h2>
+<p>韩松（Song Han）是 MIT EECS 副教授，HAN Lab 负责人，也是 SmoothQuant、AWQ、QServe 等方法的作者。他的公开课 <strong>6.5940 TinyML and Efficient AI Computing（EfficientML.ai）</strong> 是学习量化的最佳课程入口。</p>
+<h3 id="111">11.1 课程主页<a class="headerlink" href="#111" title="Permanent link">&para;</a></h3>
+<ul>
+<li>2026 Fall（当前）：https://hanlab.mit.edu/courses/2026-fall-65940</li>
+<li>2024 Fall：https://hanlab.mit.edu/courses/2024-fall-65940</li>
+<li>2023 Fall：https://hanlab.mit.edu/courses/2023-fall-65940</li>
+<li>课程视频/讲义聚合：https://efficientml.ai</li>
+</ul>
+<h3 id="112">11.2 与量化直接相关的讲座<a class="headerlink" href="#112" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>讲座</th>
+<th>内容</th>
+<th>视频入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lecture 5: Quantization (Part I)</td>
+<td>线性量化的数学基础：bitwidth、均匀/非均匀量化、PTQ（RTN、GPTQ、LLM.int8、SmoothQuant）</td>
+<td><a href="https://www.classcentral.com/course/youtube-efficientml-ai-lecture-5-quantization-part-i-mit-6-5940-fall-2024-340161">Class Central（Fall 2024）</a></td>
+</tr>
+<tr>
+<td>Lecture 6: Quantization (Part II)</td>
+<td>QAT 与 STE、蒸馏、低比特/二值网络、量化与部署的配合</td>
+<td><a href="https://www.classcentral.com/course/youtube-efficientml-ai-lecture-6-quantization-part-ii-mit-6-5940-fall-2024-zoom-recording-340157">Class Central（Fall 2024）</a></td>
+</tr>
+<tr>
+<td>Lecture 13: LLM Quantization and Deployment（2026 版）/ LLM Deployment Techniques（2024 版）</td>
+<td>把量化放进真实 LLM 服务系统：KV cache、并行、serving</td>
+<td>课程主页 Schedule 里找 [Slides]/[Video]</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>提示：B 站有该课程的搬运与笔记（如 <a href="https://www.bilibili.com/opus/918609044111884338">EfficientML.ai Lecture 6 笔记</a>），中文学习可配合使用。课程中文介绍可看<a href="https://www.thepaper.cn/newsDetail_forward_24735283">澎湃新闻的报道</a>。</p>
+</blockquote>
+<h3 id="113-lab">11.3 课程里的配套 Lab<a class="headerlink" href="#113-lab" title="Permanent link">&para;</a></h3>
+<p>6.5940 有动手 Lab（实现剪枝/量化并部署 Llama 到笔记本/移动端）。建议至少做量化相关的 lab：亲手实现 uniform quantization → 对比 RTN vs GPTQ vs AWQ 的质量差异，比只看论文有效得多。</p>
+<hr />
+<h2 id="12">12. 论文阅读清单<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<p>按推荐阅读顺序排列（核心 5 篇在前，扩展在后）：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>论文</th>
+<th>会议/年份</th>
+<th>一句话要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="https://arxiv.org/abs/2208.07339">LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale</a></td>
+<td>NeurIPS 2022</td>
+<td>outlier 列单独高精度，首个无损 INT8 大模型推理</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="https://arxiv.org/abs/2210.17323">GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers</a></td>
+<td>ICLR 2023</td>
+<td>二阶 Hessian 误差补偿，一次性 3–4 bit 量化 175B</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="https://arxiv.org/abs/2211.10438">SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models</a></td>
+<td>ICML 2023</td>
+<td>激活→权重迁移量化难度，W8A8 无损</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="https://arxiv.org/abs/2306.00978">AWQ: Activation-aware Weight Quantization</a></td>
+<td>MLSys 2024</td>
+<td>按激活重要性保护 1% 权重，硬件友好的 4-bit</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="https://arxiv.org/abs/2305.14314">QLoRA: Efficient Finetuning of Quantized LLMs</a></td>
+<td>NeurIPS 2023</td>
+<td>NF4 + 双重量化，量化模型上直接微调</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="https://arxiv.org/abs/2306.07629">SqueezeLLM: Dense-and-Sparse Quantization</a></td>
+<td>ICML 2024</td>
+<td>敏感度非均匀量化 + outlier 分离</td>
+</tr>
+<tr>
+<td>7</td>
+<td><a href="https://arxiv.org/abs/2402.04396">QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks</a></td>
+<td>ICML 2024</td>
+<td>Hadamard 洗牌 + E8 格码本，2-bit SOTA</td>
+</tr>
+<tr>
+<td>8</td>
+<td><a href="https://arxiv.org/abs/2402.02750">KIVI: A Tuning-Free Asymmetric 2-bit Quantization for KV Cache</a></td>
+<td>ICML 2024</td>
+<td>Key 按通道、Value 按 Token 量化，KV 省 4 倍</td>
+</tr>
+<tr>
+<td>9</td>
+<td><a href="https://arxiv.org/abs/2405.04532">QServe: W4A8KV4 Quantization and System Co-design</a></td>
+<td>MLSys 2025</td>
+<td>算法与 GEMM 调度协同，4-8-4 组合落地</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="https://arxiv.org/abs/2402.17764">The Era of 1-bit LLMs: BitNet b1.58</a></td>
+<td>2024</td>
+<td>三值权重 {-1,0,1}，匹配 FP16 质量、大幅降耗</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="https://arxiv.org/abs/2209.05433">FP8 Formats for Deep Learning（NVIDIA/Arm/Intel）</a></td>
+<td>2022</td>
+<td>E4M3 / E5M2 规格与使用建议</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="https://www.opencompute.org/documents/ocp-microscaling-formats-mx-v1-0-spec-final-pdf">OCP Microscaling Formats (MX) Specification</a></td>
+<td>OCP 2023</td>
+<td>MXFP8/MXFP4 的 block-32 + E8M0 标准</td>
+</tr>
+<tr>
+<td>13</td>
+<td><a href="https://arxiv.org/abs/2407.08691">FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision</a></td>
+<td>2024</td>
+<td>Hopper 上的 FP8 attention</td>
+</tr>
+<tr>
+<td>14</td>
+<td><a href="https://arxiv.org/abs/2410.02367">SageAttention: Accurate 8-Bit Attention</a></td>
+<td>2024</td>
+<td>FP8 量化 attention 保持精度</td>
+</tr>
+<tr>
+<td>15</td>
+<td><a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 Technical Report</a></td>
+<td>2024</td>
+<td>671B MoE 全程 FP8 训练/推理实践</td>
+</tr>
+<tr>
+<td>16</td>
+<td><a href="https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/">NVFP4: NVIDIA 官方介绍</a></td>
+<td>2025</td>
+<td>Blackwell 4-bit：block 16 + E4M3 缩放</td>
+</tr>
+</tbody>
+</table>
+<p>阅读策略：先把 1–5 读完，你就能回答"量化为什么难、怎么解决"；6–10 是进阶（极低比特 + KV cache + 系统协同）；11–16 是格式规范与生产案例，按需查阅。</p>
+<hr />
+<h2 id="13">13. 工具与生态<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/vllm-project/vllm">vLLM</a></td>
+<td>最主流的开源推理引擎，支持 AWQ/GPTQ/FP8/MXFP8/FP4、KV cache 量化（<a href="https://docs.vllm.ai/en/latest/features/quantization/">量化文档</a>）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a></td>
+<td>NVIDIA 高性能引擎，深度支持 FP8/INT4/FP4 与 SmoothQuant/AWQ</td>
+</tr>
+<tr>
+<td><a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></td>
+<td>GGUF 生态，Q2_K–Q8_0 各档量化，本地/边缘部署首选</td>
+</tr>
+<tr>
+<td><a href="https://github.com/bitsandbytes-foundation/bitsandbytes">bitsandbytes</a></td>
+<td>NF4/INT8，HuggingFace 生态 + QLoRA 微调</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sgl-project/sglang">SGLang</a></td>
+<td>高性能推理框架，量化支持同样丰富</td>
+</tr>
+<tr>
+<td><a href="https://github.com/mit-han-lab/omniserve">HAN Lab omniserve</a></td>
+<td>QServe/LServe 官方代码，学 W4A8KV4 系统实现</td>
+</tr>
+<tr>
+<td><a href="https://huggingface.co/docs/transformers/quantization">HuggingFace 量化文档</a></td>
+<td>GPTQ/AWQ/FP8/bitsandbytes 的 API 与教程</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="14">14. 术语速查<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>PTQ（Post-Training Quantization）</strong>：训练后量化，不需要重训，用少量校准数据即可。推理优化默认指这个。</li>
+<li><strong>QAT（Quantization-Aware Training）</strong>：训练时模拟量化误差，质量上限更高、成本更高。</li>
+<li><strong>RTN</strong>：Round-to-Nearest，最朴素的四舍五入量化。</li>
+<li><strong>W8A8 / W4A16 / W4A8KV4</strong>：权重位数-激活位数（-KV位数）的缩写，如 W4A8KV4 = 4-bit 权重 + 8-bit 激活 + 4-bit KV cache。</li>
+<li><strong>Scale / Zero-point</strong>：量化缩放系数与零点偏移，负责把实数区间映射到整数网格。</li>
+<li><strong>Block size / Group size</strong>：一组元素共享一个 scale 的元素个数（16/32/128）。</li>
+<li><strong>Outlier（离群值）</strong>：远大于其他值的少数维度，是低比特量化的主要敌人。</li>
+<li><strong>KV cache</strong>：解码时缓存的历史 Key/Value 向量，长上下文下占显存大头。</li>
+<li><strong>TTFT / TPS</strong>：Time To First Token（首 Token 延迟）/ Tokens Per Second（生成吞吐）。</li>
+</ul>
+<hr />
+<h2 id="15">15. 参考资料<a class="headerlink" href="#15" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Inference Engineering, Ch 5: Quantization &amp; Speculative Decoding — https://inferenceengineering.tech/chapters/techniques/</li>
+<li>Inference Engineering, Recommended Reading — https://inferenceengineering.tech/reading/</li>
+<li>Inference Engineering, Quantization Quality Estimator — https://inferenceengineering.tech/exercises/quantization-estimator/</li>
+<li>MIT 6.5940 EfficientML.ai（Han Song）— https://hanlab.mit.edu/courses/2026-fall-65940</li>
+<li>HAN Lab 论文主页（SmoothQuant / AWQ / QServe / BitNet）— https://hanlab.mit.edu</li>
+<li>本笔记对应的论文（见第 12 节表格，均为 arXiv 原文链接）</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="上一页: 首页">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                首页
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-footer__link md-footer__link--next" aria-label="下一页: 00 总览与学习地图">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                00 总览与学习地图
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

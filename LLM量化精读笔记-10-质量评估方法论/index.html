@@ -1,0 +1,1727 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">
+      
+      
+        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>10 质量评估方法论 - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-10-perplexity" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              10 质量评估方法论
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 核心原则：找"与噪声不可区分"的差异
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-perplexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 第一层：Perplexity（最简）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 第一层：Perplexity（最简）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 计算要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 优点与缺点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mmluswe-bench" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 第二层：智能基准（MMLU、SWE-bench 等）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 第三层：自定义评测（最准）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 第三层：自定义评测（最准）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 为什么必须有
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 三种做法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 设计要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 统计显著性：怎么判断"没变"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 统计显著性：怎么判断&#34;没变&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 噪声从哪来
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 最小可靠协议
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 一个错误示范
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 验收协议：关卡式流程
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 陷阱清单
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1ppl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：PPL 手算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（设计）：KV 量化的验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（统计）：判定"不可区分"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4ppl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：PPL 为什么骗人
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（协议）：灰度上线
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 核心原则：找"与噪声不可区分"的差异
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-perplexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 第一层：Perplexity（最简）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 第一层：Perplexity（最简）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 计算要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 优点与缺点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mmluswe-bench" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 第二层：智能基准（MMLU、SWE-bench 等）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 第三层：自定义评测（最准）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 第三层：自定义评测（最准）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 为什么必须有
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 三种做法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 设计要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 统计显著性：怎么判断"没变"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 统计显著性：怎么判断&#34;没变&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 噪声从哪来
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 最小可靠协议
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 一个错误示范
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 验收协议：关卡式流程
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 陷阱清单
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1ppl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（计算）：PPL 手算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2kv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（设计）：KV 量化的验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（统计）：判定"不可区分"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4ppl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：PPL 为什么骗人
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（协议）：灰度上线
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-10-perplexity">LLM 量化精读笔记 · 10 质量评估方法论：perplexity、基准与自定义评测<a class="headerlink" href="#llm-10-perplexity" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：Inference Engineering Ch5 的 "Measuring Quality Impact"；SWE-bench（arXiv:2310.06770）；MMLU；GPTQ/AWQ/KIVI 论文的评测协议。
+学完本章你应该能：① 写出 perplexity 的定义并解释它的优缺点；② 设计一套"三层评测"（<span class="arithmatex">\(PPL \to\)</span>智能基准<span class="arithmatex">\(\to\)</span>自定义评测）的验收协议；③ 理解"与噪声不可区分"的操作化含义（多次运行、配对比较、置信区间）；④ 列出量化评测的常见陷阱。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-本章目标">本章目标</a></li>
+<li><a href="#2-核心原则找与噪声不可区分的差异">核心原则：找"与噪声不可区分"的差异</a></li>
+<li><a href="#3-第一层perplexity最简">第一层：Perplexity（最简）</a></li>
+<li><a href="#4-第二层智能基准mmluswe-bench-等">第二层：智能基准（MMLU、SWE-bench 等）</a></li>
+<li><a href="#5-第三层自定义评测最准">第三层：自定义评测（最准）</a></li>
+<li><a href="#6-统计显著性怎么判断没变">统计显著性：怎么判断"没变"</a></li>
+<li><a href="#7-验收协议关卡式流程">验收协议：关卡式流程</a></li>
+<li><a href="#8-陷阱清单">陷阱清单</a></li>
+<li><a href="#9-本章小结">本章小结</a></li>
+<li><a href="#10-习题与解答">习题与解答</a></li>
+<li><a href="#11-延伸阅读">延伸阅读</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>前 8 章讲了"怎么量化"，本章讲<strong>怎么证明量化没有搞砸</strong>。Inference Engineering 的一句话是本章的总纲：</p>
+<blockquote>
+<p>"In every case, you're looking for differences indistinguishable from noise."（所有情况下，你要找的都是与噪声不可区分的差异。）</p>
+</blockquote>
+<hr />
+<h2 id="2">2. 核心原则：找"与噪声不可区分"的差异<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>量化评测不是"分数变了吗"，而是"<strong>这个变化能解释为随机噪声吗</strong>"。为什么这么严格：</p>
+<ol>
+<li>评测本身有噪声（采样、温度、并行浮点非确定）。</li>
+<li>量化引入的是"系统性"误差——它可能恰好落在噪声范围内，也可能超出。</li>
+<li>我们的目标不是"量化后分数最高"，而是"<strong>量化后任务质量与原模型无实质差异</strong>"。</li>
+</ol>
+<p>操作化：量化模型与 FP16 基线在<strong>同一批样本、同一随机种子</strong>下做配对比较；重复多次，看差值是否落在噪声范围内。</p>
+<hr />
+<h2 id="3-perplexity">3. 第一层：Perplexity（最简）<a class="headerlink" href="#3-perplexity" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 定义<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>对自回归模型，给定 token 序列<span class="arithmatex">\(x = (x_{1}, …, x_{N})\)</span>：</p>
+<div class="arithmatex">\[
+PPL = \exp( -(1/N) \cdot \sum log p(x_{i} | x_{&lt;i}) )
+\]</div>
+<p>直觉：PPL 是"每 token 平均惊讶度"的指数化<span class="arithmatex">\(——PPL = 10\)</span>大约等于模型每步像在 10 个等概率选项里猜。</p>
+<h3 id="32">3.2 计算要点<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<ol>
+<li>用模型自己生成的 logits 算 log 概率（teacher forcing，不解码）</li>
+<li>标准数据集：WikiText-2、C4（固定切分、固定长度，如 2048 token）</li>
+<li>与 FP16 基线在完全相同的切分上对比</li>
+</ol>
+<h3 id="33">3.3 优点与缺点<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>便宜、可复现、对全局退化敏感</td>
+<td>对"任务级"退化不敏感（PPL 不变但代码/推理变差）</td>
+</tr>
+<tr>
+<td>论文标配，方便横向对比</td>
+<td>测的是语言建模，不是你的业务</td>
+</tr>
+<tr>
+<td>能快速筛掉灾难性量化</td>
+<td>平均指标，掩盖长尾/长上下文问题</td>
+</tr>
+</tbody>
+</table>
+<p><strong>PPL 是守门员，不是裁判。</strong> 它合格只是入场券。</p>
+<hr />
+<h2 id="4-mmluswe-bench">4. 第二层：智能基准（MMLU、SWE-bench 等）<a class="headerlink" href="#4-mmluswe-bench" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>基准</th>
+<th>测什么</th>
+<th>成本</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MMLU</td>
+<td>57 个学科的知识/推理（选择题）</td>
+<td>低</td>
+<td>广泛使用；few-shot 设置要固定</td>
+</tr>
+<tr>
+<td>HumanEval / MBPP</td>
+<td>代码生成</td>
+<td>中</td>
+<td>164 题，样本少，方差大</td>
+</tr>
+<tr>
+<td>GSM8K</td>
+<td>数学应用题</td>
+<td>中</td>
+<td>8.5k 题，对推理链敏感</td>
+</tr>
+<tr>
+<td>SWE-bench</td>
+<td>真实 GitHub issue 端到端修复</td>
+<td><strong>高</strong></td>
+<td>2,294 个真实任务，最接近工程场景</td>
+</tr>
+<tr>
+<td>MT-Bench / AlpacaEval</td>
+<td>指令跟随 / 偏好</td>
+<td>中</td>
+<td>用 LLM-as-judge，注意裁判偏差</td>
+</tr>
+<tr>
+<td>RULER / 大海捞针</td>
+<td>长上下文检索</td>
+<td>中</td>
+<td>量化 KV 后必测（08 章）</td>
+</tr>
+</tbody>
+</table>
+<p>选择原则：</p>
+<ol>
+<li>覆盖你的任务类型（代码模型测 SWE-bench/HumanEval，聊天模型测 MT-Bench…）</li>
+<li>样本量要够：HumanEval 只有 164 题，<span class="arithmatex">\(\pm 2\)</span>题就是 1.2% 的波动</li>
+<li>固定设置：few-shot 数、温度、最大生成长度必须与基线一致</li>
+</ol>
+<hr />
+<h2 id="5">5. 第三层：自定义评测（最准）<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 为什么必须有<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>MMLU 再全也覆盖不了你的 prompt 模板、你的工具调用格式、你的业务长尾。<strong>自定义评测 = 用真实分布验收。</strong></p>
+<h3 id="52">5.2 三种做法<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>适用</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>金标准比对（exact match / 单元测试 / 规则）</td>
+<td>有明确答案的任务</td>
+<td>覆盖要广</td>
+</tr>
+<tr>
+<td>LLM-as-judge</td>
+<td>开放式回答</td>
+<td>有位置/长度/风格偏差，要 A/B 盲评、换位</td>
+</tr>
+<tr>
+<td>人工抽评</td>
+<td>高价值任务</td>
+<td>样本少但最可信，作为最终确认</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53">5.3 设计要点<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<ol>
+<li>样本：几百到几千条，覆盖正常/长尾/边界</li>
+<li>分布：与线上流量一致（来源、长度、语言、主题）</li>
+<li>场景：单轮、多轮、长上下文、流式</li>
+<li>指标：不只平均——看失败分布（长上下文是否集中翻车？）</li>
+</ol>
+<hr />
+<h2 id="6">6. 统计显著性：怎么判断"没变"<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 噪声从哪来<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>采样噪声（temperature &gt; 0 的解码）
+并行非确定性（TF32/FP8 归约顺序、多卡）
+评测集切分/顺序</p>
+<h3 id="62">6.2 最小可靠协议<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<ol>
+<li>同一份样本，同一个种子，量化 vs FP16 各跑≥ <span class="arithmatex">\(3\)</span>次</li>
+<li>报告均值与置信区间（bootstrap 或多次运行的标准差）</li>
+<li>配对比较：对每个样本算差值，再对差值做检验（符号检验/t 检验）</li>
+<li>判定：</li>
+<li>量化-基线的差值 95% CI 包含<span class="arithmatex">\(0 \to\)</span>"不可区分"</li>
+<li>CI 不包含 0 但幅度极小（如<span class="arithmatex">\(MMLU \pm 1\)</span>分）<span class="arithmatex">\(\to\)</span>结合任务重要性判断</li>
+</ol>
+<h3 id="63">6.3 一个错误示范<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<p>❌ 量化模型跑 1 次<span class="arithmatex">\(MMLU = 68.2\)</span>，<span class="arithmatex">\(FP16 = 68.5 \to\)</span>"差 0.3，可接受"
+✅ 各跑 5 次，配对 t 检验<span class="arithmatex">\(p=0.6\)</span>，<span class="arithmatex">\(CI [-1.2, +0.6] \to\)</span>"无法区分"</p>
+<hr />
+<h2 id="7">7. 验收协议：关卡式流程<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<p>Gate 0：格式与部署检查（模型能跑、kernel 生效、速度/显存达标）
+Gate 1：PPL（WikiText-2/C4，与基线同切分）
+       通过标准：<span class="arithmatex">\(\Delta PPL\)</span>小于基线波动（经验上<span class="arithmatex">\(&lt; 0.2\sim 0.3\)</span>）
+Gate 2：任务基准（MMLU + 业务相关基准）
+       通过标准：差值在噪声范围内（多次运行 CI 覆盖 0）
+Gate 3：自定义评测（真实 prompt 集 + 长上下文 + 边界）
+       通过标准：配对比较不可区分；长尾无集中退化
+Gate 4：生产 A/B（小流量灰度，观测线上指标）
+       通过标准：业务指标（延迟/成本/质量）达标，可回滚</p>
+<p>任何一关失败<span class="arithmatex">\(\to\)</span>回退上一档（更细粒度、更高位宽、换方法），而不是硬上线。</p>
+<hr />
+<h2 id="8">8. 陷阱清单<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<ol>
+<li>校准集 == 评测集（作弊，04 章）</li>
+<li>只跑 PPL 就上线（PPL 不敏感于任务退化）</li>
+<li>样本太少还下结论（HumanEval 164 题<span class="arithmatex">\(\pm 1.2\%\)</span>）</li>
+<li>只看平均、不看长尾（长上下文/多轮集中退化）</li>
+<li>评测设置不一致（few-shot、温度、长度与基线不同）</li>
+<li>只测一次（把噪声当结论）</li>
+<li>用 GPU 并行差异当"量化效果"（TF32 vs FP32）</li>
+<li>忘了量化的是哪一层（只量化权重却怪 KV 方案，或反之）</li>
+</ol>
+<hr />
+<h2 id="9">9. 本章小结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>总纲</strong>：找与噪声不可区分的差异。</li>
+<li><strong>三层评测</strong>：PPL（守门）<span class="arithmatex">\(\to\)</span>智能基准（任务级）<span class="arithmatex">\(\to\)</span>自定义评测（真实分布，最终裁判）。</li>
+<li><strong>统计纪律</strong>：配对、多次、置信区间；不拿单次跑分下结论。</li>
+<li><strong>关卡流程</strong>：四道 Gate，任一失败就降档。</li>
+<li><strong>陷阱</strong>：校准=评测、只看 PPL、小样本、平均掩盖长尾。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"PPL 证明它没失智，基准证明它没退步，自定义评测证明它没在你的业务上翻车——三个都过了，才算量化完成。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="10">10. 习题与解答<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="1ppl">题 1（计算）：PPL 手算<a class="headerlink" href="#1ppl" title="Permanent link">&para;</a></h3>
+<p>模型对 4 个 token 的 log 概率为<span class="arithmatex">\([-0.5, -1.0, -2.0, -0.5]\)</span>。PPL 是多少？</p>
+<details>
+<summary>题 1 解答</summary>
+
+平均负对数似然= $(0.5+1.0+2.0+0.5)/4 = 1.0 \to PPL = \exp(1.0) \approx 2.72$。含义：平均每步像在约 2.7 个等概率选项中猜测。
+</details>
+
+<h3 id="2kv">题 2（设计）：KV 量化的验收<a class="headerlink" href="#2kv" title="Permanent link">&para;</a></h3>
+<p>为 2-bit KV 方案设计 Gate 1–4（沿用第 7 节框架），特别注意哪些关卡是 KV 量化特有的？</p>
+<details>
+<summary>题 2 解答要点</summary>
+
+Gate 1：长序列 PPL（WikiText-2 用 2048/8192 长度）；Gate 2：长上下文基准（RULER/大海捞针）；Gate 3：业务长对话评测；Gate 4：生产 A/B 看长会话留存/质量。KV 特有：必须覆盖"误差累积"场景（长上下文、多轮），短文本测不出问题（08 章）。
+</details>
+
+<h3 id="3">题 3（统计）：判定"不可区分"<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p>量化 vs FP16 各跑 5 次 MMLU：68.1, 68.4, 67.9, 68.3, 68.2 vs 68.5, 68.1, 68.7, 68.3, 68.4。判断是否可接受（先算均值差，再定性说明需要什么才能下结论）。</p>
+<details>
+<summary>题 3 解答</summary>
+
+均值差≈ $68.2 - 68.4 = -0.2$。但单看均值不够：需要配对（同种子同样本）后的差值分布和 CI。若 5 次独立采样，标准差$\sim 0.2$，差 0.2 基本落在噪声内；正式判定要配对 t 检验/bootstrap CI 覆盖 0。
+</details>
+
+<h3 id="4ppl">题 4（思考）：PPL 为什么骗人<a class="headerlink" href="#4ppl" title="Permanent link">&para;</a></h3>
+<p>举一个"PPL 不变但任务变差"的量化场景，并解释机制。</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+例：量化让模型对"常见高频 token"的预测几乎不变（PPL 被高频部分主导），但对长尾/推理链 token 的分布被打乱$\to$代码/数学任务退化。机制：PPL 是平均，量化误差集中在少数敏感位置（softmax 前的 QK、深层特征）时，平均指标不敏感。
+</details>
+
+<h3 id="5_1">题 5（协议）：灰度上线<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
+<p>设计 Gate 4 的生产 A/B：流量怎么分、观测多久、指标怎么定、回滚条件是什么？</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+5–10% 流量灰度 1–3 天；指标：延迟（TTFT/TPS）、成本、业务质量（留存/采纳率/人工评分）；对照：同流量 FP16；回滚条件：任一质量指标显著退化（CI 不覆盖 0）或长尾异常率上升。
+</details>
+
+<hr />
+<h2 id="11">11. 延伸阅读<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch5</a>：Measuring Quality Impact 一节</li>
+<li><a href="https://arxiv.org/abs/2310.06770">SWE-bench（arXiv:2310.06770）</a>：真实 GitHub issue 端到端评测</li>
+<li><a href="https://github.com/hendrycks/test">MMLU（GitHub）</a>：57 学科知识基准</li>
+<li><a href="https://arxiv.org/abs/2404.06654">RULER</a>：长上下文基准（KV 量化必测）</li>
+<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/">09 QAT 与训练内量化</a>；下一篇：<strong>[11 系统协同与部署]</strong>——把量化装进真正的推理引擎。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 09 QAT 与训练内量化">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                09 QAT 与训练内量化
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-footer__link md-footer__link--next" aria-label="下一页: 11 系统协同与部署">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                11 系统协同与部署
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

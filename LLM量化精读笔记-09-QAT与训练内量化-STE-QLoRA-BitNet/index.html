@@ -1,0 +1,1862 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/">
+      
+      
+        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>09 QAT 与训练内量化 - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-09-qat-steqlorabitnet-b158" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              09 QAT 与训练内量化
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 为什么需要训练侧参与
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. STE：让量化可训练
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. STE：让量化可训练">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 问题：量化函数几乎处处不可导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-straight-through-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 直通估计器（Straight-Through Estimator）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 手推一个反向传播例子
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-scalelsq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 进阶：可学习 scale（LSQ 思路）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-qat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. QAT 的标准流程与代价
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. QAT 的标准流程与代价">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-ptq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 与 PTQ 的成本对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-qlora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. QLoRA：量化 × 微调
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. QLoRA：量化 × 微调">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 动机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 三件套
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-lora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 架构：量化基座 + LoRA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-bitnet-b158-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. BitNet b1.58：为 1-bit 而生的架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. BitNet b1.58：为 1-bit 而生的架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 三值权重
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 无乘法矩阵乘
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-qat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 训练：从头 QAT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 四条路线对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1ste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（手算）：STE 反向
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2158-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（推导）：1.58 bit 怎么来的
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3nf4-vs-int4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（对比）：NF4 vs INT4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-bitnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（设计）：给 BitNet 写部署要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（开放）：量化 + 微调的组合矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 为什么需要训练侧参与
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. STE：让量化可训练
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. STE：让量化可训练">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 问题：量化函数几乎处处不可导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-straight-through-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 直通估计器（Straight-Through Estimator）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 手推一个反向传播例子
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-scalelsq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 进阶：可学习 scale（LSQ 思路）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-qat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. QAT 的标准流程与代价
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. QAT 的标准流程与代价">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-ptq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 与 PTQ 的成本对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-qlora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. QLoRA：量化 × 微调
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. QLoRA：量化 × 微调">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 动机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 三件套
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-lora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 架构：量化基座 + LoRA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-bitnet-b158-1-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. BitNet b1.58：为 1-bit 而生的架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. BitNet b1.58：为 1-bit 而生的架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 三值权重
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 无乘法矩阵乘
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-qat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 训练：从头 QAT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 四条路线对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1ste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（手算）：STE 反向
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2158-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（推导）：1.58 bit 怎么来的
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3nf4-vs-int4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（对比）：NF4 vs INT4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-bitnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（设计）：给 BitNet 写部署要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（开放）：量化 + 微调的组合矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-09-qat-steqlorabitnet-b158">LLM 量化精读笔记 · 09 QAT 与训练内量化：STE、QLoRA、BitNet b1.58<a class="headerlink" href="#llm-09-qat-steqlorabitnet-b158" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：STE（Bengio et al. 2013；直通估计器）；QLoRA（arXiv:2305.14314，NeurIPS 2023）；BitNet b1.58（arXiv:2402.17764）；MIT 6.5940 Lecture 6（Quantization Part II）。
+学完本章你应该能：① 说明量化函数为什么不可导、STE 怎么绕过去，并手推一个反向传播例子；② 讲清 QLoRA 的三件套（NF4、双重量化、paged optimizer）和"量化基座 + LoRA 适配器"的架构；③ 说出 BitNet b1.58 的三值化设计（{-1,0,+1}、1.58 bit、无乘法）与性能结论；④ 对比 PTQ/QAT/QLoRA/BitNet 四条路线的适用场景。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-本章目标">本章目标</a></li>
+<li><a href="#2-为什么需要训练侧参与">为什么需要训练侧参与</a></li>
+<li><a href="#3-ste让量化可训练">STE：让量化可训练</a></li>
+<li><a href="#4-qat-的标准流程与代价">QAT 的标准流程与代价</a></li>
+<li><a href="#5-qlora量化--微调">QLoRA：量化 × 微调</a></li>
+<li><a href="#6-bitnet-b158为-1-bit-而生的架构">BitNet b1.58：为 1-bit 而生的架构</a></li>
+<li><a href="#7-四条路线对比">四条路线对比</a></li>
+<li><a href="#8-本章小结">本章小结</a></li>
+<li><a href="#9-习题与解答">习题与解答</a></li>
+<li><a href="#10-延伸阅读">延伸阅读</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>04–08 章全是 <strong>PTQ</strong>（训练后量化）：模型训练完，再想办法把误差压下去。本章转向<strong>训练侧</strong>：让模型在训练时就"学会忍受"量化。这会回答一个 PTQ 答不了的问题：</p>
+<blockquote>
+<p>如果量化到 4-bit 以下、甚至 1.58-bit，什么方法还能保住质量？</p>
+</blockquote>
+<p>三条路线的分工：</p>
+<p>QAT（STE）<span class="arithmatex">\(\to\)</span>标准做法：前向模拟量化，反向用直通估计器
+<span class="arithmatex">\(QLoRA \to\)</span>量化基座 + 高精度 LoRA 适配器：4-bit 微调超大模型
+<span class="arithmatex">\(BitNet b1.58 \to\)</span>架构级：三值权重 + 无乘法矩阵乘，从头训练</p>
+<hr />
+<h2 id="2">2. 为什么需要训练侧参与<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>PTQ 的隐含假设：<strong>量化只是给训练好的权重加噪声，模型必须"生受"</strong>。位宽越低，这个假设越不成立：</p>
+<p>4-bit：PTQ 还能靠 GPTQ/AWQ 补救
+3-bit：只有少数方法勉强（SqueezeLLM）
+2-bit：PTQ 基本失守（QuIP# 靠"洗牌"续命）
+1.58-bit：必须从训练时就让模型适应</p>
+<p>QAT 的核心思想：<strong>在训练前向里"假量化"（<span class="arithmatex">\(\operatorname{quantize} \to \operatorname{dequantize}\)</span>），让 loss 直接看到量化噪声，梯度因此学会往"量化后依然好"的方向更新。</strong></p>
+<hr />
+<h2 id="3-ste">3. STE：让量化可训练<a class="headerlink" href="#3-ste" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 问题：量化函数几乎处处不可导<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>对称量化的前向：</p>
+<div class="arithmatex">\[
+\hat{x} = \operatorname{clamp}(\operatorname{round}(x/s), q_{\min}, q_{\max}) \cdot s
+\]</div>
+<p><code>round</code> 是分段常数函数：除了跳变点，导数处处为 0。如果直接反向传播，梯度全为零，训练根本动不了。</p>
+<h3 id="32-straight-through-estimator">3.2 直通估计器（Straight-Through Estimator）<a class="headerlink" href="#32-straight-through-estimator" title="Permanent link">&para;</a></h3>
+<p>STE 的做法：<strong>前向照常量化，反向把量化器当成恒等函数</strong>：</p>
+<p>前向：<span class="arithmatex">\(\hat{x} = \operatorname{clamp}(\operatorname{round}(x/s), q_{\min}, q_{\max}) \cdot s\)</span>
+反向：<span class="arithmatex">\(\partial L/\partial x \approx \partial L/\partial \hat{x}\)</span>（在量化范围内）</p>
+<p>直觉：量化误差（几十分之一）相对梯度噪声是小事，梯度"假装"没有量化，直接穿过；模型因此既能正常更新，又在前向里尝到量化的苦头。</p>
+<h3 id="33">3.3 手推一个反向传播例子<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<p>设<span class="arithmatex">\(x = 2.3\)</span>，<span class="arithmatex">\(s = 1\)</span>（简化），前向：</p>
+<div class="arithmatex">\[
+\hat{x} = \operatorname{round}(2.3) = 2
+\]</div>
+<p>反向时 STE 令：</p>
+<div class="arithmatex">\[
+\partial L/\partial x = \partial L/\partial \hat{x} \times 1 = \partial L/\partial \hat{x}
+\]</div>
+<p>对比精确导数（0）与 STE（1）：STE 保留了"x 增大应该影响输出"的信息，哪怕量化的跳变把局部导数掩盖了。</p>
+<p>边界处理：x 超出 [qmin·s, qmax·s] 时，clamp 把梯度截到边界（或直接传 0），防止训练把权重推到饱和区。</p>
+<h3 id="34-scalelsq">3.4 进阶：可学习 scale（LSQ 思路）<a class="headerlink" href="#34-scalelsq" title="Permanent link">&para;</a></h3>
+<p>标准 STE 的 s 是超参；LSQ（Learned Step Size）把 s 也变成可学习参数：</p>
+<p><span class="arithmatex">\(\partial L/\partial s = \partial L/\partial \hat{x} \times (\partial \hat{x}/\partial s)\)</span>（用 STE 近似）</p>
+<p>训练中学到的 s 比手调更贴合数据，QAT 质量进一步上升。</p>
+<hr />
+<h2 id="4-qat">4. QAT 的标准流程与代价<a class="headerlink" href="#4-qat" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 流程<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<ol>
+<li>取预训练模型</li>
+<li>在所有线性层/注意力层插入 fake-quant（quantize+dequantize）</li>
+<li>用任务数据微调（几百到几千步），前向带量化、反向 STE</li>
+<li>训练结束：把 fake-quant 替换成真量化权重部署</li>
+</ol>
+<h3 id="42-ptq">4.2 与 PTQ 的成本对比<a class="headerlink" href="#42-ptq" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PTQ</th>
+<th>QAT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练数据</td>
+<td>不需要（只需校准集）</td>
+<td>需要</td>
+</tr>
+<tr>
+<td>算力</td>
+<td>分钟<span class="arithmatex">\(\sim\)</span>小时</td>
+<td>小时<span class="arithmatex">\(\sim\)</span>天</td>
+</tr>
+<tr>
+<td>质量上限</td>
+<td>低（模型生受）</td>
+<td>高（模型适应）</td>
+</tr>
+<tr>
+<td>位宽下限</td>
+<td><span class="arithmatex">\(\sim 3-bit\)</span>（极限 2-bit）</td>
+<td>2-bit 可行、1.58-bit 可行</td>
+</tr>
+<tr>
+<td>工程复杂度</td>
+<td>低</td>
+<td>中（训练管线改造）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>工程策略</strong>：先 PTQ 上线；质量不达标时先换更好的 PTQ（AWQ/QuIP#）；最后才考虑局部 QAT。</p>
+<hr />
+<h2 id="5-qlora">5. QLoRA：量化 × 微调<a class="headerlink" href="#5-qlora" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 动机<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>大模型微调最贵的是<strong>优化器状态和梯度</strong>（动辄几十 GB）。QLoRA 的思路：<strong>基座模型用 4-bit 冻结存储，只训练注入的高精度 LoRA 适配器</strong>——单卡就能微调 65B。</p>
+<h3 id="52">5.2 三件套<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<p><strong>① NF4：4-bit NormalFloat（信息论最优码本）</strong></p>
+<p>普通 INT4/FP4 的网格对权重分布不是最优。NF4 用<strong>标准正态分布的分位数</strong>做码本：</p>
+<p>16 个码字= <span class="arithmatex">\(7\)</span>个负值 + 0 + 8 个正值（非对称）
+码字位置由 N(0,1) 的分位数决定<span class="arithmatex">\(\to\)</span>信息论上对近似正态的权重最优</p>
+<p>相比均分网格，同样的 4-bit 在权重分布最密集的地方码字更密。</p>
+<p><strong>② 双重量化（Double Quantization）</strong></p>
+<p>NF4 每个 block（64 个元素）配一个 FP32 scale。这些 scale 本身也可以量化：</p>
+<p>第一层：NF4 权重（4-bit） + FP32 block scale
+第二层：把 64 个 FP32 scale 再量成 FP8（每组 256 个 scale 共享一个 FP32 二级 scale）
+收益：平均每参数省约 0.37 bit</p>
+<p><strong>③ Paged Optimizer</strong></p>
+<p>优化器状态峰值（如长序列的梯度 checkpoint）会瞬间爆显存；用 GPU 统一内存的分页机制把峰值"换页"出去，避免 OOM。</p>
+<h3 id="53-lora">5.3 架构：量化基座 + LoRA<a class="headerlink" href="#53-lora" title="Permanent link">&para;</a></h3>
+<p>基座：NF4 冻结（4-bit，前向时反量化到 BF16 计算）
+LoRA：低秩适配器（A、B 两个小矩阵），BF16 可训练
+输出：<span class="arithmatex">\(Y = W_4bit\cdot X + (B\cdot A)\cdot X\)</span></p>
+<h3 id="54">5.4 结果<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>65B 模型在单张 48GB GPU 上微调</strong>（此前需要多卡/数百 GB）。</li>
+<li>Guanaco-65B 达到 ChatGPT 在 Vicuna benchmark 上 <strong>99.3%</strong> 的水平。</li>
+<li>微调质量与 16-bit LoRA 相当（论文在多项任务上验证）。</li>
+</ul>
+<blockquote>
+<p>意义：量化从"部署工具"变成"训练工具"——<strong>QLoRA 证明低精度存储不损失可学性</strong>，是开源社区微调的事实标准之一。</p>
+</blockquote>
+<hr />
+<h2 id="6-bitnet-b158-1-bit">6. BitNet b1.58：为 1-bit 而生的架构<a class="headerlink" href="#6-bitnet-b158-1-bit" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 三值权重<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>BitNet b1.58 把<strong>每个权重</strong>限制为三个值：</p>
+<p>$$
+w \in {-1, 0, +1}
+$$
+每个权重 1.58 bit（= <span class="arithmatex">\(\log_2(3)\)</span>）</p>
+<p>与 BitNet b1（二值 {-1,+1}）相比，<strong>多了 0</strong>：</p>
+<p>0 的价值：
+1. 更接近真实权重分布（很多权重本来就接近 0）
+2. 隐含稀疏性（部分权重"关闭"）
+3. 相同模型大小下质量显著提升，达到与 FP16 相当</p>
+<h3 id="62">6.2 无乘法矩阵乘<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>三值权重与激活相乘：</p>
+<p>$$
+y = \sum w_{i} \cdot x_{i}，w_{i} \in {-1, 0, +1}
+$$
+<span class="arithmatex">\(\to\)</span>只需要加法和减法，不需要乘法！</p>
+<p>实现（BitNet.cpp 等）：激活先量化为 8-bit，再用三值权重的符号决定加/减。论文估算（7nm）：矩阵乘算术能耗约为 FP16 的 <strong>1/71.4</strong>。</p>
+<h3 id="63-qat">6.3 训练：从头 QAT<a class="headerlink" href="#63-qat" title="Permanent link">&para;</a></h3>
+<p>BitNet 不能从 FP16 模型"转换"而来，必须<strong>从零训练</strong>：</p>
+<ol>
+<li>权重初始化为 FP16，前向时三值化（round 到 {-1,0,+1}）+ 缩放因子</li>
+<li>反向用 STE（第 3 节）</li>
+<li>激活 8-bit 量化（类似 SmoothQuant 的思路）</li>
+<li>训练稳定后，部署时只剩加/减</li>
+</ol>
+<h3 id="64">6.4 结果<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
+<p>质量：相同模型大小与训练 token 下，匹配 FP16 LLaMA 的 perplexity 与下游任务
+速度：比同规模 FP16 快约 2.71x（论文估计）
+内存：约省 3.55x
+能耗：矩阵乘算术能耗约 1/71.4（7nm 估算）
+规模效应：模型越大，收益越明显</p>
+<blockquote>
+<p>意义：BitNet 说明"量化"不一定要当 PTQ 的补救手段，也可以是<strong>架构的起点</strong>——1-bit 时代的 LLM 设计会反过来重塑硬件（专用 1-bit GEMM 单元）。</p>
+</blockquote>
+<hr />
+<h2 id="7">7. 四条路线对比<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PTQ</th>
+<th>QAT</th>
+<th>QLoRA</th>
+<th>BitNet b1.58</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否需要训练</td>
+<td>否</td>
+<td>是（微调）</td>
+<td>是（LoRA）</td>
+<td>是（从头）</td>
+</tr>
+<tr>
+<td>数据需求</td>
+<td>校准集</td>
+<td>任务数据</td>
+<td>任务数据</td>
+<td>海量预训练数据</td>
+</tr>
+<tr>
+<td>位宽</td>
+<td>3–4-bit 起步</td>
+<td>2-bit</td>
+<td>4-bit 基座</td>
+<td>1.58-bit</td>
+</tr>
+<tr>
+<td>质量上限</td>
+<td>低</td>
+<td>高</td>
+<td>高（受限于基座）</td>
+<td>高（重新训练）</td>
+</tr>
+<tr>
+<td>训练成本</td>
+<td>分钟<span class="arithmatex">\(\sim\)</span>小时</td>
+<td>小时<span class="arithmatex">\(\sim\)</span>天</td>
+<td>单卡小时级</td>
+<td>预训练级</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>生产推理默认</td>
+<td>低比特精度冲刺</td>
+<td>单卡微调大模型</td>
+<td>未来架构探索</td>
+</tr>
+</tbody>
+</table>
+<p>选型：
+  部署已有模型<span class="arithmatex">\(\to PTQ\)</span>（AWQ/GPTQ）
+  部署 + 质量不够<span class="arithmatex">\(\to\)</span>局部 QAT
+  要微调大模型<span class="arithmatex">\(\to QLoRA\)</span>
+  要 1-bit 极限<span class="arithmatex">\(\to BitNet\)</span>（接受重训成本）</p>
+<hr />
+<h2 id="8">8. 本章小结<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>STE</strong>：前向量化、反向恒等——让不可导的量化变得可训练（配合 LSQ 可学 scale）。</li>
+<li><strong>QAT</strong>：模型在训练中"学会忍受"量化，质量上限高于 PTQ，代价是数据和算力。</li>
+<li><strong>QLoRA</strong>：NF4 分位数码本 + 双重量化 + paged optimizer，量化基座 + BF16 LoRA，单卡微调 65B。</li>
+<li><strong>BitNet b1.58</strong>：三值权重 {-1,0,+1}（1.58 bit）、无乘法矩阵乘、从头 QAT，质量匹敌 FP16、能耗降一个数量级。</li>
+<li><strong>一条主线</strong>：位宽越低，越需要"训练侧参与"——从 PTQ 的补救，到 QAT 的适应，再到 BitNet 的架构重构。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"PTQ 让模型硬扛噪声，QAT 让模型学会挨打，QLoRA 让噪声只在底座、精细活交给 LoRA，BitNet 干脆把噪声变成架构。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="9">9. 习题与解答<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="1ste">题 1（手算）：STE 反向<a class="headerlink" href="#1ste" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(x = 3.7\)</span>，<span class="arithmatex">\(s = 1\)</span>，前向<span class="arithmatex">\(\hat{x} = \operatorname{round}(3.7) = 4\)</span>。若<span class="arithmatex">\(\partial L/\partial \hat{x} = 0.5\)</span>，STE 下<span class="arithmatex">\(\partial L/\partial x\)</span>是多少？真实导数是多少？为什么 STE 可用？</p>
+<details>
+<summary>题 1 解答</summary>
+
+STE：$\partial L/\partial x = 0.5$。真实导数：round 在$x=3.7$处导数为 0。STE 可用因为它保留"增大 x 会增大输出"的方向信息；量化跳变点的局部导数（0 或 ∞）对训练没有统计意义，且训练中大量样本的 STE 期望近似于真实梯度。
+</details>
+
+<h3 id="2158-bit">题 2（推导）：1.58 bit 怎么来的<a class="headerlink" href="#2158-bit" title="Permanent link">&para;</a></h3>
+<p>证明三值权重每参数 1.58 bit，并解释为什么它比"1-bit + 稀疏位"的混合更省。</p>
+<details>
+<summary>题 2 解答</summary>
+
+三个等概率状态需要$\log_2(3) \approx 1.585 bit$。若用"1 bit 符号 + 1 bit 是否为零"则需要 2 bit（且 4 个码字浪费 1 个）。三值直接编码是最紧凑的表示。
+</details>
+
+<h3 id="3nf4-vs-int4">题 3（对比）：NF4 vs INT4<a class="headerlink" href="#3nf4-vs-int4" title="Permanent link">&para;</a></h3>
+<p>为什么 NF4 的码本对 LLM 权重通常优于均匀 INT4？</p>
+<details>
+<summary>题 3 解答</summary>
+
+LLM 权重近似零均值正态分布：大量值集中在 0 附近。均匀网格在 0 附近只有少量码字（02 章"范围利用率"）；NF4 用标准正态分位数布点，0 附近码字密、尾部疏，同样的 16 个码字信息量更大。
+</details>
+
+<h3 id="4-bitnet">题 4（设计）：给 BitNet 写部署要点<a class="headerlink" href="#4-bitnet" title="Permanent link">&para;</a></h3>
+<p>BitNet 推理时，矩阵乘的乘法器可以完全去掉吗？还有哪些地方仍是乘法/高精度？</p>
+<details>
+<summary>题 4 解答要点</summary>
+
+权重×激活的乘法可退化为加/减（按权重符号），但：① 激活仍要 8-bit 量化（需要 scale 乘法）；② 归一化、残差、输出投影仍可能是高精度；③ 注意力（softmax、QK）仍需乘法。所以"无乘法"主要指权重矩阵乘主体，不是全模型。
+</details>
+
+<h3 id="5">题 5（开放）：量化 + 微调的组合矩阵<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<p>画出"位宽 × 是否训练"的 2×3 矩阵（4-bit/2-bit/1.58-bit × PTQ/QAT/从头训练），各填一个代表方法与一句话判断。</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+4-bit：AWQ（PTQ）✓ 生产可用；QAT 4-bit（更稳）；从头 4-bit（少见）。
+2-bit：QuIP#（PTQ，极限）；QAT 2-bit（可行）；BitNet 类（更适合）。
+1.58-bit：PTQ 无解；QAT 勉强；BitNet b1.58（唯一成熟路线）。
+结论：位宽越低，横轴（训练参与度）必须越大。
+</details>
+
+<hr />
+<h2 id="10">10. 延伸阅读<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2305.14314">QLoRA（arXiv:2305.14314）</a>：NF4、双重量化、paged optimizer</li>
+<li><a href="https://arxiv.org/abs/2402.17764">The Era of 1-bit LLMs: BitNet b1.58（arXiv:2402.17764）</a></li>
+<li><a href="https://github.com/microsoft/BitNet">BitNet.cpp</a>：三值权重的 CPU 推理实现（加/减内核）</li>
+<li>Bengio et al., <em>Estimating or Propagating Gradients Through Stochastic Neurons</em>（2013）：STE 的源头</li>
+<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/">08 KV Cache 量化</a>；下一篇：<strong>[10 质量评估方法论]</strong>——学完所有方法，怎么科学地判断"量化有没有搞砸"。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 08 KV Cache 量化（KIVI）">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                08 KV Cache 量化（KIVI）
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-footer__link md-footer__link--next" aria-label="下一页: 10 质量评估方法论">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                10 质量评估方法论
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

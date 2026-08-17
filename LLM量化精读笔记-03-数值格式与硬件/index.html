@@ -1,0 +1,2252 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）">
+      
+      
+      
+        <link rel="canonical" href="https://zzszmyf.github.io/llm-quantization-notes/LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-03-%E6%95%B0%E5%80%BC%E6%A0%BC%E5%BC%8F%E4%B8%8E%E7%A1%AC%E4%BB%B6/">
+      
+      
+        <link rel="prev" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/">
+      
+      
+        <link rel="next" href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>03 数值格式与硬件 - LLM 量化精读笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-03-fp16-bf16-fp8-fp4-mxfp8-nvfp4" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="LLM 量化精读笔记" class="md-header__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM 量化精读笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              03 数值格式与硬件
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="LLM 量化精读笔记" class="md-nav__button md-logo" aria-label="LLM 量化精读笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    LLM 量化精读笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzszmyf/llm-quantization-notes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96-Quantization%E9%87%8F%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    速览笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-00-%E6%80%BB%E8%A7%88%E4%B8%8E%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 总览与学习地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-01-%E6%95%B0%E5%80%BC%E7%BC%96%E7%A0%81%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A1%A8%E7%A4%BA%E5%9F%BA%E7%A1%80/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 数值编码与计算机表示基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 量化问题形式化与均匀量化理论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 数值格式与硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-ieee-754" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 从 IEEE 754 到推理格式：一张家族谱系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-16-bit-fp16-bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 16-bit 的两种哲学：FP16 与 BF16
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 16-bit 的两种哲学：FP16 与 BF16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 位布局与数值表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-bf16-fp16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 为什么训练用 BF16、推理默认 FP16
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-fp8-e4m3-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. FP8 深入：E4M3 与 E5M2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. FP8 深入：E4M3 与 E5M2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 位布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-e4m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 E4M3 数值推导（完整）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 E5M2 数值推导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-e4m3-vs-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 E4M3 vs E5M2 怎么选
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-fp4-nvfp4mxfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. FP4 与块缩放：NVFP4、MXFP4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. FP4 与块缩放：NVFP4、MXFP4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-fp4e2m116" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 裸 FP4（E2M1）：16 种取值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-fp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 块缩放：让 FP4 能用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-nvfp4nvidia-blackwell-4-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 NVFP4：NVIDIA 的 Blackwell 4-bit 方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-mxfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 MXFP4：开放标准版
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-microscalingmx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Microscaling（MX）格式：共享指数缩放
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Microscaling（MX）格式：共享指数缩放">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 设计动机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-e8m0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 E8M0：纯指数缩放
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-mxfp8-mxfp6-mxfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 MXFP8 / MXFP6 / MXFP4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 MX 为什么精度更好
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-tensor-coreflops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 硬件：Tensor Core、FLOPS 与带宽模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 硬件：Tensor Core、FLOPS 与带宽模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-tensor-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Tensor Core 简史：精度下降的驱动力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 decode 带宽模型：位宽 = 毫秒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-prefill-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 prefill 计算模型：位宽 = FLOPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 格式选择决策框架：为什么 FP8 是甜点
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 格式速查表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1mxfp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：MXFP8 的块开销
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2h100-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：H100 上的 decode 上限
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3e4m3-min-normal-max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（手算）：E4M3 的 min normal / max
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-fp8-e4m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：为什么训练不直接用 FP8 E4M3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（编程）：格式模拟
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 量化粒度、校准与离群值
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-05-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96I-RTN%E4%B8%8EGPTQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 权重量化 I（RTN 与 GPTQ）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-06-%E6%9D%83%E9%87%8D%E9%87%8F%E5%8C%96II-AWQ-SqueezeLLM-QuIP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 权重量化 II（AWQ、SqueezeLLM、QuIP#）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-07-%E6%BF%80%E6%B4%BB%E9%87%8F%E5%8C%96-LLM-int8%E4%B8%8ESmoothQuant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 激活量化（LLM.int8 与 SmoothQuant）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-08-KV-Cache%E9%87%8F%E5%8C%96%E4%B8%8EKIVI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 KV Cache 量化（KIVI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-09-QAT%E4%B8%8E%E8%AE%AD%E7%BB%83%E5%86%85%E9%87%8F%E5%8C%96-STE-QLoRA-BitNet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 QAT 与训练内量化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-10-%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 质量评估方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-11-%E7%B3%BB%E7%BB%9F%E5%8D%8F%E5%90%8C%E4%B8%8E%E9%83%A8%E7%BD%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 系统协同与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录（本章）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 本章目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-ieee-754" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 从 IEEE 754 到推理格式：一张家族谱系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-16-bit-fp16-bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 16-bit 的两种哲学：FP16 与 BF16
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 16-bit 的两种哲学：FP16 与 BF16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 位布局与数值表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-bf16-fp16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 为什么训练用 BF16、推理默认 FP16
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-fp8-e4m3-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. FP8 深入：E4M3 与 E5M2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. FP8 深入：E4M3 与 E5M2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 位布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-e4m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 E4M3 数值推导（完整）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 E5M2 数值推导
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-e4m3-vs-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 E4M3 vs E5M2 怎么选
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-fp4-nvfp4mxfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. FP4 与块缩放：NVFP4、MXFP4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. FP4 与块缩放：NVFP4、MXFP4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-fp4e2m116" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 裸 FP4（E2M1）：16 种取值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-fp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 块缩放：让 FP4 能用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-nvfp4nvidia-blackwell-4-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 NVFP4：NVIDIA 的 Blackwell 4-bit 方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-mxfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 MXFP4：开放标准版
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-microscalingmx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Microscaling（MX）格式：共享指数缩放
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Microscaling（MX）格式：共享指数缩放">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 设计动机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-e8m0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 E8M0：纯指数缩放
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-mxfp8-mxfp6-mxfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 MXFP8 / MXFP6 / MXFP4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-mx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 MX 为什么精度更好
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-tensor-coreflops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 硬件：Tensor Core、FLOPS 与带宽模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 硬件：Tensor Core、FLOPS 与带宽模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-tensor-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Tensor Core 简史：精度下降的驱动力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 decode 带宽模型：位宽 = 毫秒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-prefill-flops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 prefill 计算模型：位宽 = FLOPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 格式选择决策框架：为什么 FP8 是甜点
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 格式速查表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 习题与解答
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 习题与解答">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1mxfp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 1（推导）：MXFP8 的块开销
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2h100-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 2（计算）：H100 上的 decode 上限
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3e4m3-min-normal-max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 3（手算）：E4M3 的 min normal / max
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-fp8-e4m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 4（思考）：为什么训练不直接用 FP8 E4M3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        题 5（编程）：格式模拟
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 延伸阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-03-fp16-bf16-fp8-fp4-mxfp8-nvfp4">LLM 量化精读笔记 · 03 数值格式：FP16 / BF16 / FP8 / FP4 / MXFP8 / NVFP4 与硬件<a class="headerlink" href="#llm-03-fp16-bf16-fp8-fp4-mxfp8-nvfp4" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>对应：Inference Engineering Ch5 的 Number Formats 部分；NVIDIA/Arm/Intel《FP8 Formats for Deep Learning》白皮书；OCP Microscaling Formats (MX) 规范；MIT 6.5940 Lecture 5 的数据类型总览。
+学完本章你应该能：① 从位布局推导任意浮点格式的最大值、最小正常值、machine epsilon；② 解释 E4M3 与 E5M2 的区别及各自适用场景；③ 说明 MXFP8/NVFP4 的"块缩放"到底解决了什么问题；④ 用带宽模型手算"70B 模型 decode 每 token 至少多少毫秒"；⑤ 论证"FP8/MXFP8 是生产甜点"。</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录（本章）<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-本章目标">本章目标</a></li>
+<li><a href="#2-从-ieee-754-到推理格式一张家族谱系">从 IEEE 754 到推理格式：一张家族谱系</a></li>
+<li><a href="#3-16-bit-的两种哲学fp16-与-bf16">16-bit 的两种哲学：FP16 与 BF16</a></li>
+<li><a href="#4-fp8-深入e4m3-与-e5m2">FP8 深入：E4M3 与 E5M2</a></li>
+<li><a href="#5-fp4-与块缩放nvfp4mxfp4">FP4 与块缩放：NVFP4、MXFP4</a></li>
+<li><a href="#6-microscalingmx格式共享指数缩放">Microscaling（MX）格式：共享指数缩放</a></li>
+<li><a href="#7-硬件tensor-coreflops-与带宽模型">硬件：Tensor Core、FLOPS 与带宽模型</a></li>
+<li><a href="#8-格式选择决策框架为什么-fp8-是甜点">格式选择决策框架：为什么 FP8 是甜点</a></li>
+<li><a href="#9-格式速查表">格式速查表</a></li>
+<li><a href="#10-本章小结">本章小结</a></li>
+<li><a href="#11-习题与解答">习题与解答</a></li>
+<li><a href="#12-延伸阅读">延伸阅读</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 本章目标<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>01 章我们建立了"浮点 = 符号位 + 偏置指数 + 尾数，指数换范围、尾数换精度"的框架；02 章建立了"每<span class="arithmatex">\(bit \approx 6 dB\)</span>、范围利用率决定有效位宽"的误差理论。本章把这两个框架<strong>套到真实的推理格式上</strong>，并回答三个问题：</p>
+<ol>
+<li>每种格式的位布局长什么样，它的最大值/精度/适用范围怎么算？</li>
+<li>为什么推理工程给出的格式表里，FP8 是"质量/速度甜点"、FP4 是"激进选项"、NVFP4 是"FP4 里精度最好"？</li>
+<li>位宽到底如何变成毫秒和 token/s？（带宽模型）</li>
+</ol>
+<hr />
+<h2 id="2-ieee-754">2. 从 IEEE 754 到推理格式：一张家族谱系<a class="headerlink" href="#2-ieee-754" title="Permanent link">&para;</a></h2>
+<p>所有推理格式都可以放进下面这张谱系（按"数据如何编码"分类）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                  表示一个实数
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                       │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ┌──────────────┼──────────────────┐
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>     整数/定点         浮点（指数+尾数）      混合/块缩放
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   INT8/INT4         FP16/BF16/FP8/FP4    MXFP8/MXFP4/NVFP4
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>   等距网格           每元素独立指数          块共享指数缩放
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>   动态范围差          动态范围好            动态范围好 + 省位
+</code></pre></div>
+<p>关键认知：</p>
+<ul>
+<li><strong>整数/定点</strong>：网格等距，动态范围完全由位宽决定。outlier 一出现就爆（02 章）。</li>
+<li><strong>浮点</strong>：每个值自带指数，能跨数量级表示数值。<strong>这就是 Inference Engineering 说的"exponent gives higher dynamic range than integers, better representing outliers"</strong>。</li>
+<li><strong>块缩放（block scaling / microscaling）</strong>：为了在低位数里保留动态范围又不为每个值付指数位的代价，让<strong>一组元素共享一个缩放因子</strong>。这是 MXFP8/MXFP4/NVFP4 的设计哲学，也是 Blackwell 时代的核心创新。</li>
+</ul>
+<hr />
+<h2 id="3-16-bit-fp16-bf16">3. 16-bit 的两种哲学：FP16 与 BF16<a class="headerlink" href="#3-16-bit-fp16-bf16" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 位布局与数值表<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>S</th>
+<th>E</th>
+<th>M（存储）</th>
+<th>bias</th>
+<th>最大正常值</th>
+<th>最小正常值</th>
+<th><span class="arithmatex">\(\varepsilon\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16</td>
+<td>1</td>
+<td>5</td>
+<td>10</td>
+<td>15</td>
+<td>65,504</td>
+<td><span class="arithmatex">\(2^{-14} \approx 6.1e-5\)</span></td>
+<td><span class="arithmatex">\(2^{-10} \approx 9.8e-4\)</span></td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>1</td>
+<td>8</td>
+<td>7</td>
+<td>127</td>
+<td>≈ <span class="arithmatex">\(3.39e38\)</span>（同 FP32）</td>
+<td><span class="arithmatex">\(2^{-126}\)</span>（同 FP32）</td>
+<td><span class="arithmatex">\(2^{-7} \approx 7.8e-3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>推导示例（FP16 最大值）：</p>
+<p>FP16 指数域<span class="arithmatex">\(e \in [1, 30]\)</span>，最大正常指数真值= <span class="arithmatex">\(30 - 15 = 15\)</span>
+最大尾数= <span class="arithmatex">\(1.1111111111_{2} = 2 - 2^{-10}\)</span>
+最大值= <span class="arithmatex">\((2 - 2^{-10}) \times 2^{15} = 1.9990234375 \times 32768 = 65,504\)</span></p>
+<h3 id="32-bf16-fp16">3.2 为什么训练用 BF16、推理默认 FP16<a class="headerlink" href="#32-bf16-fp16" title="Permanent link">&para;</a></h3>
+<p>训练（尤其预训练）：
+  梯度跨多个数量级（<span class="arithmatex">\(10^{-6} \sim 10^{2}\)</span>），范围比精度重要<span class="arithmatex">\(\to BF16\)</span>（指数<span class="arithmatex">\(8 bit = FP32\)</span>的范围）
+  代价：尾数 7 bit，相对精度只有<span class="arithmatex">\(\sim 0.8\%\)</span>，但训练有 FP32 master weights 兜底</p>
+<p>推理：
+  权重/激活值域已知且稳定（通常<span class="arithmatex">\(\pm\)</span>几十），范围够用<span class="arithmatex">\(\to FP16\)</span>（尾数 10 bit，精度高）
+  代价：范围小，遇到极端 outlier 会溢出（max 65,504）</p>
+<p><strong>一个直觉记忆</strong>：BF16 是"把 FP32 的尾数砍掉一半"；FP16 是"把 FP32 的指数砍掉一半"。推理要精度、训练要范围，所以两者分工。</p>
+<blockquote>
+<p>顺带一提 TF32：Ampere 训练用的 19-bit 格式（8 位指数 + 10 位尾数），是 FP32 输入的"截断版"，用于加速矩阵乘。它不是推理格式，但体现了同一 tradeoff。</p>
+</blockquote>
+<hr />
+<h2 id="4-fp8-e4m3-e5m2">4. FP8 深入：E4M3 与 E5M2<a class="headerlink" href="#4-fp8-e4m3-e5m2" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 位布局<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>FP8 是 NVIDIA/Arm/Intel 2022 年联合发布的白皮书格式（arXiv:2209.05433），两种变体：</p>
+<p>E4M3：S(1) + E(4) + M(3)   指数偏置 7
+E5M2：S(1) + E(5) + M(2)   指数偏置 15</p>
+<p>名字里的 E×M× 就是"指数位数 × 尾数位数"——看到任何格式名，第一反应就是套 01 章的总纲：<strong>指数位多<span class="arithmatex">\(\to\)</span>范围大精度低；尾数位多<span class="arithmatex">\(\to\)</span>精度高范围小</strong>。</p>
+<h3 id="42-e4m3">4.2 E4M3 数值推导（完整）<a class="headerlink" href="#42-e4m3" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(bias = 7\)</span>，指数域<span class="arithmatex">\(e \in [0, 15]\)</span></p>
+<p>规格化数（<span class="arithmatex">\(1 \le e \le 14\)</span>）：
+  最小正常值= <span class="arithmatex">\(1.0 \times 2^{1-7} = 2^{-6} \approx 0.0156\)</span>
+  常规最大正常值= <span class="arithmatex">\((2 - 2^{-3}) \times 2^{14-7} = 1.875 \times 128 = 240\)</span></p>
+<p>E4M3FN 的扩展（没有 Infinity）：
+<span class="arithmatex">\(e = 15\)</span>时，<span class="arithmatex">\(m = 000\sim 110\)</span>仍作为有限数：
+    最大值= <span class="arithmatex">\(1.11_{2} \times 2^{15-7} = 1.75 \times 256 = 448\)</span>
+<span class="arithmatex">\(m = 111\)</span>保留给 NaN（FP8 无 ∞）</p>
+<p>次正规数：最小次正规= <span class="arithmatex">\(2^{-6} \times 2^{-3} = 2^{-9} \approx 1.95e-3\)</span>
+相对精度：<span class="arithmatex">\(2^{-3} = 12.5\%\)</span></p>
+<h3 id="43-e5m2">4.3 E5M2 数值推导<a class="headerlink" href="#43-e5m2" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(bias = 15\)</span>，指数域<span class="arithmatex">\(e \in [0, 31]\)</span></p>
+<p>规格化数（<span class="arithmatex">\(1 \le e \le 30\)</span>）：
+  最小正常值= <span class="arithmatex">\(2^{1-15} = 2^{-14} \approx 6.1e-5\)</span>
+  最大值= <span class="arithmatex">\((2 - 2^{-2}) \times 2^{30-15} = 1.75 \times 32768 = 57,344\)</span></p>
+<p>$$
+e = 31：m = 0 \to \pm \infty ；m \ne 0 \to NaN
+$$
+相对精度：<span class="arithmatex">\(2^{-2} = 25\%\)</span></p>
+<h3 id="44-e4m3-vs-e5m2">4.4 E4M3 vs E5M2 怎么选<a class="headerlink" href="#44-e4m3-vs-e5m2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>E4M3</th>
+<th>E5M2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>指数/尾数</td>
+<td>4 / 3</td>
+<td>5 / 2</td>
+</tr>
+<tr>
+<td>最大值</td>
+<td>448</td>
+<td>57,344</td>
+</tr>
+<tr>
+<td>最小正常值</td>
+<td><span class="arithmatex">\(2^{-6}\)</span></td>
+<td><span class="arithmatex">\(2^{-14}\)</span></td>
+</tr>
+<tr>
+<td>相对精度</td>
+<td>12.5%</td>
+<td>25%</td>
+</tr>
+<tr>
+<td>特殊值</td>
+<td>无 ∞（NaN 唯一）</td>
+<td><span class="arithmatex">\(\pm \infty\)</span>、NaN</td>
+</tr>
+<tr>
+<td>白皮书建议</td>
+<td><strong>权重与激活（前向）</strong></td>
+<td><strong>梯度（反向）与需要大范围的场景</strong></td>
+</tr>
+</tbody>
+</table>
+<p>直觉：权重/激活的值集中在<span class="arithmatex">\(\pm\)</span>几十，精度更重要<span class="arithmatex">\(\to E4M3\)</span>；梯度的数量级波动大，范围更重要<span class="arithmatex">\(\to E5M2\)</span>。</p>
+<blockquote>
+<p>FP8 与 INT8 的本质区别：FP8 的指数位让它在<strong>不增加位宽的情况下</strong>保留了动态范围。量化 LLM 时同样的 8 bit，FP8 对 outlier 的容忍度远高于 INT8——这是"FP8 甜点"的第一个论据。</p>
+</blockquote>
+<hr />
+<h2 id="5-fp4-nvfp4mxfp4">5. FP4 与块缩放：NVFP4、MXFP4<a class="headerlink" href="#5-fp4-nvfp4mxfp4" title="Permanent link">&para;</a></h2>
+<h3 id="51-fp4e2m116">5.1 裸 FP4（E2M1）：16 种取值<a class="headerlink" href="#51-fp4e2m116" title="Permanent link">&para;</a></h3>
+<p>FP4 元素格式 E2M1（1 符号 + 2 指数 + 1 尾数，bias 1）的全部取值：</p>
+<p><span class="arithmatex">\(\pm 0\)</span>，<span class="arithmatex">\(\pm 0.5\)</span>，<span class="arithmatex">\(\pm 1\)</span>，<span class="arithmatex">\(\pm 1.5\)</span>，<span class="arithmatex">\(\pm 2\)</span>，<span class="arithmatex">\(\pm 3\)</span>，<span class="arithmatex">\(\pm 4\)</span>，<span class="arithmatex">\(\pm 6\)</span>（共 16 种，含符号）</p>
+<p>推导：<span class="arithmatex">\(e=0\)</span>次正规 0.5；<span class="arithmatex">\(e=1 \to 1\)</span>、1.5；<span class="arithmatex">\(e=2 \to 2\)</span>、3；<span class="arithmatex">\(e=3\)</span>（无 ∞ 时扩展）<span class="arithmatex">\(\to 4\)</span>、6。</p>
+<p><strong>裸 FP4 的问题</strong>：最大值只有 6，且层与层之间数值尺度差异巨大（不同层激活的典型幅度可以差几个数量级）。直接对整层用同一个 FP4 格式，绝大多数值要么溢出要么精度被浪费。</p>
+<h3 id="52-fp4">5.2 块缩放：让 FP4 能用<a class="headerlink" href="#52-fp4" title="Permanent link">&para;</a></h3>
+<p>解决方案是<strong>给一小块元素配一个缩放因子</strong>：</p>
+<p>存储：每个元素 4 bit（E2M1）
+     每 16 或 32 个元素共享 1 个 block scale（8/16 bit）
+解码：<span class="arithmatex">\(\hat{r} = \text{element\_value} \times \text{block\_scale}\)</span></p>
+<p>这样既保留了浮点的动态范围（scale 覆盖数量级），又把元素压到 4 bit。</p>
+<h3 id="53-nvfp4nvidia-blackwell-4-bit">5.3 NVFP4：NVIDIA 的 Blackwell 4-bit 方案<a class="headerlink" href="#53-nvfp4nvidia-blackwell-4-bit" title="Permanent link">&para;</a></h3>
+<p>元素：E2M1（4 bit）
+块大小：16（比 MXFP4 的 32 更细）
+块缩放：FP8 E4M3（8 bit，非 2 的幂<span class="arithmatex">\(\to\)</span>更精细）
+张量缩放：额外一个 FP32 scale
+硬件：Blackwell 原生</p>
+<p>NVIDIA 官方博客（2025-06）给出的动机：块从 32 缩到 16，缩放因子能更"贴身"地适配局部动态范围；块缩放用 E4M3 而不是纯 2 的幂，进一步减少量化误差。这就是 Inference Engineering 表格里"<span class="arithmatex">\(NVFP4 = Best FP4 accuracy (block size 16)\)</span>"的依据。</p>
+<h3 id="54-mxfp4">5.4 MXFP4：开放标准版<a class="headerlink" href="#54-mxfp4" title="Permanent link">&para;</a></h3>
+<p>元素：E2M1（4 bit）
+块大小：32
+块缩放：E8M0（8 bit 纯指数，2 的幂）
+标准：OCP Microscaling Formats</p>
+<p>MXFP4 的 scale 是 2 的幂（E8M0，见 6.2），实现更简单、更省（不用归一化尾数），但缩放粒度不如 NVFP4 的 E4M3 精细。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>NVFP4</th>
+<th>MXFP4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>元素</td>
+<td>E2M1</td>
+<td>E2M1</td>
+</tr>
+<tr>
+<td>块大小</td>
+<td>16</td>
+<td>32</td>
+</tr>
+<tr>
+<td>块缩放</td>
+<td>FP8 E4M3</td>
+<td>E8M0（2 的幂）</td>
+</tr>
+<tr>
+<td>额外缩放</td>
+<td>FP32 张量 scale</td>
+<td>无</td>
+</tr>
+<tr>
+<td>标准</td>
+<td>NVIDIA 专有</td>
+<td>OCP 开放标准</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-microscalingmx">6. Microscaling（MX）格式：共享指数缩放<a class="headerlink" href="#6-microscalingmx" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 设计动机<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>回顾浮点格式的本质：<strong>每个值花 bit 存自己的指数</strong>。位数越低，指数越贵（FP4 里 2 个指数位占了 50% 的预算）。</p>
+<p>Microscaling 的思路：<strong>指数不跟着每个值走，而是跟着一块值走</strong>：</p>
+<p>传统浮点：每个值 = 尾数 + 自己的指数
+MX 格式：  每个值 = 尾数（低精度元素）+ 整块共享的指数（E8M0 scale）</p>
+<h3 id="62-e8m0">6.2 E8M0：纯指数缩放<a class="headerlink" href="#62-e8m0" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(E8M0 = 8 bit\)</span>，无符号、无尾数：<span class="arithmatex">\(s = 2^{e - 127}\)</span>，<span class="arithmatex">\(e \in [0, 255]\)</span>
+只表达 2 的幂次缩放，不参与"值"本身</p>
+<h3 id="63-mxfp8-mxfp6-mxfp4">6.3 MXFP8 / MXFP6 / MXFP4<a class="headerlink" href="#63-mxfp8-mxfp6-mxfp4" title="Permanent link">&para;</a></h3>
+<p>OCP MX 规范定义了三种主力格式：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>元素</th>
+<th>块大小</th>
+<th>scale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MXFP8 E4M3</td>
+<td>E4M3</td>
+<td>32</td>
+<td>E8M0</td>
+</tr>
+<tr>
+<td>MXFP8 E5M2</td>
+<td>E5M2</td>
+<td>32</td>
+<td>E8M0</td>
+</tr>
+<tr>
+<td>MXFP6</td>
+<td>E3M2 / E2M3</td>
+<td>32</td>
+<td>E8M0</td>
+</tr>
+<tr>
+<td>MXFP4</td>
+<td>E2M1</td>
+<td>32</td>
+<td>E8M0</td>
+</tr>
+</tbody>
+</table>
+<p>Blackwell（SM 100+）原生加速 MX 格式的点积。</p>
+<h3 id="64-mx">6.4 MX 为什么精度更好<a class="headerlink" href="#64-mx" title="Permanent link">&para;</a></h3>
+<p>同一个张量里，不同区域的数量级可能差很远。MX 让<strong>每 32 个元素独立适配自己的数量级</strong>，等效于"per-block 的指数"：</p>
+<p>per-tensor FP8：整层一个数量级<span class="arithmatex">\(\to\)</span>局部小值被大值"吃掉精度"
+MXFP8：每块一个<span class="arithmatex">\(E8M0 \to\)</span>局部数量级自动对齐<span class="arithmatex">\(\to\)</span>有效精度接近"每块独立 FP8"</p>
+<p>代价：scale 要额外存储（每 32 元素<span class="arithmatex">\(8 bit \to\)</span>每元素 0.25 bit 开销）和计算（解码时乘一次）。这是 Inference Engineering 里"<span class="arithmatex">\(MXFP8 = FP8\)</span>的精度升级版"的技术含义。</p>
+<hr />
+<h2 id="7-tensor-coreflops">7. 硬件：Tensor Core、FLOPS 与带宽模型<a class="headerlink" href="#7-tensor-coreflops" title="Permanent link">&para;</a></h2>
+<h3 id="71-tensor-core">7.1 Tensor Core 简史：精度下降的驱动力<a class="headerlink" href="#71-tensor-core" title="Permanent link">&para;</a></h3>
+<p>Pascal (2016)：FP16 Tensor Core 登场（推理默认 FP16 的硬件起点）
+$$
+Ampere (2020)：TF32 / BF16 / INT8
+$$
+Hopper (2022)：FP8（E4M3/E5M2），FLOPS 翻倍
+Blackwell (2024)：FP4 / MXFP8 / MXFP4 原生</p>
+<p>关键事实：<strong>Tensor Core 的吞吐随位宽近似线性翻倍</strong>：</p>
+<p>$$
+H100 SXM：FP16 \approx 989 TFLOPS（dense），FP8 \approx 1979 TFLOPS
+$$
+B200：<span class="arithmatex">\(FP8 \approx 4.5 PFLOPS\)</span>，<span class="arithmatex">\(FP4 \approx 9 PFLOPS\)</span>（约 2 倍 FP8）</p>
+<p>这就是"prefill 阶段量化降一级、FLOPS 翻倍"的出处。</p>
+<h3 id="72-decode">7.2 decode 带宽模型：位宽 = 毫秒<a class="headerlink" href="#72-decode" title="Permanent link">&para;</a></h3>
+<p>decode 阶段每个 token 都要把权重从 HBM 搬一遍。设模型参数量 N，权重位宽 B bit，带宽 BW：</p>
+<p>每 token 权重搬运时间= <span class="arithmatex">\(N \times B/8 / BW\)</span></p>
+<p>70B 模型、H100（<span class="arithmatex">\(BW \approx 3.35 TB/s\)</span>）：
+  FP16：<span class="arithmatex">\(70e9 \times 2 / 3.35e12 \approx 41.8 ms/token \to\)</span>上限<span class="arithmatex">\(\sim 24 tok/s\)</span>
+  FP8 ：<span class="arithmatex">\(70e9 \times 1 / 3.35e12 \approx 20.9 ms/token \to\)</span>上限<span class="arithmatex">\(\sim 48 tok/s\)</span>
+  FP4 ：<span class="arithmatex">\(70e9 \times 0.5 / 3.35e12 \approx 10.5 ms/token \to\)</span>上限<span class="arithmatex">\(\sim 96 tok/s\)</span></p>
+<p>三个结论：</p>
+<ol>
+<li><strong>decode 是访存密集的</strong>：算力根本不是瓶颈，HBM 带宽才是；量化权重 = 直接减搬运量。</li>
+<li><strong>每降一级≈ <span class="arithmatex">\(2\)</span>倍带宽</strong>：这与 Inference Engineering 的"30–50% 性能提升/级"一致（实际还有 kernel 开销、激活和 KV 的带宽，所以是 30–50% 而不是 100%）。</li>
+<li><strong>FP4 的收益在 decode 端最大</strong>：这也是为什么权重量化（W4A16/W4A8）在服务端如此流行。</li>
+</ol>
+<h3 id="73-prefill-flops">7.3 prefill 计算模型：位宽 = FLOPS<a class="headerlink" href="#73-prefill-flops" title="Permanent link">&para;</a></h3>
+<p>推理 forward 每 token 的<span class="arithmatex">\(FLOPs \approx 2N\)</span>（N 为参数量；乘法 + 加法各一次）：</p>
+<p>70B 模型、2048 token 的 prefill：
+$$
+\begin{aligned}
+ FLOPs \approx 2 \times 70e9 \times 2048 \approx 287 TFLOP
+ H100 FP16（989 TFLOPS）：\approx 0.29 s
+ H100 FP8 （1979 TFLOPS）：\approx 0.145 s
+\end{aligned}
+$$</p>
+<p>这就是"prefill 是计算密集、量化降一级 FLOPS 翻倍、TTFT 减半"的出处。</p>
+<blockquote>
+<p><strong>把 7.2 和 7.3 放在一起</strong>，就得到推理工程的完整图景：量化对 prefill 的作用在计算单元（FLOPS 翻倍），对 decode 的作用在数据通路（带宽翻倍）。两者的共同分母都是"位宽"。</p>
+</blockquote>
+<hr />
+<h2 id="8-fp8">8. 格式选择决策框架：为什么 FP8 是甜点<a class="headerlink" href="#8-fp8" title="Permanent link">&para;</a></h2>
+<p>综合 01–03 章，把候选格式放进"质量 × 速度 × 风险"坐标系：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>位宽</th>
+<th>相对速度</th>
+<th>相对精度</th>
+<th>质量风险</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16</td>
+<td>16</td>
+<td>1x</td>
+<td>高</td>
+<td>无</td>
+<td>默认推理基线</td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>16</td>
+<td><span class="arithmatex">\(\sim 1x\)</span></td>
+<td>中（范围大）</td>
+<td>低</td>
+<td>训练 / 高动态范围</td>
+</tr>
+<tr>
+<td>FP8（E4M3）</td>
+<td>8</td>
+<td><span class="arithmatex">\(\sim 1.5x\)</span></td>
+<td>中</td>
+<td>低</td>
+<td><strong>生产甜点</strong></td>
+</tr>
+<tr>
+<td>MXFP8</td>
+<td>8</td>
+<td><span class="arithmatex">\(\sim 1.5x\)</span></td>
+<td>中高</td>
+<td>低</td>
+<td>精度敏感的生产场景</td>
+</tr>
+<tr>
+<td>FP4</td>
+<td>4</td>
+<td><span class="arithmatex">\(\sim 2x\)</span></td>
+<td>低</td>
+<td>高</td>
+<td>激进压缩</td>
+</tr>
+<tr>
+<td>NVFP4</td>
+<td>4</td>
+<td><span class="arithmatex">\(\sim 2x\)</span></td>
+<td>低中</td>
+<td>中高</td>
+<td>Blackwell 上的 4-bit 首选</td>
+</tr>
+</tbody>
+</table>
+<p><strong>"FP8 是甜点"的三个论据</strong>：</p>
+<ol>
+<li><strong>质量</strong>：E4M3 有 4 位指数，天然抗 outlier（优于 INT8）；配合 SmoothQuant（07 章）的 W8A8 在主流 LLM 上几乎无损；DeepSeek-V3 671B 全程 FP8 是大规模实证。</li>
+<li><strong>速度</strong>：prefill 2 倍 FLOPS、decode 2 倍带宽（7.2/7.3），实测约 1.5x 端到端。</li>
+<li><strong>风险可控</strong>：权重 + 激活量到 FP8、KV cache 谨慎处理、attention 保持原精度——这是 Inference Engineering 的 Key Takeaway，也是当前生产共识。</li>
+</ol>
+<p>FP4 的定位：<strong>在 Blackwell 上、质量评测通过的前提下</strong>做激进压缩（省 75% 权重显存）。NVFP4 优先于裸 FP4/MXFP4（块更细、scale 更精）。</p>
+<hr />
+<h2 id="9">9. 格式速查表<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>S</th>
+<th>E</th>
+<th>M</th>
+<th>bias</th>
+<th>最大值</th>
+<th>最小正常值</th>
+<th>最小次正规</th>
+<th><span class="arithmatex">\(\varepsilon\)</span></th>
+<th>可表示取值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16</td>
+<td>1</td>
+<td>5</td>
+<td>10</td>
+<td>15</td>
+<td>65,504</td>
+<td><span class="arithmatex">\(2^{-14}\)</span></td>
+<td><span class="arithmatex">\(2^{-24}\)</span></td>
+<td><span class="arithmatex">\(2^{-10}\)</span></td>
+<td>65,536</td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>1</td>
+<td>8</td>
+<td>7</td>
+<td>127</td>
+<td><span class="arithmatex">\(\sim 3.4e38\)</span></td>
+<td><span class="arithmatex">\(2^{-126}\)</span></td>
+<td><span class="arithmatex">\(2^{-133}\)</span></td>
+<td><span class="arithmatex">\(2^{-7}\)</span></td>
+<td>65,536</td>
+</tr>
+<tr>
+<td>FP8 E4M3</td>
+<td>1</td>
+<td>4</td>
+<td>3</td>
+<td>7</td>
+<td>448</td>
+<td><span class="arithmatex">\(2^{-6}\)</span></td>
+<td><span class="arithmatex">\(2^{-9}\)</span></td>
+<td><span class="arithmatex">\(2^{-3}\)</span></td>
+<td>256</td>
+</tr>
+<tr>
+<td>FP8 E5M2</td>
+<td>1</td>
+<td>5</td>
+<td>2</td>
+<td>15</td>
+<td>57,344</td>
+<td><span class="arithmatex">\(2^{-14}\)</span></td>
+<td><span class="arithmatex">\(2^{-16}\)</span></td>
+<td><span class="arithmatex">\(2^{-2}\)</span></td>
+<td>256</td>
+</tr>
+<tr>
+<td>FP4 E2M1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>6</td>
+<td>1</td>
+<td>—</td>
+<td><span class="arithmatex">\(2^{-1}\)</span></td>
+<td>16</td>
+</tr>
+<tr>
+<td>MXFP8</td>
+<td>1</td>
+<td>4/5</td>
+<td>3/2</td>
+<td>块共享</td>
+<td>同 FP8 × 块 scale</td>
+<td>—</td>
+<td>—</td>
+<td>同 FP8</td>
+<td>256 × 块</td>
+</tr>
+<tr>
+<td>NVFP4</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>块共享</td>
+<td>6 × 块 scale</td>
+<td>—</td>
+<td>—</td>
+<td><span class="arithmatex">\(2^{-1}\)</span></td>
+<td>16</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>提示：FP16/BF16 的"可表示取值 65,536"是位模式数（含<span class="arithmatex">\(NaN/Inf/\pm 0\)</span>），不是有效实数个数；FP8/FP4 同理。表格来自 Inference Engineering，语义是"码本大小上限"。</p>
+</blockquote>
+<hr />
+<h2 id="10">10. 本章小结<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>浮点 = 符号 + 偏置指数 + 尾数</strong>；指数位买动态范围，尾数位买精度——所有格式差异都能从这推导。</li>
+<li><strong>FP8 E4M3</strong>（权重/激活）与 <strong>E5M2</strong>（梯度）是同一预算的两种分配；E4M3FN 最大值 448、无 ∞。</li>
+<li><strong>FP4 必须配块缩放</strong>：NVFP4（块 16 + E4M3 scale）比 MXFP4（块 32 + E8M0）精度更好。</li>
+<li><strong>MX 格式</strong>把指数从"每值"改成"每块"，是低位数保留动态范围的优雅方案（Blackwell 原生）。</li>
+<li><strong>位宽 × 硬件 = 性能</strong>：decode 带宽模型（<span class="arithmatex">\(140GB/3.35TB/s \approx 42ms\)</span>）与 prefill 计算模型（2N FLOPs/token）是量化的两个收益来源。</li>
+<li><strong>FP8/MXFP8 是生产甜点</strong>：质量几乎无损、速度约 1.5x、风险可控；FP4/NVFP4 是 Blackwell 上的激进选项。</li>
+</ol>
+<blockquote>
+<p>一句话记忆：<strong>"8 bit 的 E4M3 用 4 个指数位买到了 INT8 给不了的动态范围，这就是 FP8 能当甜点、INT8 只能当配角的全部秘密。"</strong></p>
+</blockquote>
+<hr />
+<h2 id="11">11. 习题与解答<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<h3 id="1mxfp8">题 1（推导）：MXFP8 的块开销<a class="headerlink" href="#1mxfp8" title="Permanent link">&para;</a></h3>
+<p>MXFP8 块大小 32、scale 为 E8M0（8 bit）。计算每元素存储开销，以及相对 8-bit 数据的百分比开销。</p>
+<details>
+<summary>题 1 解答</summary>
+
+每元素 scale 开销= $8/32 = 0.25 bit$；相对数据本身（8 bit）：$0.25/8 = 3.125\%$。
+结论：MX 格式用$\sim 3\%$的存储开销换来每块独立的动态范围，性价比很高。
+</details>
+
+<h3 id="2h100-decode">题 2（计算）：H100 上的 decode 上限<a class="headerlink" href="#2h100-decode" title="Permanent link">&para;</a></h3>
+<p>H200 带宽 4.8 TB/s，跑 405B FP8 模型。decode 每 token 的最小搬运时间是多少？上限 TPS 是多少？</p>
+<details>
+<summary>题 2 解答</summary>
+
+$405e9 \times 1 byte / 4.8e12 \approx 84.4 ms/token \to$上限≈ $11.8 tok/s$。这是纯带宽下限，实际还有 KV cache 读写、激活、kernel 开销，只会更低。这也是为什么 400B 级模型必须上多卡张量并行（10/11 章）。
+</details>
+
+<h3 id="3e4m3-min-normal-max">题 3（手算）：E4M3 的 min normal / max<a class="headerlink" href="#3e4m3-min-normal-max" title="Permanent link">&para;</a></h3>
+<p>不用查表，从位布局推导 E4M3 的：min normal、max、min subnormal。</p>
+<details>
+<summary>题 3 解答</summary>
+
+$bias=7$。$\min normal = 2^{1-7} = 2^{-6}$。max（E4M3FN，$e=15$，$m=110$）= $1.11_{2} \times 2^{15-7} = 1.75\times 256 = 448$。$\min subnormal = 2^{-6} \times 2^{-3} = 2^{-9}$。（注意$e=15$且$m=111$是 NaN；$m=000\sim 110$是有限数。）
+</details>
+
+<h3 id="4-fp8-e4m3">题 4（思考）：为什么训练不直接用 FP8 E4M3<a class="headerlink" href="#4-fp8-e4m3" title="Permanent link">&para;</a></h3>
+<p>既然 FP8 推理这么好，训练（前向+反向）为什么主流还是 BF16/FP32？</p>
+<details>
+<summary>题 4 解答</summary>
+
+训练梯度跨多个数量级，E4M3 最大 448、精度 12.5%，梯度容易溢出/欠精度；反向的梯度用 E5M2 也仍然太粗，且训练需要 FP32 master weight 做优化器状态。推理只有前向、值域可控、可校准，所以 FP8 够用。FP8 训练（如 DeepSeek-V3）能跑，但需要大量工程（loss scaling、分块缩放）才稳定。
+</details>
+
+<h3 id="5">题 5（编程）：格式模拟<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<p>用 Python 实现一个通用 FP 格式模拟器（输入 E、M、bias、是否有 ∞），输出<span class="arithmatex">\(\max/\min normal/\min subnormal/\varepsilon\)</span>，并用它复现 03 章速查表。</p>
+<details>
+<summary>题 5 解答要点</summary>
+
+核心公式：$\max = (2 - 2^{-M}) \times 2^{emax - bias}$；$\text{min\_normal} = 2^{1 - bias}$；$\text{min\_subnormal} = 2^{1-bias-M}$；$\varepsilon = 2^{-M}$。注意 E4M3FN 的$emax=15$特例（无 ∞），$E5M2 emax=30$。跑完应得到 448 / 57344 / 6.1e−5 等速查表数值。
+</details>
+
+<hr />
+<h2 id="12">12. 延伸阅读<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2209.05433">FP8 Formats for Deep Learning（NVIDIA/Arm/Intel，arXiv:2209.05433）</a>：E4M3/E5M2 规格与使用建议的权威来源</li>
+<li><a href="https://www.opencompute.org/documents/ocp-microscaling-formats-mx-v1-0-spec-final-pdf">OCP Microscaling Formats (MX) Specification</a>：MXFP8/MXFP4 的正式规范</li>
+<li><a href="https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/">Introducing NVFP4 for Efficient and Accurate Low-Precision Inference（NVIDIA 官方博客）</a>：NVFP4 块 16 + E4M3 缩放的动机</li>
+<li><a href="https://inferenceengineering.tech/chapters/techniques/">Inference Engineering Ch5</a>：格式总览表与"FP8 甜点"结论</li>
+<li>上一篇：<a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/">02 量化问题的形式化与均匀量化理论</a>；下一篇：<strong><a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/">04 量化粒度、校准与离群值</a></strong>——把"格式选好了"变成"每个张量的 scale 怎么选、outlier 怎么对付"。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-02-%E9%87%8F%E5%8C%96%E9%97%AE%E9%A2%98%E5%BD%A2%E5%BC%8F%E5%8C%96%E4%B8%8E%E5%9D%87%E5%8C%80%E9%87%8F%E5%8C%96%E7%90%86%E8%AE%BA/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 02 量化问题形式化与均匀量化理论">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                02 量化问题形式化与均匀量化理论
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../LLM%E9%87%8F%E5%8C%96%E7%B2%BE%E8%AF%BB%E7%AC%94%E8%AE%B0-04-%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6%E6%A0%A1%E5%87%86%E4%B8%8E%E7%A6%BB%E7%BE%A4%E5%80%BC/" class="md-footer__link md-footer__link--next" aria-label="下一页: 04 量化粒度、校准与离群值">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                04 量化粒度、校准与离群值
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
