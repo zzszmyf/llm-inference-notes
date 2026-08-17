@@ -1,0 +1,68 @@
+site_name: LLM 量化精读笔记
+site_description: MIT lecture note 级别的 LLM 推理量化精读笔记（Markdown + LaTeX）
+site_url: https://zzszmyf.github.io/llm-quantization-notes/
+repo_url: https://github.com/zzszmyf/llm-quantization-notes
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: 切换到深色模式
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: 切换到浅色模式
+
+plugins:
+  - search:
+      lang: zh
+
+markdown_extensions:
+  - tables
+  - attr_list
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:site_slug.github_slugify
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.critic
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - 首页: index.md
+  - 速览笔记: LLM推理优化-Quantization量化学习笔记.md
+  - 00 总览与学习地图: LLM量化精读笔记-00-总览与学习地图.md
+  - 01 数值编码与计算机表示基础: LLM量化精读笔记-01-数值编码与计算机表示基础.md
+  - 02 量化问题形式化与均匀量化理论: LLM量化精读笔记-02-量化问题形式化与均匀量化理论.md
+  - 03 数值格式与硬件: LLM量化精读笔记-03-数值格式与硬件.md
+  - 04 量化粒度、校准与离群值: LLM量化精读笔记-04-量化粒度校准与离群值.md
+  - 05 权重量化 I（RTN 与 GPTQ）: LLM量化精读笔记-05-权重量化I-RTN与GPTQ.md
+  - 06 权重量化 II（AWQ、SqueezeLLM、QuIP#）: LLM量化精读笔记-06-权重量化II-AWQ-SqueezeLLM-QuIP.md
+  - 07 激活量化（LLM.int8 与 SmoothQuant）: LLM量化精读笔记-07-激活量化-LLM-int8与SmoothQuant.md
+  - 08 KV Cache 量化（KIVI）: LLM量化精读笔记-08-KV-Cache量化与KIVI.md
+  - 09 QAT 与训练内量化: LLM量化精读笔记-09-QAT与训练内量化-STE-QLoRA-BitNet.md
+  - 10 质量评估方法论: LLM量化精读笔记-10-质量评估方法论.md
+  - 11 系统协同与部署: LLM量化精读笔记-11-系统协同与部署.md
